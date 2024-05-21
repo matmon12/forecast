@@ -9,6 +9,8 @@ import 'primevue/resources/themes/aura-light-green/theme.css'
 import './index.scss';
 import { VueQueryPlugin  } from "vue-query";
 // import { ValidationProvider } from 'vee-validate';
+import FocusTrap from 'primevue/focustrap';
+
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -17,6 +19,7 @@ const pinia = createPinia();
 directives.forEach((directive) => {
   app.directive(directive.name, directive);
 });
+app.directive('focustrap', FocusTrap);
 
 // app.component('ValidationProvider', ValidationProvider);
 
@@ -24,6 +27,6 @@ app
   .use(autoAnimatePlugin)
   .use(pinia)
   .use(router)
-  .use(PrimeVue, { unstyled: true })
+  .use(PrimeVue)
   .use(VueQueryPlugin )
   .mount('#app')
