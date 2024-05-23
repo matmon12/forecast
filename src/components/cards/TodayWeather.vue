@@ -9,7 +9,7 @@
         <SwitchDegree
           :model-value="true"
           @toggle-switch="(value) => onChangeDegree(value)"
-        />
+        /> 
       </div>
     </div>
     <div class="summary__content">
@@ -39,7 +39,28 @@
 </template>
 
 <script setup>
+import {onMounted, ref} from 'vue';
+import axios from "axios";
+
 const onChangeDegree = (value) => {};
+
+const config = {
+  headers: {
+    'X-Gismeteo-Token': 'd4f4aba6-a9b5-4df2-b619-2af6bb99175e'
+  }
+} 
+
+const getWeatherData = async () => {
+  const data = await axios.get('https://api.gismeteo.net/v2/weather/current/4368/?lang=en', config).then((response) => {
+    console.log(response)
+  }).catch((error) => {
+    console.log(error)
+  })
+}
+
+onMounted(() => {
+  getWeatherData();
+})
 </script>
 
 <style lang="scss" scoped>

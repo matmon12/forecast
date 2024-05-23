@@ -3,8 +3,8 @@
     <input type="checkbox" v-model="checkboxValue" @change="toggleCheckbox" />
     <div class="slider">
       <div class="round"></div>
-      <p :class="['slider-text', {'is--active' : !checkboxValue}]">F</p>
-      <p :class="['slider-text', {'is--active' : checkboxValue}]">C</p>
+      <p :class="['slider-text', { 'is--active': !checkboxValue }]">F</p>
+      <p :class="['slider-text', { 'is--active': checkboxValue }]">C</p>
     </div>
   </label>
 </template>
@@ -14,7 +14,7 @@ import { ref, defineProps, defineEmits } from "vue";
 
 const props = defineProps({
   modelValue: {
-    type: Boolean, 
+    type: Boolean,
     required: false,
   },
 });
@@ -51,14 +51,15 @@ const toggleCheckbox = () => {
   justify-content: space-between;
   align-items: center;
   padding: 0 13px;
+
   &-text {
     z-index: 10;
     color: $grey;
     font-weight: 500;
     font-size: 20px;
     line-height: 1;
-    transition: color .3s;
-    &.is--active{
+    transition: color 0.3s;
+    &.is--active {
       color: $white-2;
     }
   }
@@ -76,10 +77,10 @@ const toggleCheckbox = () => {
   height: 100%;
   width: 42px;
   border-radius: 30px;
+  box-shadow: 0px 0px 10px #000;
 }
 
 input:checked + .slider {
-  
 }
 
 input:focus + .slider {
