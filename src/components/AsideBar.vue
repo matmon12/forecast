@@ -13,7 +13,9 @@
           </button>
         </div>
         <div :class="['aside-btn-wrap', { 'is--active': isActiveBtn === 3 }]">
-          <button @click="onClickStyle(3)" class="aside-btn"><i-quill:calendar /></button>
+          <button @click="onClickStyle(3)" class="aside-btn">
+            <i-quill:calendar />
+          </button>
         </div>
         <div :class="['aside-btn-wrap', { 'is--active': isActiveBtn === 4 }]">
           <button @click="onClickStyle(4)" class="aside-btn">
@@ -21,7 +23,9 @@
           </button>
         </div>
         <div :class="['aside-btn-wrap', { 'is--active': isActiveBtn === 5 }]">
-          <button @click="onClickStyle(5)" class="aside-btn"><i-ep:setting /></button>
+          <button @click="onClickStyle(5)" class="aside-btn">
+            <i-ep:setting />
+          </button>
         </div>
       </div>
       <div class="aside__bottom">
@@ -57,13 +61,12 @@ const onClickStyle = (index) => {
   isActiveBtn.value = index;
 };
 
-const onChangeTheme = (value) => {
-};
+const onChangeTheme = (value) => {};
 </script>
 
 <style lang="scss" scoped>
 .aside {
-  background-color: #7ea5df83;
+  background-color: $main;
   width: 70px;
   height: calc(100vh - 60px);
   position: fixed;
@@ -110,7 +113,11 @@ const onChangeTheme = (value) => {
       &::after {
         content: "";
         position: absolute;
-        background: linear-gradient(90deg, #c7c7c7a4 0%, rgba(255, 255, 255, 0) 100%);
+        background: linear-gradient(
+          90deg,
+          #c7c7c7a4 0%,
+          rgba(255, 255, 255, 0) 100%
+        );
         height: 100%;
         width: 0;
         left: -50%;
@@ -147,6 +154,8 @@ const onChangeTheme = (value) => {
   }
   .aside-btn {
     background-color: $grey;
+    box-shadow: 0 0 10px #00000084;
+
     svg {
       color: #fff;
     }
@@ -154,5 +163,4 @@ const onChangeTheme = (value) => {
 }
 </style>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

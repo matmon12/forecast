@@ -8,7 +8,6 @@ import PrimeVue from 'primevue/config';
 import 'primevue/resources/themes/aura-light-green/theme.css'
 import './index.scss';
 import { VueQueryPlugin  } from "vue-query";
-// import { ValidationProvider } from 'vee-validate';
 import FocusTrap from 'primevue/focustrap';
 
 
@@ -20,8 +19,6 @@ directives.forEach((directive) => {
   app.directive(directive.name, directive);
 });
 app.directive('focustrap', FocusTrap);
-
-// app.component('ValidationProvider', ValidationProvider);
 
 app
   .use(autoAnimatePlugin)

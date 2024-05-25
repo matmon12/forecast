@@ -88,6 +88,7 @@ const toggleCheckbox = () => {
   inset: 0;
   background-color: #ccc;
   transition: all 0.4s;
+  box-shadow: 0 0 5px #242424;
 }
 
 .round {

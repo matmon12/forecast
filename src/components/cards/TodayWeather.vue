@@ -3,35 +3,47 @@
     <div class="summary__header">
       <div class="summary__location">
         <i-carbon:location-filled />
-        <p class="summary__location-text">New York</p>
+        <p class="summary__location-text">{{ curWeather?.location?.name }}</p>
       </div>
       <div class="summary__degree">
         <SwitchDegree
-          :model-value="true"
+          :model-value="valueSwitch"
           @toggle-switch="(value) => onChangeDegree(value)"
-        /> 
+        />
       </div>
     </div>
     <div class="summary__content">
       <div class="summary__left">
         <div class="summary__date-wrap">
-          <p class="summary-week">Tuesday</p>
-          <p class="summary-date">24 Dec 2023</p>
+          <p class="summary-week">{{ curDayWeek }}</p>
+          <p class="summary-date">{{ currentDate }}</p>
         </div>
         <div class="summary__temp">
-          <div class="summary__temp-value">26°C</div>
+          <div class="summary__temp-value">
+            {{ curTemp }}
+          </div>
           <div class="summary__temp-text">
-            <span>High: 27°</span><span>Low: 10°</span>
+            <span>High: {{ Math.round(maxTemp) }}°</span
+            ><span>Low: {{ Math.round(minTemp) }}°</span>
           </div>
         </div>
       </div>
       <div class="summary__right">
         <div class="summary__img-wrap">
-          <img class="summary-img" width="200px" src="@/img/weather/c3.png" alt="icon" />
+          <img
+            class="summary-img"
+            width="200px"
+            :src="getImageUrl(path)"
+            alt="icon"
+          />
         </div>
         <div class="summary__right-info">
-          <p class="summary__right-weather">Cloudy</p>
-          <p class="summary__right-feels">Feels like 26°</p>
+          <p class="summary__right-weather">
+            {{ curWeather?.current?.condition?.text }}
+          </p>
+          <p class="summary__right-feels">
+            Feels like {{ Math.round(curWeather?.current?.feelslike_c) }}°
+          </p>
         </div>
       </div>
     </div>
@@ -39,28 +51,92 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue';
-import axios from "axios";
+import { onMounted, ref, watch, defineProps } from "vue";
+import axiosApiInstance from "@/api";
+import { CURRENT_URL, HISTORY_URL } from "@/constants/index";
+import { getFarTemp, getImageUrl } from "@/utils/index";
+import { useSearchStore } from "@/stores/search";
 
-const onChangeDegree = (value) => {};
+const valueSwitch = true;
+const currentDate = ref();
+const curDayWeek = ref();
+const maxTemp = ref();
+const minTemp = ref();
+const curTemp = ref();
+const path = ref();
 
-const config = {
-  headers: {
-    'X-Gismeteo-Token': 'd4f4aba6-a9b5-4df2-b619-2af6bb99175e'
+const props = defineProps({
+  curWeather: {
+    type: Object,
+  },
+});
+
+watch(
+  () => props.curWeather,
+  (newValue) => {
+    if (newValue) {
+      curTemp.value = valueSwitch
+        ? `${Math.round(props.curWeather.current.temp_c)}°C`
+        : `${Math.round(getFarTemp(props.curWeather.current.temp_c))}°F`;
+
+      const icon = props.curWeather.current.condition.icon;
+      path.value = `${icon.split("/")[5]}/${icon.split("/")[6]}`;
+
+      getCurDate(props.curWeather.location.tz_id);
+      getHistoryDay(currentDate.value);
+    }
   }
-} 
+);
 
-const getWeatherData = async () => {
-  const data = await axios.get('https://api.gismeteo.net/v2/weather/current/4368/?lang=en', config).then((response) => {
-    console.log(response)
-  }).catch((error) => {
-    console.log(error)
-  })
-}
+const onChangeDegree = (value) => {
+  if (value) {
+    curTemp.value = `${Math.round(props.curWeather.current.temp_c)}°C`;
+  } else {
+    curTemp.value = `${Math.round(
+      getFarTemp(props.curWeather.current.temp_c)
+    )}°F`;
+  }
+};
+
+const getHistoryDay = async (curDate) => {
+  const date = new Date(curDate).toLocaleDateString();
+  const formattedDate = `${date.split(".")[2]}-${date.split(".")[1]}-${
+    date.split(".")[0]
+  }`;
+  await axiosApiInstance
+    .get(`${HISTORY_URL}?q=London&dt=${formattedDate}`)
+    .then((res) => {
+      maxTemp.value = res.data.forecast.forecastday[0].day.maxtemp_c;
+      minTemp.value = res.data.forecast.forecastday[0].day.mintemp_c;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
+const getCurDate = (tz) => {
+  const date = new Date();
+  currentDate.value = date.toLocaleDateString("en-GB", {
+    timeZone: tz,
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+  var days = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  curDayWeek.value = days[date.getDay()];
+};
 
 onMounted(() => {
-  getWeatherData();
-})
+});
 </script>
 
 <style lang="scss" scoped>
@@ -107,7 +183,6 @@ onMounted(() => {
   }
 
   &__temp {
-    
   }
 
   &__temp-value {
@@ -122,18 +197,24 @@ onMounted(() => {
 
   &__right {
     text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
   }
 
   &__img-wrap {
-    height: 190px; 
+    height: 190px;
+    max-width: 250px;
+    // display: flex;
+    // justify-content: flex-end;
   }
 
   &__right-info {
   }
 
   &__right-weather {
-    font-size: 32px;
-    line-height: 1.3;
+    font-size: 27px;
+    line-height: 1.2;
   }
 
   &__right-feels {
@@ -149,8 +230,8 @@ onMounted(() => {
   color: #ffffffc9;
 }
 .summary-img {
-  width: 100%;
+  width: min-content;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 </style>
