@@ -62,6 +62,7 @@ const menu = shallowRef([
   overflow: hidden;
   position: absolute;
   right: 0;
+  z-index: 100;
 
   &__top {
     padding: 10px 25px 10px 10px;

@@ -14,6 +14,7 @@
   width: 100%;
   position: sticky;
   top: 30px;
+  z-index: 100;
 
   &__inner {
     display: flex;

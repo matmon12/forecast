@@ -1,22 +1,39 @@
 <template>
-  <InputGroup :class="['search-input-wrap', {'p-invalid': errors.search, 'p-valid': meta.valid}]" >
-    <button @click="onSubmit" class="search-input-icon" :disabled="searchStore.loading">
+  <InputGroup
+    :class="[
+      'search-input-wrap',
+      { 'p-invalid': errors.search, 'p-valid': meta.valid },
+    ]"
+  >
+    <button
+      @click="onSubmit"
+      class="search-input-icon"
+      :disabled="searchStore.loading"
+    >
       <i-mingcute:search-line />
     </button>
     <InputText
+      ref="searchInput"
       class="search-input"
       type="text"
       v-model="search"
       placeholder="Search City"
       unstyled
-      autofocus 
+      autofocus
       @keyup.enter="!searchStore.loading ? onSubmit() : undefined"
+      @focus="focusInput = true"
+      @blur="focusInput = false"
     />
     <InputGroupAddon v-if="searchStore.loading" class="search-loading" unstyled>
-      <i-svg-spinners:ring-resize/>
+      <i-svg-spinners:ring-resize />
     </InputGroupAddon>
+    <transition>
+      <button @click="resetForm" v-if="search && focusInput" class="search-input-clear">
+        <i-lets-icons:close-round />
+      </button>
+    </transition>
     <transition name="fade">
-      <small class="error" v-if="errors.search">
+      <small class="error" v-if="errors.search && focusInput">
         {{ errors.search }}
       </small>
     </transition>
@@ -24,28 +41,37 @@
 </template>
 
 <script setup>
-import InputGroup from 'primevue/inputgroup';
-import InputGroupAddon from 'primevue/inputgroupaddon';
-import {useForm, useField} from "vee-validate";
-import {useRulesStore} from "@/stores/rules"
-import {useSearchStore} from "@/stores/search"
-import { ref, toValue } from "vue";
+import InputGroup from "primevue/inputgroup";
+import InputGroupAddon from "primevue/inputgroupaddon";
+import { useForm, useField } from "vee-validate";
+import { useRulesStore } from "@/stores/rules";
+import { useSearchStore } from "@/stores/search";
+import { ref, toValue, watch } from "vue";
 
 const rulesStore = useRulesStore();
 const searchStore = useSearchStore();
+const focusInput = ref();
 
 // validate
-const { defineField, handleSubmit, resetForm, errors} = useForm({
-  validationSchema: rulesStore.schemaSearch
+const { defineField, handleSubmit, resetForm, errors } = useForm({
+  validationSchema: rulesStore.schemaSearch,
 });
 
 const [search] = defineField("search");
 
-const {meta} = useField('search')
+const { meta } = useField("search");
 
 const onSubmit = handleSubmit((value) => {
   searchStore.search = value.search;
-})
+});
+
+// update input
+watch(
+  () => searchStore.input,
+  (newValue) => {
+    search.value = newValue;
+  }
+);
 </script>
 
 <style lang="scss" scoped>
@@ -54,12 +80,12 @@ const onSubmit = handleSubmit((value) => {
     width: 400px;
     background-color: $grey;
     border-radius: 20px;
-    padding: 0px 20px 0 5px; 
+    padding: 0px 20px 0 5px;
     display: flex;
     align-items: center;
     position: relative;
     height: 50px;
-    transition: all .3s;
+    transition: all 0.3s;
   }
   &-input-icon {
     height: 100%;
@@ -67,7 +93,7 @@ const onSubmit = handleSubmit((value) => {
     align-items: center;
     cursor: pointer;
     padding: 15px;
-    &:disabled{
+    &:disabled {
       color: grey;
       cursor: default;
     }
@@ -80,23 +106,38 @@ const onSubmit = handleSubmit((value) => {
       font-size: 14px;
     }
   }
-  &-loading{
+  &-input-clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    svg {
+      font-size: 20px;
+      color: rgb(185, 185, 185);
+      transition: all 0.3s;
+    }
+    &:hover {
+      svg {
+        transform: rotate(90deg);
+      }
+    }
+  }
+  &-loading {
     display: flex;
     align-items: center;
     margin-left: 10px;
-    svg{
+    svg {
       font-size: 20px;
     }
   }
 }
 </style>
 
-<style>
-.p-invalid{
+<style lang="scss">
+.p-invalid:focus-within {
   border: 1px solid rgb(255, 26, 26);
   box-shadow: 0 0 10px rgb(255, 124, 124);
 }
-.p-valid{
+.p-valid:focus-within {
   border: 1px solid #57a6f5;
   box-shadow: 0 0 10px #57a6f5;
 }

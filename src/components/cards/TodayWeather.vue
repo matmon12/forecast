@@ -64,6 +64,7 @@ const maxTemp = ref();
 const minTemp = ref();
 const curTemp = ref();
 const path = ref();
+const searchStore = useSearchStore();
 
 const props = defineProps({
   curWeather: {
@@ -103,14 +104,18 @@ const getHistoryDay = async (curDate) => {
   const formattedDate = `${date.split(".")[2]}-${date.split(".")[1]}-${
     date.split(".")[0]
   }`;
+  searchStore.historyLoading = true;
   await axiosApiInstance
-    .get(`${HISTORY_URL}?q=London&dt=${formattedDate}`)
+    .get(`${HISTORY_URL}?q=${searchStore.search}&dt=${formattedDate}`)
     .then((res) => {
       maxTemp.value = res.data.forecast.forecastday[0].day.maxtemp_c;
       minTemp.value = res.data.forecast.forecastday[0].day.mintemp_c;
     })
     .catch((err) => {
       console.log(err);
+    })
+    .finally(() => {
+      searchStore.historyLoading = false;
     });
 };
 
@@ -135,8 +140,7 @@ const getCurDate = (tz) => {
   curDayWeek.value = days[date.getDay()];
 };
 
-onMounted(() => {
-});
+onMounted(() => {});
 </script>
 
 <style lang="scss" scoped>
@@ -230,7 +234,7 @@ onMounted(() => {
   color: #ffffffc9;
 }
 .summary-img {
-  width: min-content;
+  width: 100%;
   height: 100%;
   object-fit: contain;
 }

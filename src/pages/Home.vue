@@ -1,9 +1,19 @@
 <template>
   <div class="home" v-if="searchStore.error !== 1006">
     <TodayWeather class="card-item" :cur-weather="curWeather" />
-    <Spinner v-if="searchStore.loading" />
+    <div class="highlight">
+      <UvIndex :uv-index="curWeather?.current?.uv" />
+      <Humidity :humidity="curWeather?.current?.humidity" />
+      <Wind
+        :speed="curWeather?.current?.wind_kph"
+        :degree="curWeather?.current?.wind_degree"
+        :dir="curWeather?.current?.wind_dir"
+      />
+      <Pressure/>
+    </div>
+    <Spinner v-if="searchStore.loading || searchStore.historyLoading" />
   </div>
-  <Error class="error-wrapper" v-else/>
+  <Error @retry-fetch="getWeatherData" class="error-wrapper" v-else />
 </template>
 
 <script setup>
@@ -30,6 +40,7 @@ const getWeatherData = async () => {
     .get(`${CURRENT_URL}?q=${searchStore.search}`)
     .then((res) => {
       curWeather.value = res.data;
+      searchStore.searchSuccess = curWeather.value.location.name;
     })
     .catch((err) => {
       console.log(err);
@@ -51,8 +62,20 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   position: relative;
+  gap: 15px;
 }
 .card-item {
+  align-self: start;
+}
+
+.highlight {
+  @include Card();
+  background: radial-gradient(circle, $main 0%, $grey 100%);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  align-self: start;
+  gap: 15px;
+  padding: 15px;
 }
 
 .error-wrapper {

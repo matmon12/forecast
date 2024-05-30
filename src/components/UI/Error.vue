@@ -2,10 +2,7 @@
   <div class="error-page">
     <i-bxs:error />
     <p class="error-page-text">Oooops! Nothing found</p>
-    <div class="error-page__btns">
-      <button @click="onToBack" class="error-page-btn">Back</button>
-      <button class="error-page-btn">Retry</button>
-    </div>
+    <button @click="onToBack" class="error-page-btn">Back</button>
   </div>
 </template>
 
@@ -15,8 +12,10 @@ import { useSearchStore } from "@/stores/search";
 const searchStore = useSearchStore();
 
 const onToBack = () => {
-    searchStore.error = '';
-}
+  searchStore.error = "";
+  searchStore.search = searchStore.searchSuccess;  
+  searchStore.input = searchStore.searchSuccess;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -36,29 +35,18 @@ const onToBack = () => {
   color: $white;
   font-size: 20px;
 }
-.error-page__btns {
-  display: flex;
-  gap: 15px;
-}
+
 .error-page-btn {
   color: $white;
   padding: 10px;
-  width: 150px;
+  width: 300px;
   border-radius: 8px;
   margin-top: 40px;
   font-size: 16px;
-  transition: all .3s;
-  &:nth-child(1) {
-    border: 1px solid $main;
-    &:hover{
-      background-color: #7ea5dfbc;
-    }
-  }
-  &:nth-child(2) {
-    background-color: $main;
-    &:hover{
-      background-color: #7ea5dfbc;
-    }
+  transition: all 0.3s;
+  border: 1px solid $main;
+  &:hover {
+    background-color: #7ea5dfbc;
   }
 }
 </style>

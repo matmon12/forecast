@@ -5,3 +5,7 @@ export const getImageUrl = (path) => {
 export const getFarTemp = (cel) => {
   return Math.round((cel * 9/5) + 32);
 }
+
+export const kphToMph = (speed) => {
+  return speed / 3.6;
+}
