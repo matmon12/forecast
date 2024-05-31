@@ -20,13 +20,6 @@ directives.forEach((directive) => {
 });
 app.directive('focustrap', FocusTrap);
 
-console.error = (function(console) {
-  return function() {
-    setTimeout(function() {
-      console.error.apply(console, arguments);
-    }, 0);
-  };
-})(console);
 
 app
   .use(autoAnimatePlugin)
