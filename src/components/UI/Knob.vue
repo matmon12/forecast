@@ -57,7 +57,7 @@
 
 <script setup>
 import { ref, onMounted, defineProps, watch } from "vue";
-import anime from "animejs/lib/anime.es.js";
+import anime from 'animejs/lib/anime.es.js';
 
 const props = defineProps({
   min: {
@@ -107,32 +107,37 @@ const curValue = ref(0);
 watch(
   () => props.modelValue,
   (newValue) => {
-    console.log(2);
+    console.log('3')
     checkValue();
     anime({
       targets: curValue,
       value: newValue,
-      easing: "spring(1, 80, 10, 0)",
+      easing: 'spring(1, 80, 10, 0)',
       duration: 500,
       update: (value) => {
-        setRoundPos();
-      },
+        setRoundPos()
+      }
     });
   }
 );
 
 onMounted(() => {
-  console.log(1);
+  console.log('2')
+
   checkValue();
-  anime({
-    targets: curValue,
-    value: props.modelValue,
-    easing: "spring(1, 80, 10, 0)",
-    duration: 500,
-    update: () => {
-      setRoundPos();
-    },
-  });
+    anime({
+      targets: curValue,
+      value: props.modelValue,
+      easing: 'spring(1, 80, 10, 0)',
+      duration: 500,
+      update: () => {
+        setRoundPos()
+      }
+    });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    console.log('1')
+  })
 });
 
 const setOffset = (id) => {
@@ -172,6 +177,7 @@ const setRoundPos = () => {
   roundPosY.value =
     radius * Math.sin(angleInRadiansRound) + props.strokeWidth / 2;
 };
+
 </script>
 
 <style lang="scss" scoped>
