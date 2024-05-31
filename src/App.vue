@@ -16,6 +16,14 @@
 import { useSearchStore } from "@/stores/search";
 
 const searchStore = useSearchStore();
+
+console.error = (function (console) {
+  return function () {
+    setTimeout(function () {
+      console.error.apply(console, arguments);
+    }, 0);
+  };
+})(console);
 </script>
 
 <style scoped lang="scss">
