@@ -120,18 +120,18 @@ watch(
   }
 );
 
-onMounted(() => {
-  checkValue();
-    anime({
-      targets: curValue,
-      value: props.modelValue,
-      easing: 'spring(1, 80, 10, 0)',
-      duration: 500,
-      update: () => {
-        setRoundPos()
-      }
-    });
-});
+// onMounted(() => {
+//   checkValue();
+//     anime({
+//       targets: curValue,
+//       value: props.modelValue,
+//       easing: 'spring(1, 80, 10, 0)',
+//       duration: 500,
+//       update: () => {
+//         setRoundPos()
+//       }
+//     });
+// });
 
 const setOffset = (id) => {
   if (props.colorsLine.length === 1) {
