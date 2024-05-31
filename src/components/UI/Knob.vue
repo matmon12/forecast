@@ -108,15 +108,15 @@ watch(
   () => props.modelValue,
   (newValue) => {
     checkValue();
-    // anime({
-    //   targets: curValue,
-    //   value: newValue,
-    //   easing: 'spring(1, 80, 10, 0)',
-    //   duration: 500,
-    //   update: () => {
-    //     setRoundPos()
-    //   }
-    // });
+    anime({
+      targets: curValue,
+      value: newValue,
+      easing: 'spring(1, 80, 10, 0)',
+      duration: 500,
+      update: () => {
+        setRoundPos()
+      }
+    });
   }
 );
 
