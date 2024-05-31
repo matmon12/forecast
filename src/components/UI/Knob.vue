@@ -107,7 +107,6 @@ const curValue = ref(0);
 watch(
   () => props.modelValue,
   (newValue) => {
-    console.log('3')
     checkValue();
     anime({
       targets: curValue,
@@ -122,8 +121,6 @@ watch(
 );
 
 onMounted(() => {
-  console.log('2')
-
   checkValue();
     anime({
       targets: curValue,
@@ -135,9 +132,6 @@ onMounted(() => {
       }
     });
 
-  document.addEventListener("DOMContentLoaded", () => {
-    console.log('1')
-  })
 });
 
 const setOffset = (id) => {
