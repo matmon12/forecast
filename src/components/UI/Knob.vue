@@ -6,7 +6,7 @@
       :height="props.width / 2 + props.strokeWidth"
     >
       <defs>
-        <linearGradient id="arc-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <linearGradient :id="id" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop
             v-if="props.colorsLine"
             v-for="(item, id) in props.colorsLine"
@@ -33,7 +33,7 @@
         :d="`M ${props.strokeWidth / 2},${
           props.width / 2 + props.strokeWidth / 2
         } a ${props.width / 2},${props.width / 2} 0 0,1 ${props.width},0`"
-        stroke="url(#arc-gradient)"
+        :stroke="`url(#${id})`"
         stroke-linecap="round"
         fill="none"
         :stroke-dasharray="`${angleInRadiansLine * (props.width / 200)} ${
@@ -42,7 +42,20 @@
       />
     </svg>
 
+    <component
+      class="knob-icon"
+      :is="props.icon"
+      v-if="props.icon"
+      :style="{
+        left: `${roundPosX}px`,
+        bottom: `${roundPosY}px`,
+        height: `${props.sizePoint}px`,
+        width: `${props.sizePoint}px`,
+        color: props.colorPoint,
+      }"
+    ></component>
     <div
+      v-else
       :style="{
         left: `${roundPosX}px`,
         bottom: `${roundPosY}px`,
@@ -56,21 +69,27 @@
 </template>
 
 <script setup>
-import { ref, onMounted, defineProps, watch } from "vue";
-import anime from 'animejs/lib/anime.es.js';
+import { ref, onMounted, defineProps, watch, inject } from "vue";
+import { v4 as uuidv4 } from "uuid";
+
+const { anime } = inject("plugins");
+const id = ref();
 
 const props = defineProps({
   min: {
     type: Number,
     required: true,
+    default: 0,
   },
   max: {
     type: Number,
     required: true,
+    default: 0,
   },
   modelValue: {
     type: Number,
     required: true,
+    default: 0,
   },
   colorsLine: {
     type: Array,
@@ -100,6 +119,10 @@ const props = defineProps({
     required: false,
     default: 200,
   },
+  icon: {
+    type: Object,
+    required: false,
+  },
 });
 
 const curValue = ref(0);
@@ -111,27 +134,28 @@ watch(
     anime({
       targets: curValue,
       value: newValue,
-      easing: 'spring(1, 80, 10, 0)',
+      easing: "spring(1, 80, 10, 0)",
       duration: 500,
       update: () => {
-        setRoundPos()
-      }
+        setRoundPos();
+      },
     });
   }
 );
 
 onMounted(() => {
-  checkValue();
-    anime({
-      targets: curValue,
-      value: props.modelValue,
-      easing: 'spring(1, 80, 10, 0)',
-      duration: 500,
-      update: () => {
-        setRoundPos()
-      }
-    });
+  id.value = uuidv4();
 
+  checkValue();
+  anime({
+    targets: curValue,
+    value: props.modelValue,
+    easing: "spring(1, 80, 10, 0)",
+    duration: 500,
+    update: () => {
+      setRoundPos();
+    },
+  });
 });
 
 const setOffset = (id) => {
@@ -171,7 +195,6 @@ const setRoundPos = () => {
   roundPosY.value =
     radius * Math.sin(angleInRadiansRound) + props.strokeWidth / 2;
 };
-
 </script>
 
 <style lang="scss" scoped>
@@ -187,6 +210,13 @@ const setRoundPos = () => {
 .knob-back {
   fill: none;
   stroke-linecap: round;
+}
+
+.knob-icon {
+  position: absolute;
+  transform: translate(-50%, 50%);
+  filter: drop-shadow(0 0 10px rgba(0, 0, 0, 1));
+
 }
 
 .round {

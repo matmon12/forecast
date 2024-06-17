@@ -23,8 +23,8 @@
             {{ curTemp }}
           </div>
           <div class="summary__temp-text">
-            <span>High: {{ Math.round(maxTemp) }}°</span
-            ><span>Low: {{ Math.round(minTemp) }}°</span>
+            <span>High: {{ Math.round(searchStore.maxTemp) }}°</span
+            ><span>Low: {{ Math.round(searchStore.minTemp) }}°</span>
           </div>
         </div>
       </div>
@@ -33,7 +33,9 @@
           <img
             class="summary-img"
             width="200px"
-            :src="getImageUrl(path)"
+            :src="
+              getImageUrl(formatPath(props.curWeather?.current?.condition?.icon))
+            "
             alt="icon"
           />
         </div>
@@ -54,14 +56,12 @@
 import { onMounted, ref, watch, defineProps } from "vue";
 import axiosApiInstance from "@/api";
 import { CURRENT_URL, HISTORY_URL } from "@/constants/index";
-import { getFarTemp, getImageUrl } from "@/utils/index";
+import { getFarTemp, getImageUrl, formatPath } from "@/utils/index";
 import { useSearchStore } from "@/stores/search";
 
 const valueSwitch = true;
 const currentDate = ref();
 const curDayWeek = ref();
-const maxTemp = ref();
-const minTemp = ref();
 const curTemp = ref();
 const path = ref();
 const searchStore = useSearchStore();
@@ -76,18 +76,25 @@ watch(
   () => props.curWeather,
   (newValue) => {
     if (newValue) {
-      curTemp.value = valueSwitch
-        ? `${Math.round(props.curWeather.current.temp_c)}°C`
-        : `${Math.round(getFarTemp(props.curWeather.current.temp_c))}°F`;
-
-      const icon = props.curWeather.current.condition.icon;
-      path.value = `${icon.split("/")[5]}/${icon.split("/")[6]}`;
-
-      getCurDate(props.curWeather.location.tz_id);
+      init();
       getHistoryDay(currentDate.value);
     }
   }
 );
+
+onMounted(() => {
+  if (props.curWeather) {
+    init();
+  }
+});
+
+const init = () => {
+  curTemp.value = valueSwitch
+    ? `${Math.round(props.curWeather.current.temp_c)}°C`
+    : `${Math.round(getFarTemp(props.curWeather.current.temp_c))}°F`;
+
+  getCurDate(props.curWeather.location.tz_id);
+};
 
 const onChangeDegree = (value) => {
   if (value) {
@@ -108,8 +115,8 @@ const getHistoryDay = async (curDate) => {
   await axiosApiInstance
     .get(`${HISTORY_URL}?q=${searchStore.search}&dt=${formattedDate}`)
     .then((res) => {
-      maxTemp.value = res.data.forecast.forecastday[0].day.maxtemp_c;
-      minTemp.value = res.data.forecast.forecastday[0].day.mintemp_c;
+      searchStore.maxTemp = res.data.forecast.forecastday[0].day.maxtemp_c;
+      searchStore.minTemp = res.data.forecast.forecastday[0].day.mintemp_c;
     })
     .catch((err) => {
       console.log(err);
@@ -139,13 +146,13 @@ const getCurDate = (tz) => {
   ];
   curDayWeek.value = days[date.getDay()];
 };
-
-onMounted(() => {});
 </script>
 
 <style lang="scss" scoped>
 .summary {
   @include Card();
+  display: flex;
+  flex-direction: column;
 
   &__header {
     display: flex;
@@ -170,11 +177,13 @@ onMounted(() => {});
   }
 
   &__degree {
+    display: flex;
   }
 
   &__content {
+    flex-grow: 1;
     display: flex;
-    padding: 20px 0 10px;
+    padding: 20px 0 0;
     justify-content: space-between;
   }
 
@@ -204,6 +213,7 @@ onMounted(() => {});
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    justify-content: space-between;
   }
 
   &__img-wrap {

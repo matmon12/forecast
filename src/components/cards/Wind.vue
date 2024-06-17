@@ -4,22 +4,24 @@
       <i-ph:wind />
       Wind Status
     </p>
-    <div class="wind-compas">
-      <div class="wind-img-wrap">
-        <i-solar:map-arrow-up-bold
-          :style="{ transform: `rotate(${degree + 180}deg)` }"
-        />
-      </div>
-      <div class="wind-compas-box">
-        <p class="wind-compas-text">N</p>
-        <p class="wind-compas-text">E</p>
-        <p class="wind-compas-text">S</p>
-        <p class="wind-compas-text">W</p>
+    <div class="wind-content">
+      <div class="wind-compas">
+        <div class="wind-img-wrap">
+          <i-solar:map-arrow-up-bold
+            :style="{ transform: `rotate(${degree + 180}deg)` }"
+          />
+        </div>
+        <div class="wind-compas-box">
+          <p class="wind-compas-text">N</p>
+          <p class="wind-compas-text">E</p>
+          <p class="wind-compas-text">S</p>
+          <p class="wind-compas-text">W</p>
+        </div>
       </div>
     </div>
     <div class="wind__footer">
       <div class="wind-left">
-        {{ Math.round(kphToMph(props.speed)) }}
+        {{ kphToMph(props.speed) }}
         <span>m/s</span>
       </div>
       <div class="wind-right">{{ props.dir }}</div>
@@ -28,9 +30,10 @@
 </template>
 
 <script setup>
-import { ref, defineProps, watch, onMounted } from "vue";
+import { ref, defineProps, watch, onMounted, inject } from "vue";
 import { kphToMph } from "@/utils/index";
-import anime from "animejs/lib/anime.es.js";
+
+const { anime } = inject('plugins');
 
 const props = defineProps({
   speed: {
@@ -77,6 +80,9 @@ onMounted(() => {
 <style lang="scss" scoped>
 .wind {
   @include Card();
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   &-title {
     display: flex;
     align-items: center;
@@ -138,7 +144,7 @@ onMounted(() => {
 .wind__footer {
   display: flex;
   justify-content: space-between;
-  margin-top: 0px;
+  margin-top: 5px;
   align-items: flex-end;
   position: relative;
 }

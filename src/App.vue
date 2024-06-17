@@ -3,7 +3,7 @@
     <div class="container">
       <AsideBar />
       <div class="wrapper">
-        <Header />
+        <Header :class="{ 'is--active': isHeaderActive }" />
         <div class="content">
           <router-view></router-view>
         </div>
@@ -13,9 +13,28 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from "vue";
 import { useSearchStore } from "@/stores/search";
 
 const searchStore = useSearchStore();
+const header = ref(null);
+const isHeaderActive = ref(false);
+
+onMounted(() => {
+  window.addEventListener("scroll", handleScroll);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", handleScroll);
+})
+
+const handleScroll = () => {
+  if (window.scrollY > 30) {
+    isHeaderActive.value = true;
+  } else {
+    isHeaderActive.value = false;
+  }
+};
 </script>
 
 <style scoped lang="scss">

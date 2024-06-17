@@ -15,3 +15,11 @@ $offset-card: 15px;
   padding: 15px 20px;
   overflow: hidden;
 }
+
+@mixin TextOverflow($lines) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+}

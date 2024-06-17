@@ -69,7 +69,10 @@ const onSubmit = handleSubmit((value) => {
 watch(
   () => searchStore.input,
   (newValue) => {
-    search.value = newValue;
+    if(newValue) {
+      search.value = newValue;
+    }
+    searchStore.input = '';
   }
 );
 </script>
@@ -86,6 +89,7 @@ watch(
     position: relative;
     height: 50px;
     transition: all 0.3s;
+    box-shadow: 0 0 10px #000;
   }
   &-input-icon {
     height: 100%;

@@ -2,29 +2,13 @@
   <div class="aside">
     <div class="aside__inner">
       <div class="aside__btns">
-        <div :class="['aside-btn-wrap', { 'is--active': isActiveBtn === 1 }]">
-          <button @click="onClickStyle(1)" class="aside-btn">
-            <i-ph:squares-four />
-          </button>
-        </div>
-        <div :class="['aside-btn-wrap', { 'is--active': isActiveBtn === 2 }]">
-          <button @click="onClickStyle(2)" class="aside-btn">
-            <i-carbon:location />
-          </button>
-        </div>
-        <div :class="['aside-btn-wrap', { 'is--active': isActiveBtn === 3 }]">
-          <button @click="onClickStyle(3)" class="aside-btn">
-            <i-quill:calendar />
-          </button>
-        </div>
-        <div :class="['aside-btn-wrap', { 'is--active': isActiveBtn === 4 }]">
-          <button @click="onClickStyle(4)" class="aside-btn">
-            <i-fluent:news-20-regular />
-          </button>
-        </div>
-        <div :class="['aside-btn-wrap', { 'is--active': isActiveBtn === 5 }]">
-          <button @click="onClickStyle(5)" class="aside-btn">
-            <i-ep:setting />
+        <div
+          v-for="item in menuPages"
+          :key="item.id"
+          :class="['aside-btn-wrap', { 'is--active': route.matched[0]?.path  === item.router }]"
+        >
+          <button @click="isActiveBtn = item.id, router.push(item.router)" class="aside-btn">
+            <component :is="item.icon"></component>
           </button>
         </div>
       </div>
@@ -51,17 +35,31 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, markRaw } from "vue";
+import {useRoute} from 'vue-router'
 import LineMdSunnyOutlineToMoonLoopTransition from "~icons/line-md/sunny-outline-to-moon-loop-transition";
 import LineMdMoonToSunnyOutlineLoopTransition from "~icons/line-md/moon-to-sunny-outline-loop-transition";
+import PhSquaresFour from "~icons/ph/squares-four";
+import CarbonLocation from "~icons/carbon/location";
+import QuillCalendar from "~icons/quill/calendar";
+import FluentNews20Regular from "~icons/fluent/news-20-regular";
+import EpSetting from "~icons/ep/setting";
+import router from '@/router/router.js'
+
+const route = useRoute();
 
 const isActiveBtn = ref(1);
+const menuPages = markRaw([
+  { id: 1, icon: PhSquaresFour, router: '/forecast/' },
+  { id: 2, icon: CarbonLocation, router: '/forecast/tomorrow' },
+  { id: 3, icon: QuillCalendar, router: '/forecast/history' },
+  { id: 4, icon: FluentNews20Regular, router: '/forecast/news' },
+  { id: 5, icon: EpSetting, router: '/forecast/tomorrgow' },
+]);
 
-const onClickStyle = (index) => {
-  isActiveBtn.value = index;
+const onChangeTheme = (value) => {
 };
 
-const onChangeTheme = (value) => {};
 </script>
 
 <style lang="scss" scoped>
