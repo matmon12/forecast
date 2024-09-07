@@ -493,18 +493,7 @@ const getTextTemp = (temp) => {
   width: 100%;
   overflow: auto;
   overflow-x: scroll;
-  &::-webkit-scrollbar {
-    height: 10px;
-  }
-  &::-webkit-scrollbar-track {
-    background: #333333;
-    border-radius: 10px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: #7d7d7d; /* цвет бегунка */
-    border-radius: 20px; /* округлось бегунка */
-    // border: 1px solid #7d7d7d;
-  }
+  @include Scroll(10px, 10px, #333333, #7d7d7d);
 }
 .hour-table {
   width: max-content;

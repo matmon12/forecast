@@ -1,5 +1,19 @@
 <template>
-  <div class="home" v-if="searchStore.error !== 1006">
+  <Spinner
+    v-if="
+      searchStore.loading ||
+      searchStore.historyLoading ||
+      searchStore.astroLoading
+    "
+    :size="50"
+  />
+  <Error
+    v-else-if="searchStore.error === 1006"
+    @to-back="onToBack"
+    message="Oooops! Nothing found"
+    class="error-wrapper"
+  />
+  <div class="home" v-else>
     <TodayWeather class="card-item" :cur-weather="searchStore.curWeather" />
     <div class="highlight">
       <UvIndex :uv-index="searchStore.curWeather?.current?.uv" />
@@ -13,15 +27,7 @@
     </div>
     <Sunset :astro-info="searchStore.astroInfo" class="sunset-wrap" />
     <Moon :astro-info="searchStore.astroInfo" class="moon-wrap" />
-    <Spinner
-      v-if="
-        searchStore.loading ||
-        searchStore.historyLoading ||
-        searchStore.astroLoading
-      "
-    />
   </div>
-  <Error @retry-fetch="getWeatherData" class="error-wrapper" v-else />
 </template>
 
 <script setup>
@@ -84,10 +90,16 @@ onMounted(() => {
       !searchStore.curWeather) &&
     searchStore.error !== 1006
   ) {
-    // getWeatherData();
-    // fetchAstroData();
+    getWeatherData();
+    fetchAstroData();
   }
 });
+
+const onToBack = () => {
+  searchStore.error = "";
+  searchStore.search = searchStore.searchSuccess;  
+  searchStore.input = searchStore.searchSuccess;
+};
 </script>
 
 <style scoped lang="scss">

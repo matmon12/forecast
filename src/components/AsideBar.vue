@@ -54,7 +54,7 @@ const menuPages = markRaw([
   { id: 2, icon: CarbonLocation, router: '/forecast/tomorrow' },
   { id: 3, icon: QuillCalendar, router: '/forecast/history' },
   { id: 4, icon: FluentNews20Regular, router: '/forecast/news' },
-  { id: 5, icon: EpSetting, router: '/forecast/tomorrgow' },
+  { id: 5, icon: EpSetting, router: '/forecast/dashboard' },
 ]);
 
 const onChangeTheme = (value) => {

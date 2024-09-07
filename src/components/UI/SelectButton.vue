@@ -1,5 +1,5 @@
 <template>
-  <div class="selectbtn">
+  <div class="selectbtn" :style="{backgroundColor: props.colorBack}">
     <div
       v-for="(item, id) in options"
       :class="['selectbtn-item', { 'is--active': activeBtn === item.value }]"
@@ -21,6 +21,10 @@ const props = defineProps({
   options: Array,
   value: String,
   colorBtn: {
+    type: String,
+    required: false
+  },
+  colorBack: {
     type: String,
     required: false
   }

@@ -5,12 +5,14 @@ import Tomorrow from "@/pages/Tomorrow.vue";
 import History from "@/pages/History.vue";
 import News from "@/pages/News.vue";
 import CategoryNews from "@/pages/CategoryNews.vue";
+import Dashboard from '@/pages/Dashboard.vue';
 
 const routes = [
   { path: "/forecast/", name: "Home", component: Home },
   { path: "/forecast/error", name: "Error", component: Error },
   { path: "/forecast/tomorrow", name: "Tomorrow", component: Tomorrow },
   { path: "/forecast/history", name: "History", component: History },
+  { path: "/forecast/dashboard", name: "Dashboard", component: Dashboard },
   {
     path: "/forecast/news",
     name: "News",

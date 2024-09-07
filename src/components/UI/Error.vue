@@ -1,25 +1,23 @@
 <template>
   <div class="error-page">
     <i-bxs:error />
-    <p class="error-page-text">Oooops! Nothing found</p>
-    <button @click="onToBack" class="error-page-btn">Back</button>
+    <p class="error-page-text">{{ message }}</p>
+    <button @click="$emit('toBack')" class="error-page-btn">Back</button>
   </div>
 </template>
 
 <script setup>
-import { useSearchStore } from "@/stores/search";
+import {ref, defineProps} from 'vue';
 
-const searchStore = useSearchStore();
 
-const onToBack = () => {
-  searchStore.error = "";
-  searchStore.search = searchStore.searchSuccess;  
-  searchStore.input = searchStore.searchSuccess;
-};
+const props = defineProps({
+  message: String
+})
 </script>
 
 <style lang="scss" scoped>
 .error-page {
+  width: 100%;
   background-color: $grey;
   border-radius: 20px;
   display: flex;

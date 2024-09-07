@@ -8,20 +8,19 @@
       <Post class="category__item" />
       <Post class="category__item" />
     </div>
-    <button class="category-btn">More news</button>
+    <button class="category-btn">{{ posts }}</button>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
-
-onMounted(() => {});
+import { computed, onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
 </script>
 
 <style lang="scss" scoped>
-.category{
-    display: flex;
-    flex-direction: column;
+.category {
+  display: flex;
+  flex-direction: column;
 }
 .category-wrapper {
   display: grid;
@@ -43,16 +42,16 @@ onMounted(() => {});
     grid-column-end: 5;
   }
 }
-.category-btn{
-    padding: 10px 40px;
-    background-color: #6b99c6;
-    border-radius: 10px;
-    margin: 15px auto 0;
-    color: #000;
-    font-weight: 500;
-    transition: filter .3s;
-    &:hover{
-        filter: brightness(0.8);
-    }
+.category-btn {
+  padding: 10px 40px;
+  background-color: #6b99c6;
+  border-radius: 10px;
+  margin: 15px auto 0;
+  color: #000;
+  font-weight: 500;
+  transition: filter 0.3s;
+  &:hover {
+    filter: brightness(0.8);
+  }
 }
 </style>

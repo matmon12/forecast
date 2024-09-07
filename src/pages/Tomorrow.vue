@@ -1,5 +1,13 @@
 <template>
-  <div class="tomorrow" v-if="searchStore.error !== 1006">
+  <Spinner v-if="forecastStore.loadingForecast" :size="50" />
+  <Error
+    v-else-if="searchStore.error === 1006"
+    message="Oooops! Nothing found"
+    @to-back="onToBack"
+    class="error-wrapper"
+  />
+
+  <div v-else class="tomorrow">
     <div class="tabs">
       <div
         v-for="(item, id) in forecastStore.forecastData?.forecast?.forecastday"
@@ -14,29 +22,38 @@
       <transition name="tabs">
         <div class="tab-content" v-if="tabActive === 0">
           <TomorrowHour
-            :forecast-hour="forecastStore.forecastData?.forecast?.forecastday[0].hour"
-            :forecast-astro="forecastStore.forecastData?.forecast?.forecastday[0].astro"
+            :forecast-hour="
+              forecastStore.forecastData?.forecast?.forecastday[0].hour
+            "
+            :forecast-astro="
+              forecastStore.forecastData?.forecast?.forecastday[0].astro
+            "
             :timezone="forecastStore.forecastData?.location?.tz_id"
           />
         </div>
         <div class="tab-content" v-else-if="tabActive === 1">
           <TomorrowHour
-            :forecast-hour="forecastStore.forecastData?.forecast?.forecastday[1].hour"
-            :forecast-astro="forecastStore.forecastData?.forecast?.forecastday[1].astro"
+            :forecast-hour="
+              forecastStore.forecastData?.forecast?.forecastday[1].hour
+            "
+            :forecast-astro="
+              forecastStore.forecastData?.forecast?.forecastday[1].astro
+            "
           />
         </div>
         <div class="tab-content" v-else-if="tabActive === 2">
           <TomorrowHour
-            :forecast-hour="forecastStore.forecastData?.forecast?.forecastday[2].hour"
-            :forecast-astro="forecastStore.forecastData?.forecast?.forecastday[2].astro"
+            :forecast-hour="
+              forecastStore.forecastData?.forecast?.forecastday[2].hour
+            "
+            :forecast-astro="
+              forecastStore.forecastData?.forecast?.forecastday[2].astro
+            "
           />
         </div>
       </transition>
     </div>
-
-    <Spinner v-if="forecastStore.loadingForecast" />
   </div>
-  <Error class="error-wrapper" v-else />
 </template>
 
 <script setup>
@@ -90,6 +107,12 @@ onMounted(() => {
     fetchForecastDay();
   }
 });
+
+const onToBack = () => {
+  searchStore.error = "";
+  searchStore.search = searchStore.searchSuccess;
+  searchStore.input = searchStore.searchSuccess;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -105,7 +128,7 @@ onMounted(() => {
   background-color: $grey;
   overflow: hidden;
   border-radius: 20px;
-  transition: all .5s;
+  transition: all 0.5s;
 }
 .is--cheked {
   background-color: #a1a1a170;

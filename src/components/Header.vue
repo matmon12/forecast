@@ -14,7 +14,7 @@
   width: 100%;
   position: sticky;
   top: 30px;
-  z-index: 100;
+  z-index: 1000;
   border-radius: 20px;
 
   &::after{

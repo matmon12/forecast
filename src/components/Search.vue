@@ -28,12 +28,16 @@
       <i-svg-spinners:ring-resize />
     </InputGroupAddon>
     <transition>
-      <button @click="resetForm" v-if="search && focusInput" class="search-input-clear">
+      <button
+        @click="resetForm"
+        v-if="search && focusInput"
+        class="search-input-clear"
+      >
         <i-lets-icons:close-round />
       </button>
     </transition>
     <transition name="fade">
-      <small class="error" v-if="errors.search && focusInput">
+      <small class="error search-error" v-if="errors.search && focusInput">
         {{ errors.search }}
       </small>
     </transition>
@@ -69,10 +73,10 @@ const onSubmit = handleSubmit((value) => {
 watch(
   () => searchStore.input,
   (newValue) => {
-    if(newValue) {
+    if (newValue) {
       search.value = newValue;
     }
-    searchStore.input = '';
+    searchStore.input = "";
   }
 );
 </script>
@@ -133,16 +137,21 @@ watch(
       font-size: 20px;
     }
   }
+  &-error{
+    font-weight: 500;
+  }
 }
 </style>
 
 <style lang="scss">
-.p-invalid:focus-within {
-  border: 1px solid rgb(255, 26, 26);
-  box-shadow: 0 0 10px rgb(255, 124, 124);
-}
-.p-valid:focus-within {
-  border: 1px solid #57a6f5;
-  box-shadow: 0 0 10px #57a6f5;
+.search-input-wrap {
+  &.p-invalid:focus-within {
+    border: 1px solid rgb(255, 26, 26);
+    box-shadow: 0 0 10px rgb(255, 124, 124);
+  }
+  &.p-valid:focus-within {
+    border: 1px solid #57a6f5;
+    box-shadow: 0 0 10px #57a6f5;
+  }
 }
 </style>

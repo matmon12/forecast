@@ -20,8 +20,8 @@
             <p class="moon__info-phase">{{ phase }}</p>
           </div>
           <div class="moon__info-bottom">
-            Full Moon - {{ moonFullDate[1] }} {{ moonFullDate[0] }}, in
-            {{ moonFullDate[0] - currentDate.getDate() }} days
+            Full Moon - {{ moonFullDate[1] }} {{ moonFullDate[0].getDate() }}, in
+            {{ timeLeft }} days
           </div>
         </div>
       </div>
@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, watch, inject, onMounted } from "vue";
+import { ref, defineProps, watch, inject, onMounted, computed } from "vue";
 import { formattedTime } from "@/utils/index";
 import { moonposition, moon, base, moonphase } from "astronomia";
 
@@ -76,6 +76,8 @@ const months = [
   "November",
   "December",
 ];
+
+const timeLeft = computed(() => new Date(moonFullDate.value[0] - currentDate).getDate());
 
 function convertToDecimalDate(date = new Date()) {
   const year = date.getFullYear();
@@ -115,7 +117,7 @@ function convertJDEToNextFullMoon(jde) {
     let nextFullMoonDate = moonphase.full(
       convertToDecimalDate(curFullMoonDate)
     );
-    convertJDEToNextFullMoon(nextFullMoonDate);
+    return convertJDEToNextFullMoon(nextFullMoonDate);
   } else {
     return new Date(year, month - 1, day);
   }
@@ -124,7 +126,7 @@ function convertJDEToNextFullMoon(jde) {
 const decimalDate = convertToDecimalDate(currentDate);
 const jde = moonphase.full(decimalDate);
 const date = convertJDEToNextFullMoon(jde);
-moonFullDate.value = [date.getDate(), months[date.getMonth()]];
+moonFullDate.value = [date, months[date.getMonth()]];
 
 const props = defineProps({
   astroInfo: Object,

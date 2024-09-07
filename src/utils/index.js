@@ -46,3 +46,12 @@ export const formatFromAMPM = (time) => {
 
   return `${hours}:${minutes}`;
 };
+
+export const uppercaseFirst = (str) => {
+  if (!str) return str;
+  return str[0].toUpperCase() + str.slice(1); 
+}
+
+export const pluralize = (count) => {
+  return count > 1 ? 's' : '';
+}

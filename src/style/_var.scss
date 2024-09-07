@@ -5,6 +5,7 @@ $grey-2: #2f2f2f;
 $grey-light: #797979;
 $white-2: #d8e9f9;
 $main: #7ea5df83;
+$blue: #6b99c6;
 
 $offset-card: 15px;
 
@@ -22,4 +23,30 @@ $offset-card: 15px;
   display: -webkit-box;
   -webkit-line-clamp: $lines;
   -webkit-box-orient: vertical;
+}
+
+@mixin Scroll($height, $width, $colorTrack, $colorThumb) {
+  &::-webkit-scrollbar {
+    height: $height;
+    width: $width;
+  }
+  &::-webkit-scrollbar-track {
+    background: $colorTrack;
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: $colorThumb; /* цвет бегунка */
+    border-radius: 20px; /* округлось бегунка */
+    // border: 1px solid #7d7d7d;
+  }
+}
+
+@mixin Invalid() {
+  border: 1px solid #ff6b6b;
+  box-shadow: 0 0 7px #ff6b6b;
+}
+
+@mixin Focus() {
+  border-color: #6b99c6;
+  box-shadow: 0 0 5px #6b99c6;
 }

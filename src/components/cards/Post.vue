@@ -1,4 +1,4 @@
-<template>
+ <template>
   <div
     :class="['post', { 'category__item-gorizont': orientation === 'gorizont' }]"
   >

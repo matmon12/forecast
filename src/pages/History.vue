@@ -1,5 +1,12 @@
 <template>
-  <div class="history" v-if="searchStore.error !== 1006">
+  <Spinner v-if="historyStore.loadingToday || historyStore.loadingHistory" :size="50" />
+  <Error
+    v-else-if="searchStore.error === 1006"
+    message="Oooops! Nothing found"
+    @to-back="onToBack"
+    class="error-wrapper"
+  />
+  <div v-else class="history">
     <HistoryMain
       class="history-card"
       :weather-today="historyStore.todayWeather"
@@ -11,10 +18,7 @@
       :weather-today="historyStore.todayWeather"
     />
     <HistoryBar class="history-card" :history="historyStore.history" />
-
-    <Spinner v-if="historyStore.loadingToday || historyStore.loadingHistory" />
   </div>
-  <Error class="error-wrapper" v-else />
 </template>
 
 <script setup>
@@ -104,6 +108,12 @@ onMounted(() => {
     fetchWeatherToday();
   }
 });
+
+const onToBack = () => {
+  searchStore.error = "";
+  searchStore.search = searchStore.searchSuccess;  
+  searchStore.input = searchStore.searchSuccess;
+};
 </script>
 
 <style lang="scss" scoped>
