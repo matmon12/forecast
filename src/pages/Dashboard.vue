@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!error" class="dashboard">
+  <div v-if="!errorPosts" class="dashboard">
     <h1 class="dashboard-title">Post management</h1>
 
     <Toolbar :pt="getClasses('dashboard').toolbar" unstyled>
@@ -33,7 +33,7 @@
     <DataTable
       ref="dt"
       v-model:selection="selectedPosts"
-      :value="posts.slice(0, rowsPerPage)"
+      :value="posts?.slice(0, rowsPerPage)"
       dataKey="id"
       v-model:filters="filters"
       filterDisplay="row"
@@ -185,6 +185,7 @@
             class-select="dashboard-filter"
             :limit-tags="5"
             placeholder="Select a tag..."
+            @update:modelValue="moveFirstPage"
           />
         </template>
       </Column>
@@ -224,6 +225,7 @@
               pcHeaderCheckbox: { ...getClasses('dashboard').checkbox },
               pcOptionCheckbox: { ...getClasses('dashboard').checkbox },
             }"
+            @update:modelValue="moveFirstPage"
           >
             <template #value="{ value, placeholder }">
               <p v-if="!value.length" class="category-multiselect-placeholder">
@@ -344,32 +346,16 @@
           :pt="getClasses('dashboard').select"
           @update:modelValue="(value) => onSelectRows(value)"
         />
-        <!-- <Paginator
-          :totalRecords="totalPosts"
-          :rows="rowsPerPage"
-          :pageLinkSize="1"
-          template="PageLinks CurrentPageReport"
-          currentPageReportTemplate="Rows {first} - {last} of {totalRecords}"
-          @page="(e) => onChangePage(e)"
-          :pt="getClasses('dashboard').paginator"
-        >
-          <template #start="{state}">
-            <Button :disabled="state.page === 0"><i-ep:arrow-down-bold /></Button>
-            <Button><i-ep:arrow-down-bold /></Button>
-            {{ state.page }}
-          </template>
-          <template #rowsperpagedropdownicon>
-            <i-ep:arrow-down-bold />
-          </template>
-        </Paginator> -->
       </template>
     </DataTable>
   </div>
 
   <Error
     v-else
-    :message="errorCodes.database[error.code]"
+    :message="errorCodes.database[errorPosts.code]"
+    retry
     @to-back="onToBack"
+    @retry="onErrorHandler"
   />
 
   <PostDialog v-model:visible="postDialog" :post="post" />
@@ -383,7 +369,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, nextTick } from "vue";
+import { ref, watch, computed, nextTick, onUnmounted } from "vue";
 import { FilterMatchMode, FilterService } from "@primevue/core/api";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
@@ -409,6 +395,7 @@ import {
   endBefore,
   getDoc,
   doc,
+  onSnapshot,
 } from "firebase/firestore";
 import { getCurrentInstance } from "vue";
 
@@ -462,41 +449,6 @@ const currentSortOrder = ref({ sortField: "date", sortOrder: -1 });
 const test = ref([]);
 const datesLimit = ref();
 
-// const test = ref("");
-
-// const postsQuery = computed(() => {
-//   let dirPagination = [
-//     keyLastPost.value.key
-//       ? startAt(keyLastPost.value.value, keyLastPost.value.key)
-//       : startAt(test.value),
-//     endAt(`${test.value}\uf8ff`),
-//   ];
-//   if (keyLastPost.value.key && dir === "next") {
-//     dirPagination = [
-//       keyLastPost.value.key
-//         ? startAt(keyLastPost.value.value, keyLastPost.value.key)
-//         : startAt(test.value),
-//       endAt(`${test.value}\uf8ff`),
-//     ];
-//   }
-//   if (keyFirstPost.value.key && dir === "prev") {
-//     dirPagination = [
-//       keyFirstPost.value.key
-//         ? endAt(keyFirstPost.value.value, keyFirstPost.value.key)
-//         : endAt(test.value),
-//       startAt(`${test.value}`),
-//     ];
-//   }
-//   return query(
-//     postsRef,
-//     orderByChild(sort.value),
-//     ...dirPagination,
-//     dir === "next"
-//       ? limitToFirst(oldRowsPerPage + 1)
-//       : limitToLast(oldRowsPerPage + 1)
-//   );
-// });
-
 // loading images
 // promise.value.then((res) => {
 //   // images (url, loading, error)
@@ -506,14 +458,12 @@ const datesLimit = ref();
 //   // listeners
 // });
 
-// database
-
 // dates limit (filter)
 const getDates = (filterDate) => {
   let startDate, endDate;
   const curDate = new Date();
-  let yearBeforeDate = new Date(curDate);
-  yearBeforeDate.setFullYear(curDate.getFullYear() - 1);
+  let yearBeforeDate = new Date(curDate).setFullYear(curDate.getFullYear() - 1);
+  let futureDate = new Date(curDate).setMonth(curDate.getMonth() + 1);
 
   if (filterDate && filterDate.length) {
     startDate = new Date(filterDate[0]).getTime();
@@ -527,6 +477,7 @@ const getDates = (filterDate) => {
     startDate,
     endDate,
     curDate,
+    futureDate,
     yearBeforeDate,
   };
 };
@@ -554,20 +505,20 @@ const postsQuery = computed(() => {
 
   return query(
     postsRef,
-    filterTags.value.length
-    ? where("tags", "array-contains-any", filterTags.value)
-    : null,
     filterCategory.value.length
-    ? where("category", "in", filterCategory.value)
-    : where("category", "==", null),
+      ? where("category", "in", filterCategory.value)
+      : where("category", "==", null),
     where("name", ">=", searchByName.value),
     where("name", "<=", searchByName.value + "\uf8ff"),
     datesLimit.value.startDate
       ? where("date", ">=", datesLimit.value.startDate)
-      : where("date", ">=", datesLimit.value.yearBeforeDate.getTime()),
+      : where("date", ">=", datesLimit.value.yearBeforeDate),
     datesLimit.value.endDate
       ? where("date", "<=", datesLimit.value.endDate)
-      : where("date", "<=", datesLimit.value.curDate.getTime()),
+      : where("date", "<=", datesLimit.value.futureDate),
+    filterTags.value.length
+      ? where("tags", "array-contains-any", filterTags.value)
+      : where("tags", "!=", null),
     orderBy(currentSortOrder.value.sortField, sortDirection),
     orderBy("id"),
     dir === "next"
@@ -581,13 +532,82 @@ const postsQuery = computed(() => {
   );
 });
 
-const {
-  data: posts,
-  pending: loadingPosts,
-  error,
-  promise,
-} = useCollection(postsQuery);
+// const {
+//   data: posts,
+//   pending: loadingPosts,
+//   error,
+//   promise,
+// } = useCollection(postsQuery);
 
+const posts = ref([]);
+const errorPosts = ref();
+const loadingPosts = ref(false);
+
+// первая загрузка 
+const getPosts = async () => {
+  loadingPosts.value = true;
+  try {
+    const querySnapshot = await getDocs(postsQuery.value);
+    querySnapshot.forEach((doc) => {
+      posts.value.push(doc.data());
+    })
+  } catch (err) {
+    errorPosts.value = err;
+  } finally {
+    loadingPosts.value = false;
+  }
+}
+getPosts();
+
+// подписка на изменения
+let unsubscribe;
+const startListening = () => {
+  unsubscribe = onSnapshot(
+    postsQuery.value,
+    { includeMetadataChanges: true, source: "cache" },
+    (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        const { newIndex, oldIndex, doc, type } = change;
+        if (type === "added") {
+          posts.value.splice(newIndex, 0, doc.data());
+        } else if (type === "modified") {
+          posts.value.splice(oldIndex, 1);
+          posts.value.splice(newIndex, 0, doc.data());
+        } else if (type === "removed") {
+          posts.value.splice(oldIndex, 1);
+        }
+      });
+    },
+    (error) => {
+      errorPosts.value = error;
+      unsubscribe = null;
+    } 
+  );
+}
+startListening();
+
+// отсоединение слушателя
+const stopListening = () => {
+  if(unsubscribe) {
+    unsubscribe();
+  }
+}
+onUnmounted(() => {
+  stopListening();
+});
+
+// обработка ошибок
+const onErrorHandler = () => {
+  errorPosts.value = null;
+  if(!unsubscribe) {
+    startListening();
+  }
+  if(!posts.value.length) {
+    getPosts();
+  }
+}
+
+// get image
 const getImage = (id, name) => {
   // if (!images.value[id]) {
   //   images.value[id] = { url: name, loading: false, error: null };
@@ -711,25 +731,6 @@ const getOptions = (countPosts) => {
   }
 };
 
-// event change page
-const onClickPrev = () => {
-  dir = "prev";
-
-  test.value = [
-    posts.value[0][currentSortOrder.value.sortField],
-    posts.value[0].id,
-  ];
-};
-
-const onClickNext = () => {
-  dir = "next";
-
-  test.value = [
-    posts.value[posts.value.length - 1][currentSortOrder.value.sortField],
-    posts.value[posts.value.length - 1].id,
-  ];
-};
-
 const onSelectRows = (newRowsPerPage) => {
   const countPosts =
     (currentPage.value - 1) * oldRowsPerPage +
@@ -792,6 +793,30 @@ const onSelectRows = (newRowsPerPage) => {
   }
 };
 
+// event change page
+const onClickPrev = () => {
+  dir = "prev";
+
+  // if (currentPage.value === 1) {
+  //   dir = "next";
+  //   test.value = [];
+  // } else {
+  test.value = [
+    posts.value[0][currentSortOrder.value.sortField],
+    posts.value[0].id,
+  ];
+  // }
+};
+
+const onClickNext = () => {
+  dir = "next";
+
+  test.value = [
+    posts.value[posts.value.length - 1][currentSortOrder.value.sortField],
+    posts.value[posts.value.length - 1].id,
+  ];
+};
+
 // при поиске возврат на первую страницу
 const onInputName = () => {
   moveFirstPage();
@@ -801,7 +826,7 @@ const onInputName = () => {
 const dateSelect = () => {
   moveFirstPage();
 
-  // вычисление дат для границ 
+  // вычисление дат для границ
   datesLimit.value = getDates(filterDate.value);
 };
 
