@@ -28,6 +28,7 @@
             <ImageUpload
               v-model:image="image"
               v-model:file="file"
+              :id="post.id"
               :class="{ 'is-invalid': errors.image }"
             />
             <transition name="fade">
@@ -82,76 +83,52 @@
           </div>
 
           <div class="post-dialog__block">
+            <label class="post-dialog-label" for="summary">Summary</label>
+            <IconField :pt="getClasses('post-dialog').iconfield" unstyled>
+              <InputText
+                id="summary"
+                v-model.trim="summary"
+                required="true"
+                :invalid="errors.summary ? true : false"
+                :pt="getClasses('post-dialog').inputtext"
+                placeholder="Enter summary..."
+              />
+              <InputIcon
+                v-if="summary"
+                @click="summary = null"
+                :pt="getClasses('post-dialog').inputicon"
+                unstyled
+                ><i-majesticons:close
+              /></InputIcon>
+              <transition name="fade">
+                <small v-if="errors.summary" class="error">{{
+                  errors.summary
+                }}</small>
+              </transition>
+            </IconField>
+          </div>
+
+          <div class="post-dialog__block">
             <span class="post-dialog-label">Category</span>
             <div class="post-dialog__radios">
-              <div class="post-dialog__radios-item">
+              <div
+                v-for="(item, index) of categories"
+                :key="index"
+                class="post-dialog__radios-item"
+              >
                 <RadioButton
-                  inputId="category1"
+                  :inputId="`category${index}`"
                   v-model="category"
                   name="category"
-                  value="Weather"
+                  :value="item"
                   :pt="getClasses('post-dialog').radiobutton"
                   unstyled
                   :class="{ 'is-invalid': errors.category }"
                 />
-                <label class="post-dialog__radios-text" for="category1"
-                  >Weather</label
-                >
-              </div>
-              <div class="post-dialog__radios-item">
-                <RadioButton
-                  inputId="category2"
-                  v-model="category"
-                  name="category"
-                  value="Nature"
-                  :pt="getClasses('post-dialog').radiobutton"
-                  unstyled
-                  :class="{ 'is-invalid': errors.category }"
-                />
-                <label class="post-dialog__radios-text" for="category2"
-                  >Nature</label
-                >
-              </div>
-              <div class="post-dialog__radios-item">
-                <RadioButton
-                  inputId="category3"
-                  v-model="category"
-                  name="category"
-                  value="Animals"
-                  :pt="getClasses('post-dialog').radiobutton"
-                  unstyled
-                  :class="{ 'is-invalid': errors.category }"
-                />
-                <label class="post-dialog__radios-text" for="category3"
-                  >Animals</label
-                >
-              </div>
-              <div class="post-dialog__radios-item">
-                <RadioButton
-                  inputId="category4"
-                  v-model="category"
-                  name="category"
-                  value="Auto"
-                  :pt="getClasses('post-dialog').radiobutton"
-                  unstyled
-                  :class="{ 'is-invalid': errors.category }"
-                />
-                <label class="post-dialog__radios-text" for="category4"
-                  >Auto</label
-                >
-              </div>
-              <div class="post-dialog__radios-item">
-                <RadioButton
-                  inputId="category5"
-                  v-model="category"
-                  name="category"
-                  value="Science"
-                  :pt="getClasses('post-dialog').radiobutton"
-                  unstyled
-                  :class="{ 'is-invalid': errors.category }"
-                />
-                <label class="post-dialog__radios-text" for="category5"
-                  >Science</label
+                <label
+                  class="post-dialog__radios-text"
+                  :for="`category${index}`"
+                  >{{ uppercaseFirst(item) }}</label
                 >
               </div>
             </div>
@@ -167,7 +144,6 @@
             <Tags
               v-model="tags"
               :limit-tags="5"
-              
               placeholder="Select a tag..."
               :class="{ 'is-invalid': errors.tags }"
             />
@@ -212,11 +188,12 @@
 <script setup>
 import { ref, defineProps, defineModel, watch } from "vue";
 import { getClasses } from "@/utils/classes";
+import { areArraysEqual, uppercaseFirst } from "@/utils/index";
 import {
   deleteImage,
   uploadImage,
   writeToDB,
-  updateToDB
+  updateToDB,
 } from "@/server/index";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
@@ -237,10 +214,13 @@ const props = defineProps({
   post: Object,
 });
 
+const emits = defineEmits(["upload", "edit"]);
+
 const dialogPost = ref();
 const file = ref();
 const description = ref();
 const loading = ref(false);
+const categories = ref(["weather", "nature", "animals", "auto", "science"]);
 
 // validate
 const { defineField, resetForm, handleSubmit, errors, validate, values } =
@@ -273,6 +253,11 @@ const [tags] = defineField("tags", (state) => {
     validateOnModelUpdate: state.errors.length > 0,
   };
 });
+const [summary] = defineField("summary", (state) => {
+  return {
+    validateOnModelUpdate: state.errors.length > 0,
+  };
+});
 
 const onSubmit = handleSubmit((value) => {
   savePost();
@@ -288,7 +273,8 @@ watch(
         image: post.image,
         name: post.name,
         category: post.category,
-        tags: post.tags,
+        tags: post.tags ? [...post.tags] : [],
+        summary: post.summary,
       },
     });
     description.value = post.description;
@@ -307,17 +293,29 @@ const savePost = () => {
 };
 
 const saveEditedPost = async () => {
-  let updatedPost = {};
-  props.post.name !== values.name ? updatedPost.name = values.name : null;
-  props.post.description !== description.value ? updatedPost.description = description.value : null;
-  props.post.image !== values.image ? updatedPost.image = values.image : null;
-  props.post.category !== values.category ? updatedPost.category = values.category : null;
-  updatedPost.date = new Date().getTime();
-  props.post.description !== description.value ? updatedPost.time = getTimeReading() : null;
-  props.post.tags !== values.tags ? updatedPost.tags = values.tags : null;
-
   loading.value = true;
   let success = false;
+  let updatedPost = {};
+
+  props.post.name !== values.name ? (updatedPost.name = values.name) : null;
+  props.post.description !== description.value
+    ? (updatedPost.description = description.value)
+    : null;
+  props.post.image !== values.image ? (updatedPost.image = values.image) : null;
+  props.post.category !== values.category
+    ? (updatedPost.category = values.category)
+    : null;
+  updatedPost.date = new Date().getTime();
+  props.post.description !== description.value
+    ? (updatedPost.time = getTimeReading())
+    : null;
+  props.post.summary !== values.summary
+    ? (updatedPost.summary = values.summary)
+    : null;
+  !areArraysEqual(props.post.tags, values.tags)
+    ? (updatedPost.tags = values.tags)
+    : null;
+
   try {
     if (file.value) {
       await uploadImage(image.value, file.value);
@@ -326,11 +324,7 @@ const saveEditedPost = async () => {
     await updateToDB(props.post.id, updatedPost);
     success = true;
 
-    
     if (file.value) {
-      // удаление url на картинку для данного поста
-      serverStore.urls[props.post.id] = null;
-      
       await deleteImage(props.post.image);
     }
   } catch (error) {
@@ -357,6 +351,11 @@ const saveEditedPost = async () => {
   } finally {
     // если загружено изображение и записаны данные в бд (необязательно - удалено старое изображено)
     if (success) {
+      emits("edit", { id: props.post.id, ...updatedPost });
+
+      // удаление url на картинку для данного поста
+      serverStore.setUrl(props.post.id, null);
+
       toast.add({
         severity: "success",
         summary: "Successfully",
@@ -376,6 +375,7 @@ const saveNewPost = async () => {
     id: id,
     name: values.name,
     description: description.value,
+    summary: values.summary,
     image: values.image,
     category: values.category,
     date: new Date().getTime(),
@@ -388,6 +388,9 @@ const saveNewPost = async () => {
   try {
     await uploadImage(image.value, file.value);
     await writeToDB(id, newPost);
+
+    emits("upload", newPost);
+
     toast.add({
       severity: "success",
       summary: "Successfully",
@@ -450,7 +453,6 @@ const getTimeReading = () => {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 5px;
-    max-width: 300px;
   }
   &__radios-item {
     display: flex;

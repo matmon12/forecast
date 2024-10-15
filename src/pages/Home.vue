@@ -1,12 +1,5 @@
 <template>
-  <Spinner
-    v-if="
-      searchStore.loading ||
-      searchStore.historyLoading ||
-      searchStore.astroLoading
-    "
-    :size="50"
-  />
+  <Spinner v-if="searchStore.loading || searchStore.astroLoading" :size="50" />
   <Error
     v-else-if="searchStore.error === 1006"
     @to-back="onToBack"
@@ -35,7 +28,7 @@ import { ref, onMounted, watch } from "vue";
 import { useSearchStore } from "@/stores/search";
 import { useForecastStore } from "@/stores/forecast";
 import axiosApiInstance from "@/api";
-import { CURRENT_URL, ASTRO_URL } from "@/constants/index";
+import { CURRENT_URL, ASTRO_URL, HISTORY_URL } from "@/constants/index";
 
 const searchStore = useSearchStore();
 const forecastStore = useForecastStore();
@@ -44,7 +37,9 @@ watch(
   () => searchStore.search,
   (newValue) => {
     if (newValue) {
-      getWeatherData();
+      getWeatherData().then(() => {
+        getHistoryDay();
+      });
       fetchAstroData();
     }
   }
@@ -84,20 +79,41 @@ const fetchAstroData = async () => {
     });
 };
 
+const getHistoryDay = async () => {
+  const date = new Date().toLocaleDateString("en-GB", {
+    timeZone: searchStore.curWeather.location.tz_id,
+  });
+  const formattedDate = `${date.split("/")[2]}-${date.split("/")[1]}-${
+    date.split("/")[0]
+  }`;
+  await axiosApiInstance
+    .get(`${HISTORY_URL}?q=${searchStore.search}&dt=${formattedDate}`)
+    .then((res) => {
+      searchStore.maxTemp = res.data.forecast.forecastday[0].day.maxtemp_c;
+      searchStore.minTemp = res.data.forecast.forecastday[0].day.mintemp_c;
+    })
+    .catch((err) => {
+      console.log(err);
+    })
+    .finally(() => {});
+};
+
 onMounted(() => {
   if (
     (searchStore.searchSuccess !== searchStore.lastSearch ||
       !searchStore.curWeather) &&
     searchStore.error !== 1006
   ) {
-    getWeatherData();
+    getWeatherData().then(() => {
+      getHistoryDay();
+    });
     fetchAstroData();
   }
 });
 
 const onToBack = () => {
   searchStore.error = "";
-  searchStore.search = searchStore.searchSuccess;  
+  searchStore.search = searchStore.searchSuccess;
   searchStore.input = searchStore.searchSuccess;
 };
 </script>

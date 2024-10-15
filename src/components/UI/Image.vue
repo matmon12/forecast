@@ -16,14 +16,14 @@
         <template #image>
           <img
             class="picture-image-img"
-            :src="serverStore.urls[id]"
+            :src="serverStore.urls[id] || url"
             :alt="name"
           />
         </template>
         <template #preview="slotProps">
           <img
             class="picture-image-original"
-            :src="serverStore.urls[id]"
+            :src="serverStore.urls[id] || url"
             :alt="name"
             :style="slotProps.style"
             @click="slotProps.onClick"
@@ -57,8 +57,8 @@ const props = defineProps({
 });
 
 onMounted(() => {
-  if (!serverStore.urls[props.id]) {
-    // getImage(props.name);
+  if (props.id && !serverStore.urls[props.id]) {
+    getImage(props.name);
   }
 });
 
@@ -66,18 +66,17 @@ watch(
   () => serverStore.urls[props.id],
   (newValue) => {
     if (!newValue) {
-      // getImage(props.name);
+      getImage(props.name);
     }
   }
 );
-
 
 const getImage = (name) => {
   loading.value = true;
   error.value = null;
   loadImage(name)
     .then((url) => {
-      serverStore.urls[props.id] = url;
+      serverStore.setUrl(props.id, url);
     })
     .catch((err) => {
       error.value = JSON.parse(err.message);
@@ -86,6 +85,7 @@ const getImage = (name) => {
       loading.value = false;
     });
 };
+
 </script>
 
 <style lang="scss" scoped>
@@ -94,6 +94,8 @@ const getImage = (name) => {
     width: 100%;
     height: 100%;
     position: relative;
+    overflow: hidden;
+    border-radius: 5px;
   }
   &__content {
     width: 100%;

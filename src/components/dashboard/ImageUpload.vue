@@ -3,7 +3,7 @@
     <div class="uploader__wrapper" v-if="image && !file">
       <Image
         :name="image"
-        :url="url"
+        :id="id"
         :loading="loadingImage"
         :error="errorImage"
       >
@@ -141,10 +141,9 @@
 </template>
 
 <script setup>
-import { ref, defineModel, onMounted } from "vue";
+import { ref, defineModel } from "vue";
 import { usePrimeVue } from "primevue/config";
 import { getClasses } from "@/utils/classes";
-import { loadImage } from "@/server/index";
 
 const $primevue = usePrimeVue();
 const image = defineModel("image");
@@ -152,28 +151,10 @@ const file = defineModel("file");
 const fileupload = ref();
 const loadingImage = ref(false);
 const errorImage = ref();
-const url = ref();
 
-onMounted(() => {
-  if(image.value) {
-    getImage();
-  }
-});
-
-const getImage = () => {
-  errorImage.value = null;
-  loadingImage.value = true;
-  loadImage(image.value)
-    .then((data) => {
-      url.value = data;
-    })
-    .catch((err) => {
-      errorImage.value = JSON.parse(err.message);
-    })
-    .finally(() => {
-      loadingImage.value = false;
-    });
-};
+const props = defineProps({
+  id: String
+})
 
 const formatSize = (bytes) => {
   const k = 1024;

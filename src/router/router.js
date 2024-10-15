@@ -5,7 +5,8 @@ import Tomorrow from "@/pages/Tomorrow.vue";
 import History from "@/pages/History.vue";
 import News from "@/pages/News.vue";
 import CategoryNews from "@/pages/CategoryNews.vue";
-import Dashboard from '@/pages/Dashboard.vue';
+import Dashboard from "@/pages/Dashboard.vue";
+import Post from "@/pages/Post.vue";
 
 const routes = [
   { path: "/forecast/", name: "Home", component: Home },
@@ -20,14 +21,19 @@ const routes = [
     children: [
       {
         path: "",
-        name: 'CategoryAll',
+        name: "CategoryAll",
         component: CategoryNews,
       },
       {
-        path: ":id",
-        name: 'CategoryNews',
+        path: ":category",
+        name: "CategoryNews",
         component: CategoryNews,
       },
+      {
+        path: ":category/:name",
+        name: "Post",
+        component: Post,      
+      }
     ],
   },
 ];

@@ -14,7 +14,7 @@
         :width="180"
       />
       <div class="uv-box">
-        <p class="uv-value">{{ uvIndex }}/13</p>
+        <p class="uv-value">{{ Math.round(uvIndex) }}/13</p>
         <p class="uv-text">{{ textLevel[uvIndex] }}</p>
       </div>
     </div>
@@ -57,7 +57,7 @@ const props = defineProps({
   display: flex;
   flex-direction: column;
 }
-.uv-wrapper{
+.uv-wrapper {
   position: relative;
   display: flex;
   justify-content: center;

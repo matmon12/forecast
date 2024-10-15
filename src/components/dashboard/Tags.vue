@@ -1,9 +1,6 @@
 <template>
   <div class="tags" ref="tags">
-    <div
-      class="tags__wrapper"
-      @click.stop="(showSelect = !showSelect), (error = [])"
-    >
+    <div class="tags__wrapper" @click.stop="onShowDropdown()">
       <p v-if="!selectedTags?.length" class="tags-placeholder">
         {{ placeholder }}
       </p>
@@ -54,9 +51,7 @@
                   unstyled
                   @update:modelValue="search"
                   @keyup.enter="
-                    selectedTags?.length >= limitTags
-                      ? undefined
-                      : handleClick()
+                    selectedTags?.length < limitTags ? handleClick() : undefined
                   "
                 />
                 <InputIcon :pt="getClasses('tags').inputicon" unstyled
@@ -103,6 +98,7 @@
                     :value="tag.value"
                     :pt="getClasses('tags').checkbox"
                     :disabled="isDisabled(tag.value)"
+                    @change="emits('change')"
                   >
                     <template #icon>
                       <i-ph:check-bold />
@@ -135,7 +131,15 @@
 </template>
 
 <script setup>
-import { ref, shallowRef, computed, watch, onMounted, defineModel } from "vue";
+import {
+  ref,
+  shallowRef,
+  computed,
+  watch,
+  onMounted,
+  defineModel,
+  defineEmits,
+} from "vue";
 import debounce from "lodash.debounce";
 import { FilterMatchMode, FilterService } from "@primevue/core/api";
 import IconField from "primevue/iconfield";
@@ -162,16 +166,18 @@ const props = defineProps({
   classSelect: String,
 });
 
-const selectedTags = defineModel();
+const emits = defineEmits(["change"]);
+
+const selectedTags = defineModel({ default: [] });
 const filteredTags = shallowRef([
   {
     label: "Weather",
     icon: MaterialSymbolsWeatherMix,
     items: [
-      { value: "Sunny" },
-      { value: "Cold" },
-      { value: "Strong wind" },
-      { value: "Very hot" },
+      { value: "Forecast" },
+      { value: "Meteorology" },
+      { value: "Records" },
+      { value: "Current weather" },
     ],
   },
   {
@@ -179,62 +185,56 @@ const filteredTags = shallowRef([
     icon: PhPlantFill,
     items: [
       { value: "Plants" },
-      { value: "Beatiful flowers" },
-      { value: "Animals" },
+      { value: "Anomalies" },
+      { value: "Adviсe" },
+      { value: "Ecology" },
     ],
   },
   {
     label: "Animals",
     icon: TeenyiconsPawSolid,
-    items: [{ value: "Dog" }, { value: "Cat" }, { value: "Rebbit" }],
+    items: [
+      { value: "Pets" },
+      { value: "Animals and people" },
+      { value: "Facts" },
+      { value: "Help" },
+    ],
   },
   {
     label: "Auto",
     icon: F7CarFill,
-    items: [{ value: "BMW" }, { value: "Nissan" }, { value: "Audi" }],
-  },
-  {
-    label: "Science",
-    icon: EosIconsScience,
-    items: [{ value: "Space" }, { value: "Glass" }, { value: "Science" }],
-  },
-]);
-const filterTags = shallowRef([
-  {
-    label: "Weather",
-    icon: MaterialSymbolsWeatherMix,
     items: [
-      { value: "Sunny" },
-      { value: "Cold" },
-      { value: "Strong wind" },
-      { value: "Very hot" },
+      { value: "Cars" },
+      { value: "Safety" },
+      { value: "Rules" },
+      { value: "Laws" },
     ],
   },
   {
-    label: "Nature",
-    icon: PhPlantFill,
+    label: "Science and space",
+    icon: EosIconsScience,
     items: [
-      { value: "Plants" },
-      { value: "Beatiful flowers" },
-      { value: "Animals" },
+      { value: "Space" },
+      { value: "Events" },
+      { value: "Space exploration" },
+      { value: "Inventions" },
     ],
   },
-  {
-    label: "Animals",
-    icon: TeenyiconsPawSolid,
-    items: [{ value: "Dog" }, { value: "Cat" }, { value: "Rebbit" }],
-  },
-  {
-    label: "Auto",
-    icon: F7CarFill,
-    items: [{ value: "BMW" }, { value: "Nissan" }, { value: "Audi" }],
-  },
-  {
-    label: "Science",
-    icon: EosIconsScience,
-    items: [{ value: "Space" }, { value: "Glass" }, { value: "Science" }],
-  },
 ]);
+const filterTags = shallowRef([...filteredTags.value]);
+
+const onShowDropdown = () => {
+  showSelect.value = !showSelect.value;
+  error.value = [];
+
+  // сброс фильтра
+  resetFilter();
+};
+
+const resetFilter = () => {
+  searchTags.value = null;
+  filteredTags.value = filterTags.value;
+};
 
 const search = debounce((data) => {
   let newFilteredTags = [];
@@ -271,6 +271,7 @@ const remove = (e, tag) => {
   }
 
   selectedTags.value.splice(indexOfRemove, 1);
+  emits("change");
 };
 
 const handleClick = () => {
@@ -278,7 +279,10 @@ const handleClick = () => {
   const formattedInput = searchTags.value
     ? searchTags.value.trim().replace(/\s+/g, " ")
     : searchTags.value;
-  sameTags = selectedTags.value.find((item) => item === formattedInput);
+
+  if (selectedTags.value) {
+    sameTags = selectedTags.value.find((item) => item === formattedInput);
+  }
 
   if (formattedInput && !sameTags) {
     addItem(formattedInput);
@@ -293,6 +297,7 @@ const handleClick = () => {
 
 const addItem = (input) => {
   selectedTags.value.push(input);
+  emits("change");
 };
 
 const isDisabled = (tag) => {

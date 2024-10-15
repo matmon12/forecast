@@ -21,6 +21,15 @@
 
       <template #end>
         <Button
+          @click="clearFilters"
+          :pt="getClasses('delete').button"
+          unstyled
+          :disabled="disableClearBtn"
+        >
+          <i-ci:filter-off />
+          <span class="delete-btn-label">Clear</span>
+        </Button>
+        <Button
           @click="exportCSV($event)"
           :pt="getClasses('export').button"
           unstyled
@@ -33,12 +42,24 @@
     <DataTable
       ref="dt"
       v-model:selection="selectedPosts"
-      :value="posts?.slice(0, rowsPerPage)"
-      dataKey="id"
       v-model:filters="filters"
+      :value="posts"
+      dataKey="id"
       filterDisplay="row"
       :loading="loadingPosts"
-      :pt="getClasses('dashboard').datatable"
+      scrollable
+      scrollHeight="550px"
+      removableSort
+      :sort-field="currentSortOrder.sortField"
+      :sort-order="currentSortOrder.sortOrder"
+      @sort="
+        (event) => {
+          sortingPosts(event), moveFirstPage();
+        }
+      "
+      :pt="{
+        ...getClasses('dashboard').datatable,
+      }"
     >
       <Column
         selectionMode="multiple"
@@ -56,6 +77,8 @@
       <Column
         field="date"
         header="Date"
+        sortable
+        :showClearButton="false"
         :showFilterMenu="false"
         style="min-width: 12rem"
         :pt="getClasses('dashboard').column"
@@ -69,18 +92,12 @@
           />
           <i-fluent:arrow-sort-20-filled v-else />
         </template>
-        <template #header
-          ><Sort
-            v-model="sortOrders.date"
-            field="date"
-            @sort="(value) => sortingPosts(value)"
-        /></template>
         <template #body="{ data }">
           {{ formattedDate(data.date) }}
         </template>
-        <template #filter>
+        <template #filter="{ filterModel, filterCallback }">
           <DatePicker
-            v-model="filterDate"
+            v-model="filterModel.value"
             date-format="dd.mm.y"
             show-icon
             fluid
@@ -90,8 +107,13 @@
             :max-date="maxDate"
             showButtonBar
             selection-mode="range"
-            @date-select="dateSelect"
-            @clear-click="dateSelect"
+            @date-select="filterCallback(), dateSelect(), moveFirstPage()"
+            @clear-click="
+              (filterModel.value = []),
+                filterCallback(),
+                dateSelect(),
+                moveFirstPage()
+            "
             placeholder="Select date"
             :pt="{
               ...getClasses('dashboard').datepicker,
@@ -103,6 +125,8 @@
       <Column
         field="name"
         header="Title"
+        sortable
+        :showClearButton="false"
         :showFilterMenu="false"
         style="min-width: 15rem"
         :pt="getClasses('dashboard').column"
@@ -121,22 +145,16 @@
             {{ data.name }}
           </p>
         </template>
-        <template #header
-          ><Sort
-            v-model="sortOrders.name"
-            field="name"
-            @sort="(value) => sortingPosts(value)"
-        /></template>
-        <template #filter>
+        <template #filter="{ filterModel, filterCallback }">
           <IconField :pt="getClasses('dashboard-search').iconfield" unstyled>
             <InputIcon :pt="getClasses('dashboard-search').inputicon" unstyled>
               <i-octicon:search-16 />
             </InputIcon>
             <InputText
-              v-model="searchByName"
+              v-model="filterModel.value"
               type="text"
               placeholder="Search..."
-              @update:modelValue="onInputName"
+              @input="searchByName(filterCallback)"
               :pt="getClasses('dashboard-search').inputtext"
               unstyled
             />
@@ -150,18 +168,14 @@
       >
         <template #body="{ data }">
           <div class="dashboard-table-img">
-            <Image
-              :id="data.id"
-              :name="data.image"
-              :url="images[data.id]?.url"
-              style="width: 80px"
-            />
+            <Image :id="data.id" :name="data.image" style="width: 80px" />
           </div>
         </template>
       </Column>
       <Column
         field="tags"
         header="Tags"
+        :showClearButton="false"
         :showFilterMenu="false"
         style="min-width: 12rem; max-width: 12rem"
         :pt="getClasses('dashboard').column"
@@ -169,45 +183,28 @@
         <template #body="{ data }">
           <TagsTable :tags="data.tags" />
         </template>
-        <template #sorticon="{ sorted, sortOrder }">
-          <i-fluent:arrow-sort-up-lines-20-filled
-            v-if="sorted && sortOrder === 1"
-          />
-          <i-fluent:arrow-sort-down-lines-20-filled
-            v-else-if="sorted && sortOrder !== 1"
-          />
-          <i-fluent:arrow-sort-20-filled v-else />
-        </template>
-        <template #filter>
+        <template #filter="{ filterModel, filterCallback }">
           <Tags
             class="dashboard-filter-tags"
-            v-model="filterTags"
+            v-model="filterModel.value"
             class-select="dashboard-filter"
             :limit-tags="5"
             placeholder="Select a tag..."
-            @update:modelValue="moveFirstPage"
+            @change="filterCallback(), moveFirstPage()"
           />
         </template>
       </Column>
       <Column
         field="category"
         header="Category"
+        :showClearButton="false"
         :showFilterMenu="false"
         style="min-width: 8rem"
         :pt="getClasses('dashboard').column"
       >
-        <template #sorticon="{ sorted, sortOrder }">
-          <i-fluent:arrow-sort-up-lines-20-filled
-            v-if="sorted && sortOrder === 1"
-          />
-          <i-fluent:arrow-sort-down-lines-20-filled
-            v-else-if="sorted && sortOrder !== 1"
-          />
-          <i-fluent:arrow-sort-20-filled v-else />
-        </template>
         <template #body="{ data }">
           <Tag
-            :value="data.category"
+            :value="uppercaseFirst(data.category)"
             :style="{
               backgroundColor:
                 colorsTags[data.category.toLowerCase()].colorBack,
@@ -215,9 +212,9 @@
             }"
           />
         </template>
-        <template #filter>
+        <template #filter="{ filterModel, filterCallback }">
           <MultiSelect
-            v-model="filterCategory"
+            v-model="filterModel.value"
             :options="categories"
             placeholder="Not selected"
             :pt="{
@@ -225,7 +222,7 @@
               pcHeaderCheckbox: { ...getClasses('dashboard').checkbox },
               pcOptionCheckbox: { ...getClasses('dashboard').checkbox },
             }"
-            @update:modelValue="moveFirstPage"
+            @change="filterCallback(), moveFirstPage()"
           >
             <template #value="{ value, placeholder }">
               <p v-if="!value.length" class="category-multiselect-placeholder">
@@ -236,7 +233,7 @@
                   class="category-multiselect-tag"
                   v-for="item in value"
                   :key="item"
-                  :value="item"
+                  :value="uppercaseFirst(item)"
                   :style="{
                     backgroundColor: colorsTags[item.toLowerCase()].colorBack,
                     color: colorsTags[item.toLowerCase()].color,
@@ -244,12 +241,16 @@
                 />
               </div>
             </template>
+            <template #option="{option}">
+              {{ uppercaseFirst(option) }}
+            </template>
           </MultiSelect>
         </template>
       </Column>
       <Column
         field="rating"
         header="Rating"
+        sortable
         style="min-width: 9rem"
         :pt="getClasses('dashboard').column"
       >
@@ -270,16 +271,11 @@
             :pt="getClasses('dashboard').rating"
           />
         </template>
-        <template #header
-          ><Sort
-            v-model="sortOrders.rating"
-            field="rating"
-            @sort="(value) => sortingPosts(value)"
-        /></template>
       </Column>
       <Column
         field="time"
         header="Time"
+        sortable
         style="min-width: 7rem"
         :pt="getClasses('dashboard').column"
       >
@@ -298,22 +294,12 @@
             :severity="getColorLabel(data.time)"
           />
         </template>
-        <template #header
-          ><Sort
-            v-model="sortOrders.time"
-            field="time"
-            @sort="(value) => sortingPosts(value)"
-        /></template>
       </Column>
-      <Column
-        :exportable="false"
-        style="min-width: 8rem"
-        :pt="getClasses('dashboard').column"
-      >
+      <Column :exportable="false" :pt="getClasses('dashboard').column">
         <template #body="{ data }">
           <div class="dashboard-table-controls">
             <Button
-              @click="editPost(data)"
+              @click="openEditPostModal(data)"
               :pt="getClasses('edit').button"
               unstyled
               ><i-lucide:edit
@@ -328,142 +314,168 @@
         </template>
       </Column>
 
-      <template #empty> No posts found. </template>
+      <template #empty>
+        <div
+          v-if="countNewPosts < rowsPerPage"
+          class="dashboard-datatable-empty-cell"
+        >
+          <div class="dashboard-datatable-empty-container">
+            <img
+              class="dashboard-datatable-empty-img"
+              src="@/img/empty.svg"
+              alt="empty"
+            />
+            <span class="dashboard-datatable-empty-text">No posts found.</span>
+          </div>
+        </div>
+      </template>
 
       <template #footer>
-        <Paginator
-          v-model="currentPage"
-          :length="posts.length"
-          :rowsPerPage="rowsPerPage"
-          @prev="onClickPrev()"
-          @next="onClickNext()"
-        />
-        <!-- v-if="posts.length >= startRowsPerPage" -->
-        <!-- :options="[...getOptions(posts.length)]" -->
-        <Select
-          v-model="rowsPerPage"
-          :options="[5, 10]"
-          :pt="getClasses('dashboard').select"
-          @update:modelValue="(value) => onSelectRows(value)"
-        />
+        <Button
+          @click="moveToStartPosition"
+          :pt="getClasses('new').button"
+          unstyled
+          ><i-ph:arrow-up-bold
+        /></Button>
       </template>
     </DataTable>
   </div>
 
   <Error
     v-else
-    :message="errorCodes.database[errorPosts.code]"
+    :message="errorPosts.description"
     retry
     @to-back="onToBack"
     @retry="onErrorHandler"
   />
 
-  <PostDialog v-model:visible="postDialog" :post="post" />
+  <PostDialog
+    v-model:visible="postDialog"
+    :post="post"
+    @upload="(value) => addNewPost(value)"
+    @edit="(value) => editPost(value)"
+  />
 
-  <DeleteDialog v-model:visible="deletePostDialog" :post="post" />
+  <DeleteDialog
+    v-model:visible="deletePostDialog"
+    :post="post"
+    @delete="(value) => deletePost(value)"
+  />
 
   <DeletePostsDialog
     v-model:visible="deletePostsDialog"
     v-model:selected="selectedPosts"
+    @delete="(value) => deletePost(value)"
   />
 </template>
 
 <script setup>
-import { ref, watch, computed, nextTick, onUnmounted } from "vue";
-import { FilterMatchMode, FilterService } from "@primevue/core/api";
+import { ref, watch, computed, onUnmounted, onMounted } from "vue";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import DatePicker from "primevue/datepicker";
-import Select from "primevue/select";
 import { getClasses } from "@/utils/classes";
-import router from "@/router/router";
-import { errorCodes } from "@/utils/errors";
-import { useServerStore } from "@/stores/server";
-import { useCollection } from "vuefire";
-import { postsRef, db } from "@/server/firebase.config";
+import { postsRef } from "@/server/firebase.config";
 import {
-  collection,
   where,
   query,
   getDocs,
   orderBy,
   limit,
-  limitToLast,
-  startAt,
   startAfter,
-  endAt,
   endBefore,
-  getDoc,
-  doc,
-  onSnapshot,
 } from "firebase/firestore";
-import { getCurrentInstance } from "vue";
+import { FilterMatchMode, FilterService } from "@primevue/core/api";
+import debounce from "lodash.debounce";
+import { readToDB } from "@/server/index";
+import { onToBack, uppercaseFirst } from "@/utils/index";
 
-const serverStore = useServerStore();
 const dt = ref();
-const images = ref([]);
 const post = ref({});
 const selectedPosts = ref();
 const deletePostDialog = ref(false);
 const deletePostsDialog = ref(false);
 const postDialog = ref(false);
-
-const startRowsPerPage = 5;
-let oldRowsPerPage = 5;
 const rowsPerPage = ref(5);
-const totalPosts = ref(0);
-const keyLastPost = ref({ key: "", value: "" });
-const keyFirstPost = ref({ key: "", value: "" });
-const currentPage = ref(1);
-let dir = "next";
-const sort = ref("category");
 
-watch(
-  () => serverStore.urls,
-  (newvalue) => {
-    console.log(newvalue);
-  },
-  { deep: true }
-);
+// posts
+const posts = ref([]);
+const errorPosts = ref();
+const loadingPosts = ref(false);
 
-const filters = ref({
-  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  category: { value: null },
-});
-
-// categories
-const categories = ref(["Weather", "Nature", "Animals", "Auto", "Science"]);
-const filterCategory = ref(categories.value);
-const filterTags = ref([]);
-const filterDate = ref();
+// filters / sorting / pagination
+const categories = ref(["weather", "nature", "animals", "auto", "science"]);
 const minDate = ref(new Date());
 const maxDate = ref(new Date());
-const searchByName = ref("");
-const sortOrders = ref({
-  date: -1,
-  name: null,
-  rating: null,
-  time: null,
-});
 const currentSortOrder = ref({ sortField: "date", sortOrder: -1 });
-const test = ref([]);
-const datesLimit = ref();
+let lastVisible;
+const cursorNextPage = ref(null);
+const datesLimit = ref({ startDate: null, endDate: null });
+const filters = ref();
+const countNewPosts = ref(0);
+let observer, spacer, tableConatiner;
 
-// loading images
-// promise.value.then((res) => {
-//   // images (url, loading, error)
-//   // posts.value.forEach((post) => {
-//   //   images.value[post.id] = { url: post.image, loading: false, error: null };
-//   // });
-//   // listeners
-// });
+// filters LOCAL
+FilterService.register("ARRAY_CONTAINS_ANY", (value, filter) => {
+  if (filter.length === 0) {
+    return true;
+  }
+  return value.some((el) => filter.includes(el));
+});
 
-// dates limit (filter)
+FilterService.register("DATE_BETWEEN", (value, filter) => {
+  const { startDate, endDate } = getDates(filter);
+  if (startDate && endDate) {
+    return value >= startDate && value <= endDate;
+  }
+  if (startDate && !endDate) {
+    return value >= startDate;
+  }
+  if (!startDate && !endDate) {
+    return value >= yearBeforeDate && value <= futureDate;
+  }
+});
+
+const initFilters = () => {
+  filters.value = {
+    name: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
+    category: { value: [...categories.value], matchMode: FilterMatchMode.IN },
+    tags: { value: [], matchMode: "ARRAY_CONTAINS_ANY" },
+    date: { value: [], matchMode: "DATE_BETWEEN" },
+  };
+};
+initFilters();
+
+const clearFilters = () => {
+  initFilters();
+  dateSelect();
+
+  moveFirstPage();
+};
+
+const disableClearBtn = computed(
+  () =>
+    !filters.value.name.value &&
+    filters.value.category.value.length === categories.value.length &&
+    !filters.value.tags.value.length &&
+    !filters.value.date.value.length
+);
+
+// вычисление дат для границ (фильтр)
+const initDates = () => {
+  const curDate = new Date();
+  let beforeDate = new Date(curDate).setFullYear(curDate.getFullYear() - 1);
+  let afterDate = new Date(curDate).setMonth(curDate.getMonth() + 1);
+
+  return {
+    beforeDate,
+    afterDate,
+  };
+};
+const { beforeDate: yearBeforeDate, afterDate: futureDate } = initDates();
+
 const getDates = (filterDate) => {
   let startDate, endDate;
-  const curDate = new Date();
-  let yearBeforeDate = new Date(curDate).setFullYear(curDate.getFullYear() - 1);
-  let futureDate = new Date(curDate).setMonth(curDate.getMonth() + 1);
 
   if (filterDate && filterDate.length) {
     startDate = new Date(filterDate[0]).getTime();
@@ -476,13 +488,10 @@ const getDates = (filterDate) => {
   return {
     startDate,
     endDate,
-    curDate,
-    futureDate,
-    yearBeforeDate,
   };
 };
-datesLimit.value = { ...getDates() };
 
+// получение постов
 const postsQuery = computed(() => {
   // sorting
   let sortDirection = "asc";
@@ -491,139 +500,120 @@ const postsQuery = computed(() => {
   } else if (currentSortOrder.value.sortOrder === 1) {
     sortDirection = "asc";
   } else if (currentSortOrder.value.sortOrder === null) {
-    currentSortOrder.value.sortField = "date";
-    sortDirection = "asc";
-  }
-
-  // pagination
-  let dirPagination;
-  if (dir === "next") {
-    dirPagination = startAt(...test.value);
-  } else {
-    dirPagination = endAt(...test.value);
+    sortDirection = "desc";
   }
 
   return query(
     postsRef,
-    filterCategory.value.length
-      ? where("category", "in", filterCategory.value)
+    filters.value.category.value.length
+      ? where("category", "in", filters.value.category.value)
       : where("category", "==", null),
-    where("name", ">=", searchByName.value),
-    where("name", "<=", searchByName.value + "\uf8ff"),
+    where("name", ">=", filters.value.name.value),
+    where("name", "<=", filters.value.name.value + "\uf8ff"),
     datesLimit.value.startDate
       ? where("date", ">=", datesLimit.value.startDate)
-      : where("date", ">=", datesLimit.value.yearBeforeDate),
+      : where("date", ">=", yearBeforeDate),
     datesLimit.value.endDate
       ? where("date", "<=", datesLimit.value.endDate)
-      : where("date", "<=", datesLimit.value.futureDate),
-    filterTags.value.length
-      ? where("tags", "array-contains-any", filterTags.value)
+      : where("date", "<=", futureDate),
+    filters.value.tags.value.length
+      ? where("tags", "array-contains-any", filters.value.tags.value)
       : where("tags", "!=", null),
     orderBy(currentSortOrder.value.sortField, sortDirection),
     orderBy("id"),
-    dir === "next"
-      ? limit(rowsPerPage.value + 1)
-      : limitToLast(rowsPerPage.value + 1),
-    test.value.length === 2
-      ? dirPagination
-      : currentSortOrder.value.sortOrder !== -1
-      ? startAt(null)
-      : endAt(null)
+    limit(rowsPerPage.value),
+    cursorNextPage.value
+      ? startAfter(cursorNextPage.value)
+      : currentSortOrder.value.sortOrder === 1
+      ? startAfter(null)
+      : endBefore(null)
   );
 });
 
-// const {
-//   data: posts,
-//   pending: loadingPosts,
-//   error,
-//   promise,
-// } = useCollection(postsQuery);
-
-const posts = ref([]);
-const errorPosts = ref();
-const loadingPosts = ref(false);
-
-// первая загрузка 
 const getPosts = async () => {
   loadingPosts.value = true;
+
+  // уникальные посты
+  let countAddedPosts = 0;
+
   try {
-    const querySnapshot = await getDocs(postsQuery.value);
+    const querySnapshot = await readToDB(postsQuery.value);
+
     querySnapshot.forEach((doc) => {
-      posts.value.push(doc.data());
-    })
-  } catch (err) {
-    errorPosts.value = err;
+      const isPostExists = posts.value.some((item) => item.id === doc.id);
+      if (!isPostExists) {
+        posts.value.push(doc.data());
+        ++countAddedPosts;
+      }
+    });
+
+    // количество последних загруженных постов
+    countNewPosts.value = querySnapshot.docs.length;
+
+    // получение последнего видимого поста
+    lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+
+    // если ни один пост не был добавлен
+    if (!countAddedPosts && countNewPosts.value) {
+      moveNextPage();
+    }
+  } catch (error) {
+    const stringToObject = JSON.parse(error.message);
+
+    errorPosts.value = stringToObject;
   } finally {
     loadingPosts.value = false;
   }
-}
-getPosts();
+};
 
-// подписка на изменения
-let unsubscribe;
-const startListening = () => {
-  unsubscribe = onSnapshot(
-    postsQuery.value,
-    { includeMetadataChanges: true, source: "cache" },
-    (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        const { newIndex, oldIndex, doc, type } = change;
-        if (type === "added") {
-          posts.value.splice(newIndex, 0, doc.data());
-        } else if (type === "modified") {
-          posts.value.splice(oldIndex, 1);
-          posts.value.splice(newIndex, 0, doc.data());
-        } else if (type === "removed") {
-          posts.value.splice(oldIndex, 1);
-        }
-      });
-    },
-    (error) => {
-      errorPosts.value = error;
-      unsubscribe = null;
-    } 
-  );
-}
-startListening();
+watch(
+  () => postsQuery.value,
+  () => {
+    getPosts();
+  },
+  { immediate: true }
+);
 
-// отсоединение слушателя
-const stopListening = () => {
-  if(unsubscribe) {
-    unsubscribe();
+// загрузка новых постов при скролле
+const moveNextPage = () => {
+  if (countNewPosts.value === rowsPerPage.value) {
+    cursorNextPage.value = lastVisible;
   }
-}
+};
+
+const callback = (entries, observer) => {
+  if (entries[0].isIntersecting) {
+    moveNextPage();
+  }
+};
+
+const initIntersection = () => {
+  const tableEl = document.querySelector(".dashboard-datatable-table");
+  spacer = document.createElement("tbody");
+  spacer.className = "dashboard-datatable-virtualscroller-spacer";
+  tableEl.appendChild(spacer);
+
+  observer = new IntersectionObserver(callback);
+  observer.observe(spacer);
+};
+
+onMounted(() => {
+  // получение блока со скроллом
+  tableConatiner = document.querySelector(
+    ".dashboard-datatable-table-container"
+  );
+  initIntersection();
+});
+
 onUnmounted(() => {
-  stopListening();
+  observer.unobserve(spacer);
 });
 
 // обработка ошибок
 const onErrorHandler = () => {
   errorPosts.value = null;
-  if(!unsubscribe) {
-    startListening();
-  }
-  if(!posts.value.length) {
-    getPosts();
-  }
-}
 
-// get image
-const getImage = (id, name) => {
-  // if (!images.value[id]) {
-  //   images.value[id] = { url: name, loading: false, error: null };
-  // }
-  // images.value[id].loading = true;
-  // images.value[id].error = null;
-  // loadImage(name)
-  //   .then((url) => {
-  //     // images.value[id].url = url;
-  //   })
-  //   .catch((err) => {
-  //     // images.value[id].error = JSON.parse(err.message);
-  //   })
-  //   .finally(() => {
-  //     // images.value[id].loading = false;
-  //   });
+  getPosts();
 };
 
 // get colors
@@ -658,9 +648,22 @@ const openNew = () => {
   postDialog.value = true;
 };
 
-const editPost = (prod) => {
+const addNewPost = (newPost) => {
+  posts.value.push(newPost);
+};
+
+const openEditPostModal = (prod) => {
   post.value = { ...prod };
   postDialog.value = true;
+};
+
+const editPost = (editedData) => {
+  const editablePostIndex = posts.value.findIndex(
+    (item) => item.id === editedData.id
+  );
+  if (editablePostIndex !== -1) {
+    Object.assign(posts.value[editablePostIndex], editedData);
+  }
 };
 
 // delete one
@@ -669,14 +672,14 @@ const confirmDeletePost = (prod) => {
   deletePostDialog.value = true;
 };
 
+const deletePost = (postId) => {
+  const indexDeletedPost = posts.value.findIndex((item) => item.id === postId);
+  posts.value.splice(indexDeletedPost, 1);
+};
+
 // delete selected
 const confirmDeleteSelected = () => {
   deletePostsDialog.value = true;
-};
-
-// error
-const onToBack = () => {
-  router.go(-1);
 };
 
 // time Reading
@@ -712,131 +715,36 @@ setMinMaxDate();
 
 // sorting
 const sortingPosts = (value) => {
-  for (let key in sortOrders.value) {
-    if (key !== value.sortField) {
-      sortOrders.value[key] = null;
-    }
-  }
-  currentSortOrder.value = value;
+  currentSortOrder.value = {
+    sortField: value.sortField ? value.sortField : "date",
+    sortOrder: value.sortOrder,
+  };
+};
 
+// поиск
+const searchByName = debounce((filterCallback) => {
+  filterCallback();
   moveFirstPage();
-};
-
-// count rows per page (for select)
-const getOptions = (countPosts) => {
-  if (countPosts > startRowsPerPage * 2) {
-    return [startRowsPerPage, startRowsPerPage * 2, startRowsPerPage * 3];
-  } else {
-    return [startRowsPerPage, startRowsPerPage * 2];
-  }
-};
-
-const onSelectRows = (newRowsPerPage) => {
-  const countPosts =
-    (currentPage.value - 1) * oldRowsPerPage +
-    Math.min(posts.value.length, oldRowsPerPage);
-  const remainder = countPosts % newRowsPerPage;
-
-  // увеличение количества строк
-  if (newRowsPerPage > oldRowsPerPage) {
-    // в начало предыдущей страницы
-    if (remainder > oldRowsPerPage || remainder === 0) {
-      dir = "prev";
-      keyFirstPost.value = {
-        key: posts.value[0].id,
-        value: posts.value[0][sort.value],
-      };
-      nextTick(() => {
-        dir = "next";
-        oldRowsPerPage = newRowsPerPage;
-        keyLastPost.value = {
-          key: posts.value[0].id,
-          value: posts.value[0][sort.value],
-        };
-      });
-    }
-    // в начало текущей страницы
-    if (remainder <= oldRowsPerPage && remainder > 0) {
-      oldRowsPerPage = newRowsPerPage;
-      dir = "next";
-      keyLastPost.value = {
-        key: posts.value[0].id,
-        value: posts.value[0][sort.value],
-      };
-    }
-
-    // change current page
-    const beforePages = countPosts / newRowsPerPage;
-    currentPage.value = Math.ceil(beforePages);
-  }
-  // уменьшение количества строк
-  if (newRowsPerPage < oldRowsPerPage) {
-    // в начало текущей страницы
-    oldRowsPerPage = newRowsPerPage;
-    dir = "next";
-    keyLastPost.value = {
-      key: posts.value[0].id,
-      value: posts.value[0][sort.value],
-    };
-
-    // change current page
-    const integerPages = Math.trunc(countPosts / newRowsPerPage);
-    if (remainder === 0) {
-      currentPage.value = integerPages - 1;
-    }
-    if (remainder > newRowsPerPage) {
-      currentPage.value = integerPages;
-    }
-    if (remainder <= newRowsPerPage && remainder > 0) {
-      currentPage.value = integerPages + 1;
-    }
-  }
-};
-
-// event change page
-const onClickPrev = () => {
-  dir = "prev";
-
-  // if (currentPage.value === 1) {
-  //   dir = "next";
-  //   test.value = [];
-  // } else {
-  test.value = [
-    posts.value[0][currentSortOrder.value.sortField],
-    posts.value[0].id,
-  ];
-  // }
-};
-
-const onClickNext = () => {
-  dir = "next";
-
-  test.value = [
-    posts.value[posts.value.length - 1][currentSortOrder.value.sortField],
-    posts.value[posts.value.length - 1].id,
-  ];
-};
-
-// при поиске возврат на первую страницу
-const onInputName = () => {
-  moveFirstPage();
-};
+}, 500);
 
 // при выборе даты возврат на первую страницу
 const dateSelect = () => {
-  moveFirstPage();
-
-  // вычисление дат для границ
-  datesLimit.value = getDates(filterDate.value);
+  const { startDate, endDate } = getDates(filters.value.date.value);
+  datesLimit.value = { startDate, endDate };
 };
 
 // первая страница
 const moveFirstPage = () => {
-  dir = "next";
+  tableConatiner.scrollTo({ top: 0, left: 0 });
+  posts.value = [];
 
-  test.value = [];
+  cursorNextPage.value = null;
+  countNewPosts.value = 0;
+};
 
-  currentPage.value = 1;
+// установка скролла в начальное положение
+const moveToStartPosition = () => {
+  tableConatiner.scrollTo({ top: 0, left: 0, behavior: "smooth" });
 };
 </script>
 
@@ -868,8 +776,8 @@ const moveFirstPage = () => {
   }
   &-img {
     height: 70px;
-    border-radius: 5px;
-    overflow: hidden;
+    // border-radius: 5px;
+    // overflow: hidden;
   }
   &-controls {
     display: flex;
@@ -1000,6 +908,8 @@ const moveFirstPage = () => {
     }
 
     &-end {
+      display: flex;
+      gap: 10px;
     }
   }
 }
@@ -1033,8 +943,12 @@ const moveFirstPage = () => {
 // datatable
 .dashboard {
   &-datatable {
+    border-radius: 10px;
+    overflow: hidden;
+
     &-table-container {
       @include Scroll(10px, 10px, #333333, #7d7d7d);
+      overflow-y: scroll;
     }
 
     &-mask {
@@ -1043,14 +957,21 @@ const moveFirstPage = () => {
     }
     &-header {
       padding: 10px;
+      &-row {
+      }
     }
     &-paginator {
     }
     &-virtualscroller {
     }
     &-virtualscroller-spacer {
+      height: 1px;
     }
     &-footer {
+      display: flex;
+      justify-content: flex-end;
+    }
+    &-thead {
     }
     &-tbody {
     }
@@ -1071,7 +992,27 @@ const moveFirstPage = () => {
     }
     &-row-group-footer-cell {
     }
-    &-empty-message {
+    &-empty {
+      &-cell {
+        height: 260px;
+      }
+      &-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      &-img {
+        height: 200px;
+        width: min-content;
+      }
+      &-text {
+        font-size: 22px;
+        line-height: 1;
+      }
     }
     &-empty-message-cell {
     }
@@ -1099,30 +1040,35 @@ const moveFirstPage = () => {
   &-datatable {
     &-header {
       &-cell {
-        background-color: #3c4a60af;
-        padding: 10px 15px;
+        background-color: #323e52;
+        padding: 0;
+        border-color: transparent;
+
         &:focus-visible {
           outline: none;
         }
         &.p-datatable-column-sorted {
-          background-color: #45617d;
-          svg {
+          .dashboard-datatable-column-header-content {
+            background-color: $main;
+            color: $white;
+            border-radius: 10px;
+          }
+
+          .dashboard-datatable-sort svg {
             color: #fff;
           }
         }
-        // sorting component
-        &:has(.sort--active) {
-          // background-color: #45617d;
-          // svg {
-          //   color: #fff;
-          // }
+        &:not(:has(.dashboard-datatable-column-header-content)) {
+          padding: 10px 15px;
         }
       }
     }
     &-column {
       &-header-content {
+        padding: 10px 15px;
         align-items: center;
         gap: 15px;
+
         // sorting component
         .sort {
           order: 1;
@@ -1137,6 +1083,11 @@ const moveFirstPage = () => {
 
     &-sort {
       display: flex;
+      justify-content: center;
+      width: 35px;
+      height: 35px;
+      background-color: #27272a;
+      border-radius: 50%;
       svg {
         color: #b0b0b0;
       }
@@ -1199,6 +1150,7 @@ const moveFirstPage = () => {
     &-body-cell {
       padding: 10px 15px;
       font-size: 14px;
+
       &-content {
       }
     }

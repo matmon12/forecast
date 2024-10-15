@@ -1,11 +1,13 @@
 <template>
-  <div class="selectbtn" :style="{backgroundColor: props.colorBack}">
+  <div class="selectbtn" :style="{ backgroundColor: props.colorBack }">
     <div
       v-for="(item, id) in options"
       :class="['selectbtn-item', { 'is--active': activeBtn === item.value }]"
       :key="id"
       @click="onClickBtn(item.value)"
-      :style="{backgroundColor: activeBtn === item.value ? props.colorBtn : '' }"
+      :style="{
+        backgroundColor: activeBtn === item.value ? props.colorBtn : '',
+      }"
     >
       <p class="selectbtn-text">{{ item.name }}</p>
     </div>
@@ -13,7 +15,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits } from "vue";
+import { ref, defineProps, defineEmits, watch } from "vue";
 
 const emit = defineEmits(["toggleSelect"]);
 
@@ -22,14 +24,21 @@ const props = defineProps({
   value: String,
   colorBtn: {
     type: String,
-    required: false
+    required: false,
   },
   colorBack: {
     type: String,
-    required: false
-  }
+    required: false,
+  },
 });
 const activeBtn = ref(props.value);
+
+watch(
+  () => props.value,
+  (newValue) => {
+    activeBtn.value = newValue;
+  }
+);
 
 const onClickBtn = (value) => {
   activeBtn.value = value;

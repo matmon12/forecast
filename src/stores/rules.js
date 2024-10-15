@@ -47,12 +47,16 @@ export const useRulesStore = defineStore("rules", () => {
       }),
     lengthDescription: number()
       .min(100, "The description must contain at least 100 characters!")
-      .max(20000, "The description must contain no more than 20000 characters!"),
+      .max(
+        20000,
+        "The description must contain no more than 20000 characters!"
+      ),
     category: string().required("Select a category!"),
     tags: array()
       .ensure()
       .min(1, "Select at least 1 tag!")
       .max(5, "There should be no more than 5 tags!"),
+    summary: string().required("The field must not be empty!"),
   });
 
   return {

@@ -1,5 +1,12 @@
 import { errorCodes } from "@/utils/errors";
-import { doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  getDocs,
+  getDoc,
+} from "firebase/firestore";
 import { db } from "@/server/firebase.config";
 
 import {
@@ -80,7 +87,7 @@ export const writeToDB = async (id, newPost) => {
   await setDoc(doc(db, "posts/" + id), newPost)
     .then(() => {})
     .catch((error) => {
-      console.log(error.code)
+      console.log(error.code);
       const errorMessage = {
         description: errorCodes.database[error.code],
         process: "Error saving data!",
@@ -152,4 +159,37 @@ export const deleteFromDB = async (id) => {
       const objectToString = JSON.stringify(errorMessage);
       throw new Error(objectToString);
     });
+};
+
+export const readToDB = async (query) => {
+  try {
+    const querySnapshot = await getDocs(query);
+    return querySnapshot;
+  } catch (error) {
+    const errorMessage = {
+      description: errorCodes.database[error.code],
+      process: "Error reading data!",
+      operation: "read",
+      object: "post",
+    };
+    const objectToString = JSON.stringify(errorMessage);
+    throw new Error(objectToString);
+  }
+};
+
+export const getDocFromDB = async (id) => {
+  try {
+    const docRef = doc(db, "posts", id);
+    const document = (await getDoc(docRef)).data();
+    return document;
+  } catch (error) {
+    const errorMessage = {
+      description: errorCodes.database[error.code],
+      process: "Error reading data!",
+      operation: "read",
+      object: "post",
+    };
+    const objectToString = JSON.stringify(errorMessage);
+    throw new Error(objectToString);
+  }
 };

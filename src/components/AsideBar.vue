@@ -5,9 +5,20 @@
         <div
           v-for="item in menuPages"
           :key="item.id"
-          :class="['aside-btn-wrap', { 'is--active': route.matched[0]?.path  === item.router }]"
+          :class="[
+            'aside-btn-wrap',
+            {
+              'is--active':
+                route.matched[0]?.path === `/forecast/${item.router}`,
+            },
+          ]"
         >
-          <button @click="isActiveBtn = item.id, router.push(item.router)" class="aside-btn">
+          <button
+            @click="
+              (isActiveBtn = item.id), router.push(`/forecast/${item.router}`)
+            "
+            class="aside-btn"
+          >
             <component :is="item.icon"></component>
           </button>
         </div>
@@ -35,8 +46,8 @@
 </template>
 
 <script setup>
-import { ref, markRaw } from "vue";
-import {useRoute} from 'vue-router'
+import { ref, markRaw, watch } from "vue";
+import { useRoute } from "vue-router";
 import LineMdSunnyOutlineToMoonLoopTransition from "~icons/line-md/sunny-outline-to-moon-loop-transition";
 import LineMdMoonToSunnyOutlineLoopTransition from "~icons/line-md/moon-to-sunny-outline-loop-transition";
 import PhSquaresFour from "~icons/ph/squares-four";
@@ -44,22 +55,20 @@ import CarbonLocation from "~icons/carbon/location";
 import QuillCalendar from "~icons/quill/calendar";
 import FluentNews20Regular from "~icons/fluent/news-20-regular";
 import EpSetting from "~icons/ep/setting";
-import router from '@/router/router.js'
+import router from "@/router/router.js";
 
 const route = useRoute();
 
 const isActiveBtn = ref(1);
 const menuPages = markRaw([
-  { id: 1, icon: PhSquaresFour, router: '/forecast/' },
-  { id: 2, icon: CarbonLocation, router: '/forecast/tomorrow' },
-  { id: 3, icon: QuillCalendar, router: '/forecast/history' },
-  { id: 4, icon: FluentNews20Regular, router: '/forecast/news' },
-  { id: 5, icon: EpSetting, router: '/forecast/dashboard' },
+  { id: 1, icon: PhSquaresFour, router: "" },
+  { id: 2, icon: CarbonLocation, router: "tomorrow" },
+  { id: 3, icon: QuillCalendar, router: "history" },
+  { id: 4, icon: FluentNews20Regular, router: "news" },
+  { id: 5, icon: EpSetting, router: "dashboard" },
 ]);
 
-const onChangeTheme = (value) => {
-};
-
+const onChangeTheme = (value) => {};
 </script>
 
 <style lang="scss" scoped>

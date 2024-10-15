@@ -34,7 +34,9 @@
             class="summary-img"
             width="200px"
             :src="
-              getImageUrl(formatPath(props.curWeather?.current?.condition?.icon))
+              getImageUrl(
+                formatPath(props.curWeather?.current?.condition?.icon)
+              )
             "
             alt="icon"
           />
@@ -54,8 +56,6 @@
 
 <script setup>
 import { onMounted, ref, watch, defineProps } from "vue";
-import axiosApiInstance from "@/api";
-import { CURRENT_URL, HISTORY_URL } from "@/constants/index";
 import { getFarTemp, getImageUrl, formatPath } from "@/utils/index";
 import { useSearchStore } from "@/stores/search";
 
@@ -77,7 +77,6 @@ watch(
   (newValue) => {
     if (newValue) {
       init();
-      getHistoryDay(currentDate.value);
     }
   }
 );
@@ -104,26 +103,6 @@ const onChangeDegree = (value) => {
       getFarTemp(props.curWeather.current.temp_c)
     )}°F`;
   }
-};
-
-const getHistoryDay = async (curDate) => {
-  const date = new Date(curDate).toLocaleDateString();
-  const formattedDate = `${date.split(".")[2]}-${date.split(".")[1]}-${
-    date.split(".")[0]
-  }`;
-  searchStore.historyLoading = true;
-  await axiosApiInstance
-    .get(`${HISTORY_URL}?q=${searchStore.search}&dt=${formattedDate}`)
-    .then((res) => {
-      searchStore.maxTemp = res.data.forecast.forecastday[0].day.maxtemp_c;
-      searchStore.minTemp = res.data.forecast.forecastday[0].day.mintemp_c;
-    })
-    .catch((err) => {
-      console.log(err);
-    })
-    .finally(() => {
-      searchStore.historyLoading = false;
-    });
 };
 
 const getCurDate = (tz) => {

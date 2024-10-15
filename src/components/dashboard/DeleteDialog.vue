@@ -54,7 +54,7 @@
 </template>
 
 <script setup>
-import { ref, defineModel, defineProps } from "vue";
+import { ref, defineModel, defineProps, defineEmits } from "vue";
 import { getClasses } from "@/utils/classes.js";
 import { vOnClickOutside } from "@vueuse/components";
 import { useToast } from "primevue/usetoast";
@@ -71,6 +71,8 @@ const props = defineProps({
   post: Object,
 });
 
+const emits = defineEmits(['delete'])
+
 const deletePost = async () => {
   loading.value = true;
   let success = false;
@@ -79,7 +81,7 @@ const deletePost = async () => {
     success = true;
 
     // Удалить запись из массива urls для удаленного поста
-    delete serverStore.urls[props.post.id];
+    serverStore.deleteUrl(props.post.id);
 
     await deleteImage(props.post.image);
   } catch (error) {
@@ -92,6 +94,8 @@ const deletePost = async () => {
     });
   } finally {
     if (success) {
+      emits('delete', props.post.id)
+
       toast.add({
         severity: "success",
         summary: "Successfully",

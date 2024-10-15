@@ -100,10 +100,9 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineModel, computed, watch } from "vue";
+import { ref, defineModel, computed, watch } from "vue";
 import { getClasses } from "@/utils/classes";
 import Pickr from "@simonwep/pickr";
-import { Delta } from "quill/core";
 import debounce from "lodash.debounce";
 import "@simonwep/pickr/dist/themes/nano.min.css";
 
@@ -130,6 +129,7 @@ const colorsText = ref([
   { name: "new-color", value: "new-color" },
   { name: "new-color", value: "new-color" },
   { name: "new-color", value: "new-color" },
+  { name: "default", value: "reset" },
 ]);
 
 const colorsBack = ref([
@@ -143,36 +143,42 @@ const colorsBack = ref([
   { name: "new-color", value: "new-color" },
   { name: "new-color", value: "new-color" },
   { name: "new-color", value: "new-color" },
+  { name: "default", value: "reset" },
 ]);
 
-const showColorPicker = (value) => {
-  pickerMode = "color";
+const handlerColor = (type, value) => {
+  pickerMode = type;
   if (value === "color-picker" || value === "new-color") {
     pickr.show();
+  } else if (value === "reset") {
+    selectColor(type, null);
   } else {
-    editor.value.quill.format("color", value);
-  }
-};
-
-const showBackgroundPicker = (value) => {
-  pickerMode = "backgroundColor";
-  if (value === "color-picker" || value === "new-color") {
-    pickr.show();
-  } else {
-    editor.value.quill.format("background", value);
+    selectColor(type, value);
   }
 };
 
 const onLoadEditor = () => {
   // add default value
   editor.value.quill.clipboard.dangerouslyPasteHTML(description.value);
+
   // length text
   updateLength();
 
+  initPickr();
+
+  validatePickr();
+
+  addColor();
+
+  addHandlers();
+};
+
+const initPickr = () => {
   pickr = Pickr.create({
     el: ".picker",
     theme: "nano",
     default: "#000000",
+    lockOpacity: true,
 
     autoReposition: true,
 
@@ -201,41 +207,17 @@ const onLoadEditor = () => {
       },
     },
   });
+};
 
+const validatePickr = () => {
   // add validation
-  var errorText;
   const patternColor =
     "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})|rgba\\(\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])%?\\s*,\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])%?\\s*,\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])%?\\s*(,\\s*1)?\\)$";
-  const regexColor = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-
   const inputPicker = document.querySelector(".pcr-result");
-  const saveButton = document.querySelector(".pcr-save");
-  const container = document.querySelector(".pcr-interaction");
-
   inputPicker.setAttribute("pattern", patternColor);
+};
 
-  pickr.on("change", (color) => {
-    const formatColor = color.toHEXA().toString();
-    if (regexColor.test(formatColor)) {
-      saveButton.disabled = false;
-
-      if (errorText) {
-        errorText.style.display = "none";
-      }
-    } else {
-      saveButton.disabled = true;
-
-      if (!errorText) {
-        errorText = document.createElement("span");
-        errorText.innerText = "Invalid color format!";
-        errorText.className = "pcr-error";
-        container.appendChild(errorText);
-      } else {
-        errorText.style.display = "block";
-      }
-    }
-  });
-
+const addColor = () => {
   var firstBtnColor, currentBtnColor, lengthBtnsColor;
   var firstBtnBack, currentBtnBack, lengthBtnsBack;
 
@@ -261,7 +243,7 @@ const onLoadEditor = () => {
 
     if (pickerMode === "color") {
       colorPicker.value = color.toHEXA().toString().toLowerCase();
-      editor.value.quill.format("color", colorPicker.value);
+      selectColor("color", colorPicker.value);
 
       // check new color
       const isFound = colorsText.value.some(
@@ -289,17 +271,17 @@ const onLoadEditor = () => {
 
       // start style
       const line = document.querySelector(
-        ".dashboard-editor-color .ql-color-label.ql-stroke.ql-fill"
+        ".dashboard-editor-color .ql-color-label.ql-stroke"
       );
       const button = document.querySelector(
         ".dashboard-editor-color .ql-picker-label"
       );
-      line.style.fill = colorPicker.value;
+      line.style.stroke = colorPicker.value;
       button.classList.add("ql-active");
     }
     if (pickerMode === "backgroundColor") {
       backgroundPicker.value = color.toHEXA().toString().toLowerCase();
-      editor.value.quill.format("background", backgroundPicker.value);
+      selectColor("background", backgroundPicker.value);
 
       // check new color
       const isFound = colorsBack.value.some(
@@ -336,10 +318,19 @@ const onLoadEditor = () => {
       button.classList.add("ql-active");
     }
   });
+};
 
+const addHandlers = () => {
   var toolbar = editor.value.quill.getModule("toolbar");
-  toolbar.addHandler("color", showColorPicker);
-  toolbar.addHandler("background", showBackgroundPicker);
+  toolbar.addHandler("color", (value) => handlerColor("color", value));
+  toolbar.addHandler("background", (value) =>
+    handlerColor("background", value)
+  );
+};
+
+const selectColor = (type, value) => {
+  editor.value.quill.format(type, value);
+  description.value = editor.value.quill.root.innerHTML;
 };
 
 watch(
@@ -551,6 +542,19 @@ const updateLength = debounce(() => {
       line-height: 1;
     }
   }
+  &[data-value="reset"] {
+    grid-column: span 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+
+    &:before {
+      content: "No color";
+      line-height: 1;
+      font-size: 12px;
+    }
+  }
 }
 
 .ql-color-picker .ql-picker-item {
@@ -561,6 +565,11 @@ const updateLength = debounce(() => {
     transition: background-color 0.3s;
     margin: 5px 0;
     padding: 8px 0;
+  }
+  &[data-value="reset"] {
+    padding: 5px 0;
+    height: auto;
+    border: 1px solid $blue;
   }
 }
 
@@ -636,7 +645,7 @@ const updateLength = debounce(() => {
     color: #a1a1aa;
     font-style: normal;
   }
-  .ql-video{
+  .ql-video {
     width: 100%;
   }
 }

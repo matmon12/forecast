@@ -140,6 +140,8 @@ const countDeletedPosts = ref(0);
 const errors = ref([]);
 const loading = ref(false);
 
+const emits = defineEmits(['delete'])
+
 const deleteSelectedPosts = async () => {
   countDeletedPosts.value = 0;
   errors.value = [];
@@ -192,7 +194,9 @@ const deletePost = async (post) => {
     ++countDeletedPosts.value;
 
     // Удалить запись из массива urls для удаленного поста
-    delete serverStore.urls[post.id];
+    serverStore.deleteUrl(post.id);
+
+    emits('delete', post.id)
 
     await deleteImage(post.image);
   } catch (error) {
