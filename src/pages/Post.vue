@@ -27,7 +27,6 @@
           >
             <component :is="link.icon"></component>
           </a>
-          <button @click="console.log($route)">sfsdfsf</button>
         </div>
       </div>
     </div>
@@ -54,7 +53,7 @@ const errorPost = ref();
 const route = useRoute();
 
 const links = markRaw([
-  { icon: AkarIconsVkFill, link: `https://vk.com/share.php?url=${route.fullPath}` },
+  { icon: AkarIconsVkFill, link: `https://vk.com/share.php?url=${window.location.href}` },
 ]);
 
 onMounted(() => {
