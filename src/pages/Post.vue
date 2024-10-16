@@ -43,17 +43,23 @@ import { readToDB } from "@/server/index";
 import { query, where } from "firebase/firestore";
 import { postsRef } from "@/server/firebase.config";
 import AkarIconsVkFill from "~icons/akar-icons/vk-fill";
+import MdiOkRu from '~icons/mdi/ok-ru';
 
 const post = ref();
 const loadingPost = ref(false);
 const errorPost = ref();
 const route = useRoute();
+const currentUrl = window.location.href;
 
 const links = markRaw([
   {
     icon: AkarIconsVkFill,
-    link: `https://vk.com/share.php?url=${window.location.href}`,
+    link: `https://vk.com/share.php?url=${currentUrl}`,
   },
+  {
+    icon: MdiOkRu,
+    link: `https://connect.ok.ru/dk?st.cmd=WidgetSharePreview&st.shareUrl=${currentUrl}`
+  }
 ]);
 
 onMounted(() => {
