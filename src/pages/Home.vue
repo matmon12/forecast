@@ -57,7 +57,7 @@ const getWeatherData = async () => {
       searchStore.lastSearch = searchStore.curWeather.location.name;
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
     })
     .finally(() => {
       searchStore.loading = false;
@@ -72,7 +72,7 @@ const fetchAstroData = async () => {
       searchStore.astroInfo = res.data;
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
     })
     .finally(() => {
       searchStore.astroLoading = false;
@@ -93,7 +93,7 @@ const getHistoryDay = async () => {
       searchStore.minTemp = res.data.forecast.forecastday[0].day.mintemp_c;
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
     })
     .finally(() => {});
 };

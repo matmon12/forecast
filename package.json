@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "local-preview": "serve -s dist",
     "server": "json-server -w src/server/db.json -p 3001"
   },
   "dependencies": {
