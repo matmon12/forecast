@@ -9,7 +9,7 @@ import Dashboard from "@/pages/Dashboard.vue";
 import Post from "@/pages/Post.vue";
 
 const routes = [
-  { path: "/", name: "Home", component: Home },
+  { path: process.env.NODE_ENV === "production" ? "/forecast/" : "/", name: "Home", component: Home },
   { path: "/error", name: "Error", component: Error },
   { path: "/tomorrow", name: "Tomorrow", component: Tomorrow },
   { path: "/history", name: "History", component: History },
