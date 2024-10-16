@@ -8,7 +8,6 @@ import AutoImport from "unplugin-auto-import/vite";
 import IconsResolver from "unplugin-icons/resolver";
 import { PrimeVueResolver } from "unplugin-vue-components/resolvers";
 
-
 // https://vitejs.dev/config/
 export default defineConfig({
   base: process.env.NODE_ENV === "production" ? "/forecast/" : "/",
