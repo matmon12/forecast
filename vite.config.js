@@ -7,10 +7,19 @@ import Components from "unplugin-vue-components/vite";
 import AutoImport from "unplugin-auto-import/vite";
 import IconsResolver from "unplugin-icons/resolver";
 import { PrimeVueResolver } from "unplugin-vue-components/resolvers";
+import { resolve } from "node:path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   base: process.env.NODE_ENV === "production" ? "/forecast/" : "/",
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        error: resolve(__dirname, '404.html')
+      }
+    }
+  },
   plugins: [
     vue(),
     ViteImageOptimizer({
