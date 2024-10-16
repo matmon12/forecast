@@ -73,7 +73,7 @@ import {
 } from "firebase/firestore";
 import { postsRef } from "@/server/firebase.config";
 import { readToDB } from "@/server/index";
-import { onToBack, translitForUrl } from "../utils/index";
+import { onToBack } from "../utils/index";
 import { useRoute } from "vue-router";
 import router from "../router/router";
 
@@ -181,12 +181,11 @@ const generateSequence = (count) => {
 };
 
 const navigateToPost = (post) => {
-  localStorage.setItem("post", JSON.stringify({ id: post.id }));
   router.push({
     name: "Post",
     params: {
       category: post.category,
-      name: translitForUrl(post.name),
+      name: post.slug,
     },
   });
 };

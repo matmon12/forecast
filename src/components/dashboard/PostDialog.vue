@@ -188,7 +188,7 @@
 <script setup>
 import { ref, defineProps, defineModel, watch } from "vue";
 import { getClasses } from "@/utils/classes";
-import { areArraysEqual, uppercaseFirst } from "@/utils/index";
+import { areArraysEqual, uppercaseFirst, translitForUrl } from "@/utils/index";
 import {
   deleteImage,
   uploadImage,
@@ -297,24 +297,29 @@ const saveEditedPost = async () => {
   let success = false;
   let updatedPost = {};
 
-  props.post.name !== values.name ? (updatedPost.name = values.name) : null;
-  props.post.description !== description.value
-    ? (updatedPost.description = description.value)
-    : null;
-  props.post.image !== values.image ? (updatedPost.image = values.image) : null;
-  props.post.category !== values.category
-    ? (updatedPost.category = values.category)
-    : null;
+  if (props.post.name !== values.name) {
+    updatedPost.name = values.name;
+    updatedPost.slug = translitForUrl(values.name);
+  }
+  if(props.post.description !== description.value) {
+    updatedPost.description = description.value
+  }
+  if(props.post.category !== values.category) {
+    updatedPost.category = values.category
+  }
+  if(props.post.description !== description.value) {
+    updatedPost.time = getTimeReading()
+  }
+  if(props.post.summary !== values.summary) {
+    updatedPost.summary = values.summary
+  } 
+  if(!areArraysEqual(props.post.tags, values.tags)) {
+    updatedPost.tags = values.tags
+  }
+  if(props.post.image !== values.image) {
+    updatedPost.image = values.image
+  }
   updatedPost.date = new Date().getTime();
-  props.post.description !== description.value
-    ? (updatedPost.time = getTimeReading())
-    : null;
-  props.post.summary !== values.summary
-    ? (updatedPost.summary = values.summary)
-    : null;
-  !areArraysEqual(props.post.tags, values.tags)
-    ? (updatedPost.tags = values.tags)
-    : null;
 
   try {
     if (file.value) {
@@ -374,6 +379,7 @@ const saveNewPost = async () => {
   const newPost = {
     id: id,
     name: values.name,
+    slug: translitForUrl(values.name),
     description: description.value,
     summary: values.summary,
     image: values.image,

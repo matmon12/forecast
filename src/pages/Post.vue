@@ -20,11 +20,7 @@
       <div class="post-block post__share">
         <h4 class="post__share-title">Поделитесь новостью</h4>
         <div class="post-links">
-          <a
-            v-for="(link, index) of links"
-            :key="index"
-            :href="link.link"
-          >
+          <a v-for="(link, index) of links" :key="index" :href="link.link">
             <component :is="link.icon"></component>
           </a>
         </div>
@@ -43,34 +39,35 @@
 <script setup>
 import { useRoute } from "vue-router";
 import { ref, markRaw, defineProps, onMounted, onUnmounted } from "vue";
-import { getDocFromDB } from "@/server/index";
+import { readToDB } from "@/server/index";
+import { query, where } from "firebase/firestore";
+import { postsRef } from "@/server/firebase.config";
 import AkarIconsVkFill from "~icons/akar-icons/vk-fill";
 
-const postId = ref();
 const post = ref();
 const loadingPost = ref(false);
 const errorPost = ref();
 const route = useRoute();
 
 const links = markRaw([
-  { icon: AkarIconsVkFill, link: `https://vk.com/share.php?url=${window.location.href}` },
+  {
+    icon: AkarIconsVkFill,
+    link: `https://vk.com/share.php?url=${window.location.href}`,
+  },
 ]);
 
 onMounted(() => {
-  postId.value = getIdPost();
   getPost();
 });
-
-const getIdPost = () => {
-  const post = JSON.parse(localStorage.getItem("post"));
-  return post.id;
-};
 
 const getPost = async () => {
   loadingPost.value = true;
   errorPost.value = null;
   try {
-    post.value = await getDocFromDB(postId.value);
+    const querySnapshot = await readToDB(
+      query(postsRef, where("slug", "==", route.params.name))
+    );
+    post.value = querySnapshot.docs[0].data();
   } catch (error) {
     const stringToObject = JSON.parse(error.message);
     errorPost.value = stringToObject;

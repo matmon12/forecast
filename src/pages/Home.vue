@@ -28,7 +28,7 @@ import { ref, onMounted, watch } from "vue";
 import { useSearchStore } from "@/stores/search";
 import { useForecastStore } from "@/stores/forecast";
 import axiosApiInstance from "@/api";
-import { CURRENT_URL, ASTRO_URL, HISTORY_URL } from "@/constants/index";
+import { CURRENT_URL, ASTRO_URL, FORECAST_URL } from "../constants/index";
 
 const searchStore = useSearchStore();
 const forecastStore = useForecastStore();
@@ -38,7 +38,7 @@ watch(
   (newValue) => {
     if (newValue) {
       getWeatherData().then(() => {
-        getHistoryDay();
+        getMinMax();
       });
       fetchAstroData();
     }
@@ -79,16 +79,11 @@ const fetchAstroData = async () => {
     });
 };
 
-const getHistoryDay = async () => {
-  const date = new Date().toLocaleDateString("en-GB", {
-    timeZone: searchStore.curWeather.location.tz_id,
-  });
-  const formattedDate = `${date.split("/")[2]}-${date.split("/")[1]}-${
-    date.split("/")[0]
-  }`;
+const getMinMax = async () => {
   await axiosApiInstance
-    .get(`${HISTORY_URL}?q=${searchStore.search}&dt=${formattedDate}`)
+    .get(`${FORECAST_URL}?q=${searchStore.search}&days=1`)
     .then((res) => {
+      console.log(res)
       searchStore.maxTemp = res.data.forecast.forecastday[0].day.maxtemp_c;
       searchStore.minTemp = res.data.forecast.forecastday[0].day.mintemp_c;
     })
@@ -105,7 +100,7 @@ onMounted(() => {
     searchStore.error !== 1006
   ) {
     getWeatherData().then(() => {
-      getHistoryDay();
+      getMinMax();
     });
     fetchAstroData();
   }
