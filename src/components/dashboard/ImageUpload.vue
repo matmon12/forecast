@@ -260,6 +260,11 @@ const selectImage = (e) => {
     border-radius: 5px;
     overflow: hidden;
   }
+  &.is-invalid{
+    .dashboard-fileupload{
+      @include Invalid();
+    }
+  }
 }
 </style>
 
@@ -267,6 +272,8 @@ const selectImage = (e) => {
 .dashboard {
   &-fileupload {
     border-radius: inherit;
+    transition: all .3s;
+
     &-input {
     }
     &-header {

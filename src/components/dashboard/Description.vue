@@ -105,6 +105,7 @@ import { getClasses } from "@/utils/classes";
 import Pickr from "@simonwep/pickr";
 import debounce from "lodash.debounce";
 import "@simonwep/pickr/dist/themes/nano.min.css";
+import Quill from "quill";
 
 const description = defineModel("description");
 const lengthDescription = defineModel("length");
@@ -171,6 +172,8 @@ const onLoadEditor = () => {
   addColor();
 
   addHandlers();
+
+  replaceSpaces();
 };
 
 const initPickr = () => {
@@ -326,6 +329,20 @@ const addHandlers = () => {
   toolbar.addHandler("background", (value) =>
     handlerColor("background", value)
   );
+};
+
+const replaceSpaces = () => {
+  const Delta = Quill.import("delta");
+  editor.value.quill.clipboard.addMatcher(Node.ELEMENT_NODE, (node, delta) => {
+    const ops = delta.ops.map((op) => ({
+      insert:
+        typeof op.insert === "string"
+          ? op.insert.replace(/\u00A0/g, " ")
+          : op.insert,
+      attributes: op.attributes,
+    }));
+    return new Delta(ops);
+  });
 };
 
 const selectColor = (type, value) => {

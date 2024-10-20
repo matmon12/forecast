@@ -49,10 +49,11 @@
                 :invalid="errors.name ? true : false"
                 :pt="getClasses('post-dialog').inputtext"
                 placeholder="Enter name"
+                @paste="(event) => replaceSpaces(event, 'name')"
               />
               <InputIcon
                 v-if="name"
-                @click="name = null"
+                @click="resetField('name')"
                 :pt="getClasses('post-dialog').inputicon"
                 unstyled
                 ><i-majesticons:close
@@ -92,10 +93,11 @@
                 :invalid="errors.summary ? true : false"
                 :pt="getClasses('post-dialog').inputtext"
                 placeholder="Enter summary..."
+                @paste="(event) => replaceSpaces(event, 'summary')"
               />
               <InputIcon
                 v-if="summary"
-                @click="summary = null"
+                @click="resetField('summary')"
                 :pt="getClasses('post-dialog').inputicon"
                 unstyled
                 ><i-majesticons:close
@@ -223,10 +225,18 @@ const loading = ref(false);
 const categories = ref(["weather", "nature", "animals", "auto", "science"]);
 
 // validate
-const { defineField, resetForm, handleSubmit, errors, validate, values } =
-  useForm({
-    validationSchema: rulesStore.schemaPostDialog,
-  });
+const {
+  defineField,
+  resetForm,
+  handleSubmit,
+  errors,
+  validate,
+  values,
+  setFieldValue,
+  resetField
+} = useForm({
+  validationSchema: rulesStore.schemaPostDialog,
+});
 
 const [image] = defineField("image", (state) => {
   return {
@@ -301,23 +311,23 @@ const saveEditedPost = async () => {
     updatedPost.name = values.name;
     updatedPost.slug = translitForUrl(values.name);
   }
-  if(props.post.description !== description.value) {
-    updatedPost.description = description.value
+  if (props.post.description !== description.value) {
+    updatedPost.description = description.value;
   }
-  if(props.post.category !== values.category) {
-    updatedPost.category = values.category
+  if (props.post.category !== values.category) {
+    updatedPost.category = values.category;
   }
-  if(props.post.description !== description.value) {
-    updatedPost.time = getTimeReading()
+  if (props.post.description !== description.value) {
+    updatedPost.time = getTimeReading();
   }
-  if(props.post.summary !== values.summary) {
-    updatedPost.summary = values.summary
-  } 
-  if(!areArraysEqual(props.post.tags, values.tags)) {
-    updatedPost.tags = values.tags
+  if (props.post.summary !== values.summary) {
+    updatedPost.summary = values.summary;
   }
-  if(props.post.image !== values.image) {
-    updatedPost.image = values.image
+  if (!areArraysEqual(props.post.tags, values.tags)) {
+    updatedPost.tags = values.tags;
+  }
+  if (props.post.image !== values.image) {
+    updatedPost.image = values.image;
   }
   updatedPost.date = new Date().getTime();
 
@@ -436,6 +446,13 @@ const getTimeReading = () => {
   const symbolsToMinute = 1300;
   const minutes = lengthDescription.value / symbolsToMinute;
   return Math.round(minutes * 10) / 10;
+};
+
+const replaceSpaces = (event, field) => {
+  event.preventDefault();
+  const paste = event.clipboardData.getData("text");
+  const formattedPaste = paste.replace(/\u00A0/g, " "); 
+  setFieldValue(field, formattedPaste, false);
 };
 </script>
 

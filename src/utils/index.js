@@ -78,7 +78,7 @@ export const getLuminance = (color) => {
   const g = parseInt(rgb[1]);
   const b = parseInt(rgb[2]);
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
+};
 
 export const translitForUrl = (text) => {
   var converter = {
@@ -128,7 +128,6 @@ export const translitForUrl = (text) => {
         answer += converter[text[i]];
       }
     }
-
 
     answer = answer.replace(/[^-0-9a-z]/g, "-");
     answer = answer.replace(/[-]+/g, "-");

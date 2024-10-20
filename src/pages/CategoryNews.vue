@@ -73,9 +73,9 @@ import {
 } from "firebase/firestore";
 import { postsRef } from "@/server/firebase.config";
 import { readToDB } from "@/server/index";
-import { onToBack } from "../utils/index";
+import { onToBack } from "@/utils/index";
 import { useRoute } from "vue-router";
-import router from "../router/router";
+import router from '@/router/router';
 
 const countSkeletons = ref(6);
 const postsPerPage = ref(6);
@@ -146,7 +146,7 @@ const getPosts = async () => {
 watch(
   () => postQuery.value,
   () => {
-    getPosts();
+    // getPosts();
   },
   { immediate: true }
 );

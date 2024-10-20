@@ -1,5 +1,6 @@
 <template>
   <div class="news">
+    <Breadcrumb :model="items" />
     <SelectButton
       class="news-selectbtn"
       :value="$route.params.category ? $route.params.category : ''"
@@ -11,12 +12,17 @@
         }
       "
     />
+    {{ $route.params.category }}
     <router-view />
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, markRaw, computed } from "vue";
+import HeroiconsHome from "~icons/heroicons/home";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
 
 const optionsMenu = ref([
   { name: "All news", value: "" },
@@ -27,6 +33,35 @@ const optionsMenu = ref([
   { name: "Science and space", value: "science" },
 ]);
 
+// const items = markRaw([
+//   {
+//     icon: HeroiconsHome,
+//     route: "/forecast/",
+//   },
+//   { label: "News", route: "/forecast/news" },
+//   {
+//     label: optionsMenu.value.find(
+//       (item) => item.value === route.params.category
+//     ).name,
+//     route: route.fullPath,
+//   },
+// ]);
+
+const items = computed(() => {
+  return [
+    {
+      icon: HeroiconsHome,
+      route: "/forecast/",
+    },
+    { label: "News", route: "/forecast/news" },
+    {
+      label: optionsMenu.value.find(
+        (item) => item.value === route.params.category
+      )?.name,
+      route: `/forecast/news/${route.params.category}`,
+    },
+  ];
+});
 </script>
 
 <style lang="scss" scoped>

@@ -83,7 +83,6 @@ const getMinMax = async () => {
   await axiosApiInstance
     .get(`${FORECAST_URL}?q=${searchStore.search}&days=1`)
     .then((res) => {
-      console.log(res)
       searchStore.maxTemp = res.data.forecast.forecastday[0].day.maxtemp_c;
       searchStore.minTemp = res.data.forecast.forecastday[0].day.mintemp_c;
     })

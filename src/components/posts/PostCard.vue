@@ -133,11 +133,12 @@ onMounted(() => {
 
   .card-imgwrap {
     height: 100%;
-    min-width: 60%;
     order: 1;
+    flex-grow: 1;
   }
   .card-img-mask {
     left: 0;
+    bottom: 0;
     height: 100%;
     width: 125px;
   }
@@ -146,6 +147,8 @@ onMounted(() => {
 
     &-wrap {
       padding: 15px 0 15px 15px;
+      min-width: 40%;                                                           
+      width: 40%;
     }
   }
   .card-subtext {
