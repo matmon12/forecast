@@ -136,7 +136,6 @@ const onToBack = () => {
     grid-column-start: 1;
     grid-column-end: 4;
   }
-  // height: fit-content;
 }
 
 .error-wrapper {

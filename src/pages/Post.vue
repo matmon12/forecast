@@ -1,10 +1,7 @@
 <template>
-  <div v-if="!errorCategory" class="post">
+  <div v-if="!errorPost" class="post">
     <div class="post__left">
-      <div
-        v-if="!loadingCategory && !errorCategory"
-        class="post-block post__content"
-      >
+      <div v-if="!loadingPost && !errorPost" class="post-block post__content">
         <h1 class="post-title">{{ post?.name }}</h1>
         <div class="post__header">
           <p class="post__header-item">
@@ -32,7 +29,7 @@
           </div>
         </div>
       </div>
-      <div v-if="loadingCategory" class="post-block post__skeleton">
+      <div v-if="loadingPost" class="post-block post__skeleton">
         <Skeleton height="30px" class="post__skeleton-title" />
         <Skeleton height="30px" width="60%" class="post__skeleton-title" />
         <div class="post__skeleton-header">
@@ -159,7 +156,7 @@
   </div>
   <Error
     v-else
-    :message="errorCategory"
+    :message="errorPost"
     @to-back="onToBack()"
     retry
     @retry="getData()"
@@ -174,7 +171,7 @@ import { readToDB } from "@/server/index";
 import { query, where, limit } from "firebase/firestore";
 import { postsRef } from "@/server/firebase.config";
 import { onToBack } from "@/utils/index";
-import router from '@/router/router'
+import router from "@/router/router";
 import AkarIconsVkFill from "~icons/akar-icons/vk-fill";
 import FormkitWhatsapp from "~icons/formkit/whatsapp";
 import FileIconsTelegram from "~icons/file-icons/telegram";
@@ -245,7 +242,18 @@ const getPost = async () => {
     const querySnapshot = await readToDB(
       query(postsRef, where("slug", "==", route.params.name))
     );
-    post.value = querySnapshot.docs[0].data();
+    post.value = querySnapshot?.docs[0]?.data();
+
+    if (!post.value) {
+      router.push({
+        name: "NotFound",
+        params: {
+          pathMatch: route.path.split("/").slice(1),
+        },
+        query: route.query,
+        hash: route.hash,
+      });
+    }
   } catch (error) {
     const stringToObject = JSON.parse(error.message);
     errorPost.value = stringToObject.description;

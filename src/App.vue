@@ -5,7 +5,11 @@
       <div class="wrapper">
         <Header :class="{ 'is--active': isHeaderActive }" />
         <div class="content">
-          <router-view></router-view>
+          <router-view v-slot="{ Component }">
+            <keep-alive :include="['Dashboard']">
+              <component :is="Component"></component>
+            </keep-alive>
+          </router-view>
         </div>
       </div>
 

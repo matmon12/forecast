@@ -241,7 +241,7 @@
                 />
               </div>
             </template>
-            <template #option="{option}">
+            <template #option="{ option }">
               {{ uppercaseFirst(option) }}
             </template>
           </MultiSelect>
@@ -370,7 +370,15 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, onUnmounted, onMounted } from "vue";
+import {
+  ref,
+  watch,
+  computed,
+  onUnmounted,
+  onMounted,
+  onActivated,
+  onDeactivated,
+} from "vue";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import DatePicker from "primevue/datepicker";
@@ -389,6 +397,7 @@ import { FilterMatchMode, FilterService } from "@primevue/core/api";
 import debounce from "lodash.debounce";
 import { readToDB } from "@/server/index";
 import { onToBack, uppercaseFirst } from "@/utils/index";
+import { onBeforeRouteLeave } from "vue-router";
 
 const dt = ref();
 const post = ref({});
@@ -597,6 +606,7 @@ const initIntersection = () => {
   observer.observe(spacer);
 };
 
+// HOOKS
 onMounted(() => {
   // получение блока со скроллом
   tableConatiner = document.querySelector(
@@ -606,6 +616,14 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  observer.unobserve(spacer);
+});
+
+onActivated(() => {
+  observer.observe(spacer);
+});
+
+onDeactivated(() => {
   observer.unobserve(spacer);
 });
 
@@ -746,6 +764,17 @@ const moveFirstPage = () => {
 const moveToStartPosition = () => {
   tableConatiner.scrollTo({ top: 0, left: 0, behavior: "smooth" });
 };
+
+// предупреждение о несохраненных изменениях
+onBeforeRouteLeave((to, from) => {
+  if(postDialog.value) {
+    const answer = window.confirm(
+      "Do you really want to leave? you have unsaved changes!"
+    );
+
+    if (!answer) return false;
+  }
+});
 </script>
 
 <style lang="scss" scoped>

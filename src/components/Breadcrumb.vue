@@ -1,9 +1,9 @@
 <template>
   <div class="breadcrumb">
-    <!-- <Button severity="secondary"
+    <Button severity="secondary" 
       ><i-ic:round-arrow-back-ios-new />
       Back
-    </Button> -->
+    </Button>
 
     <ul class="breadcrumb__list">
       <li v-for="item of model" :key="item.label" class="breadcrumb__list-item">

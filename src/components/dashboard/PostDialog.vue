@@ -114,7 +114,7 @@
             <span class="post-dialog-label">Category</span>
             <div class="post-dialog__radios">
               <div
-                v-for="(item, index) of categories"
+                v-for="(item, index) of staticStore.categories"
                 :key="index"
                 class="post-dialog__radios-item"
               >
@@ -205,9 +205,11 @@ import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
 import { v4 as uuidv4 } from "uuid";
 import { useServerStore } from "@/stores/server";
+import { useStaticStore } from "@/stores/static";
 
 const serverStore = useServerStore();
 const rulesStore = useRulesStore();
+const staticStore = useStaticStore();
 const toast = useToast();
 const confirm = useConfirm();
 
@@ -222,7 +224,6 @@ const dialogPost = ref();
 const file = ref();
 const description = ref();
 const loading = ref(false);
-const categories = ref(["weather", "nature", "animals", "auto", "science"]);
 
 // validate
 const {
@@ -233,7 +234,7 @@ const {
   validate,
   values,
   setFieldValue,
-  resetField
+  resetField,
 } = useForm({
   validationSchema: rulesStore.schemaPostDialog,
 });
@@ -451,7 +452,7 @@ const getTimeReading = () => {
 const replaceSpaces = (event, field) => {
   event.preventDefault();
   const paste = event.clipboardData.getData("text");
-  const formattedPaste = paste.replace(/\u00A0/g, " "); 
+  const formattedPaste = paste.replace(/\u00A0/g, " ");
   setFieldValue(field, formattedPaste, false);
 };
 </script>

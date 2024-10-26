@@ -1,39 +1,70 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Home from "@/pages/Home.vue";
-import Error from "@/pages/Error.vue";
-import Tomorrow from "@/pages/Tomorrow.vue";
-import History from "@/pages/History.vue";
-import News from "@/pages/News.vue";
-import CategoryNews from "@/pages/CategoryNews.vue";
-import Dashboard from "@/pages/Dashboard.vue";
-import Post from "@/pages/Post.vue";
+import { useStaticStore } from "@/stores/static";
+
+const Home = () => import("@/pages/Home.vue");
+const Error = () => import("@/pages/Error.vue");
+const Tomorrow = () => import("@/pages/Tomorrow.vue");
+const History = () => import("@/pages/History.vue");
+const News = () => import("@/pages/News.vue");
+const CategoryNews = () => import("@/pages/CategoryNews.vue");
+const Dashboard = () => import("@/pages/Dashboard.vue");
+const Post = () => import("@/pages/Post.vue");
+const NotFound = () => import("@/pages/NotFound.vue");
 
 const routes = [
+  // {
+  //   path: "/",
+  //   redirect: { name: "Home" },
+  // },
   {
-    path: "/",
+    path: "/forecast/",
     name: "Home",
     component: Home,
+    alias: "/",
+  },
+  { path: "/forecast/error", name: "Error", component: Error, alias: "/error" },
+  {
+    path: "/forecast/tomorrow",
+    name: "Tomorrow",
+    component: Tomorrow,
+    alias: "/tomorrow",
   },
   {
-    path: "/forecast",
-    redirect: { name: "Home" },
+    path: "/forecast/history",
+    name: "History",
+    component: History,
+    alias: "/history",
   },
-  { path: "/forecast/error", name: "Error", component: Error },
-  { path: "/forecast/tomorrow", name: "Tomorrow", component: Tomorrow },
-  { path: "/forecast/history", name: "History", component: History },
-  { path: "/forecast/dashboard", name: "Dashboard", component: Dashboard },
+  {
+    path: "/forecast/dashboard",
+    name: "Dashboard",
+    component: Dashboard,
+    alias: "/dashboard",
+  },
   {
     path: "/forecast/news",
     name: "News",
     component: News,
+    alias: "/news",
+    beforeEnter: (to, from) => {
+      const staticStore = useStaticStore();
+      if (
+        to.params.category &&
+        !staticStore.categories.includes(to.params.category)
+      ) {
+        return {
+          name: "NotFound",
+          params: {
+            pathMatch: to.path.split("/").slice(1),
+          },
+          query: to.query,
+          hash: to.hash,
+        };
+      }
+    },
     children: [
       {
-        path: "",
-        name: "CategoryAll",
-        component: CategoryNews,
-      },
-      {
-        path: ":category",
+        path: ":category?",
         name: "CategoryNews",
         component: CategoryNews,
       },
@@ -46,14 +77,26 @@ const routes = [
   },
   {
     path: "/:pathMatch(.*)*",
-    redirect: { name: "Home" },
+    name: "NotFound",
+    component: NotFound,
   },
+  // {
+  //   path: '/forecast/:afterForecast(.*)',
+  //   redirect: {name: "Tomorrow"}
+  // }
 ];
 
 const router = createRouter({
   mode: history,
   history: createWebHistory(),
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return { ...savedPosition, behavior: "smooth" };
+    } else {
+      return { top: 0 };
+    }
+  },
 });
 
 export default router;

@@ -12,7 +12,6 @@
         }
       "
     />
-    {{ $route.params.category }}
     <router-view />
   </div>
 </template>
@@ -20,7 +19,7 @@
 <script setup>
 import { ref, markRaw, computed } from "vue";
 import HeroiconsHome from "~icons/heroicons/home";
-import { useRoute } from "vue-router";
+import { useRoute, onBeforeRouteUpdate } from "vue-router";
 
 const route = useRoute();
 
@@ -42,7 +41,7 @@ const optionsMenu = ref([
 //   {
 //     label: optionsMenu.value.find(
 //       (item) => item.value === route.params.category
-//     ).name,
+//     ).name,Братья по оружию 1 сезон 9 серия
 //     route: route.fullPath,
 //   },
 // ]);

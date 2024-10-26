@@ -113,7 +113,6 @@ const onToBack = () => {
   searchStore.search = searchStore.searchSuccess;
   searchStore.input = searchStore.searchSuccess;
 };
-
 </script>
 
 <style lang="scss" scoped>

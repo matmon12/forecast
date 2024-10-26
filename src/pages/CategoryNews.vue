@@ -106,7 +106,7 @@ const categorySource = computed(() => {
   moveToStart();
 
   return route.params.category;
-});
+}); 
 
 const moveToStart = () => {
   posts.value = [];
@@ -146,7 +146,7 @@ const getPosts = async () => {
 watch(
   () => postQuery.value,
   () => {
-    // getPosts();
+    getPosts();
   },
   { immediate: true }
 );
@@ -154,6 +154,8 @@ watch(
 onMounted(() => {
   // рассчет индексов скелетонов для которых горизонтальная ориентация
   indicesGorizont.value = generateSequence(countSkeletons.value);
+
+  console.log(route.params.category)
 });
 
 const onErrorHandler = () => {
@@ -186,7 +188,7 @@ const navigateToPost = (post) => {
     params: {
       category: post.category,
       name: post.slug,
-    },
+    }
   });
 };
 </script>

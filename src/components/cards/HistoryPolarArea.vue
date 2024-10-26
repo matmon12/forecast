@@ -178,6 +178,9 @@ const optionsPolarArea = {
 .polar-area {
   @include Card();
   padding-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  // align-items: center;
 }
 .polar-area__header {
   line-height: 1;
@@ -193,10 +196,10 @@ const optionsPolarArea = {
   font-size: 22px;
 }
 .polar-area-graph {
-  margin: 0 auto;
-  max-width: 250px;
   display: flex;
   justify-content: center;
+  align-items: center;
+  flex-grow: 1;
 }
 
 .polar-area__footer {
