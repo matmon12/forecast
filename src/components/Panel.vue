@@ -1,19 +1,40 @@
 <template>
+  <router-link
+    v-if="!authStore.user"
+    :to="{ path: '/forecast/signin' }"
+    class="panel"
+  >
+    <div class="panel__top panel__top-login">
+      <img class="panel-avatar" src="@/img/avatar.svg" alt="avatar" />
+      <p class="panel-name-login">Login</p>
+    </div>
+  </router-link>
   <div
+    v-else
     ref="panel"
     :class="['panel', { 'is--open': isOpen }]"
-    :style="{ height: isOpen ? `${panel.scrollHeight}px` : undefined }"
+    :style="{ height: isOpen ? `${panel?.scrollHeight}px` : undefined }"
+    v-on-click-outside="hideDropdown"
   >
     <div @click="isOpen = !isOpen" class="panel__top">
-      <Avatar class="panel-avatar" :image="getImageUrl('avatar.svg')" shape="circle" />
+      <Avatar
+        class="panel-avatar"
+        :image="getImageUrl('avatar.svg')"
+        shape="circle"
+      />
       <p class="panel-name">Teddy Harper</p>
       <div class="panel-arrow">
         <i-iconamoon:arrow-down-2 />
       </div>
     </div>
     <div class="panel__content">
-      <ul class="panel__list" >
-        <li class="panel__list-item" v-for="item in menu" :key="item">
+      <ul class="panel__list">
+        <li
+          class="panel__list-item"
+          v-for="item in menu"
+          :key="item"
+          @click.prevent="item.action ? item.action() : null"
+        >
           <p class="panel__list-icon">
             <component :is="item.icon" />
           </p>
@@ -27,8 +48,12 @@
 <script setup>
 import { ref, shallowRef } from "vue";
 import IcRoundControlPoint from "~icons/ic/round-control-point";
-import BitcoinIconsExitFilled from '~icons/bitcoin-icons/exit-filled';
-import { getImageUrl } from "../utils/index";
+import BitcoinIconsExitFilled from "~icons/bitcoin-icons/exit-filled";
+import { getImageUrl } from "@/utils/index";
+import { useAuthStore } from "@/stores/auth";
+import { vOnClickOutside } from "@vueuse/components";
+
+const authStore = useAuthStore();
 
 const panel = ref();
 const isOpen = ref(false);
@@ -49,8 +74,13 @@ const menu = shallowRef([
   {
     label: "Exit",
     icon: BitcoinIconsExitFilled,
+    action: authStore.logoutUser,
   },
 ]);
+
+const hideDropdown = () => {
+  isOpen.value = false;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -71,6 +101,12 @@ const menu = shallowRef([
     align-items: center;
     height: 50px;
     cursor: pointer;
+    transition: background-color 0.3s;
+    border-radius: 20px;
+
+    &:hover {
+      background-color: #ffffff1c;
+    }
   }
 
   &__content {
@@ -88,9 +124,9 @@ const menu = shallowRef([
     gap: 5px;
     padding: 7px 5px;
     border-radius: 10px;
-    transition: background-color .3s;
+    transition: background-color 0.3s;
     cursor: pointer;
-    &:hover{
+    &:hover {
       background-color: #ffffff41;
     }
     &:last-child {
@@ -146,5 +182,15 @@ const menu = shallowRef([
       transform: rotate(180deg);
     }
   }
+}
+
+// login
+.panel-name-login {
+  padding: 0 10px;
+  font-size: 16px;
+  color: $white;
+}
+.panel__top-login {
+  padding: 10px;
 }
 </style>

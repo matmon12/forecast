@@ -17,4 +17,12 @@ export const errorCodes = {
     "storage/unknown": "An unknown error occurred.",
     "storage/object-not-found": "No object exists at the desired reference.",
   },
+  auth: {
+    "auth/email-already-in-use": "The email address is already in use by another account.",
+    "auth/operation-not-allowed": "Password sign-in is disabled for this project.",
+    "auth/too-many-requests": "We have blocked all requests from this device due to unusual activity. Try again later.",
+    "auth/wrong-password": "The password is invalid or the user does not have a password.",
+    "auth/user-disabled": "The user account has been disabled by an administrator.",
+    "auth/invalid-credential": "Invalid login credentials. Please check your email and password and try again."
+  }
 };

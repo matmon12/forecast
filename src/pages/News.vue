@@ -1,6 +1,6 @@
 <template>
   <div class="news">
-    <Breadcrumb :model="items" />
+    <Breadcrumb :model="breadCrumbItems" />
     <SelectButton
       class="news-selectbtn"
       :value="$route.params.category ? $route.params.category : ''"
@@ -18,7 +18,7 @@
 
 <script setup>
 import { ref, markRaw, computed } from "vue";
-import HeroiconsHome from "~icons/heroicons/home";
+import TablerHome from '~icons/tabler/home';
 import { useRoute, onBeforeRouteUpdate } from "vue-router";
 
 const route = useRoute();
@@ -32,33 +32,22 @@ const optionsMenu = ref([
   { name: "Science and space", value: "science" },
 ]);
 
-// const items = markRaw([
-//   {
-//     icon: HeroiconsHome,
-//     route: "/forecast/",
-//   },
-//   { label: "News", route: "/forecast/news" },
-//   {
-//     label: optionsMenu.value.find(
-//       (item) => item.value === route.params.category
-//     ).name,Братья по оружию 1 сезон 9 серия
-//     route: route.fullPath,
-//   },
-// ]);
-
-const items = computed(() => {
+const breadCrumbItems = computed(() => {
   return [
-    {
-      icon: HeroiconsHome,
-      route: "/forecast/",
-    },
-    { label: "News", route: "/forecast/news" },
+    { label: "News", route: route.params.category ? "/forecast/news" : "" },
     {
       label: optionsMenu.value.find(
         (item) => item.value === route.params.category
       )?.name,
-      route: `/forecast/news/${route.params.category}`,
+      route: route.params.name ? `/forecast/news/${route.params.category}` : "",
     },
+    ...(route.params.name
+      ? [
+          {
+            label: "Post",
+          },
+        ]
+      : []),
   ];
 });
 </script>

@@ -1,5 +1,8 @@
 <template>
-  <Spinner v-if="historyStore.loadingToday || historyStore.loadingHistory" :size="50" />
+  <Spinner
+    v-if="historyStore.loadingToday || historyStore.loadingHistory"
+    :size="50"
+  />
   <Error
     v-else-if="searchStore.error === 1006"
     message="Oooops! Nothing found"
@@ -7,17 +10,20 @@
     class="error-wrapper"
   />
   <div v-else class="history">
-    <HistoryMain
-      class="history-card"
-      :weather-today="historyStore.todayWeather"
-    />
-    <HistoryRadar class="history-card" :history="historyStore.history" />
-    <HistoryPolarArea class="history-card" :history="historyStore.history" />
-    <HistoryPie
-      class="history-card"
-      :weather-today="historyStore.todayWeather"
-    />
-    <HistoryBar class="history-card" :history="historyStore.history" />
+    <Breadcrumb :model="breadCrumbItems" />
+    <div class="history__content">
+      <HistoryMain
+        class="history-card"
+        :weather-today="historyStore.todayWeather"
+      />
+      <HistoryRadar class="history-card" :history="historyStore.history" />
+      <HistoryPolarArea class="history-card" :history="historyStore.history" />
+      <HistoryPie
+        class="history-card"
+        :weather-today="historyStore.todayWeather"
+      />
+      <HistoryBar class="history-card" :history="historyStore.history" />
+    </div>
   </div>
 </template>
 
@@ -26,10 +32,18 @@ import { ref, onMounted, watch } from "vue";
 import { HISTORY_URL, FORECAST_URL } from "@/constants/index";
 import { useHistoryStore } from "@/stores/history";
 import { useSearchStore } from "@/stores/search";
-import axiosApiInstance from "@/api";
+import {axiosApiInstance} from "@/server/api";
+import Breadcrumb from "../components/Breadcrumb.vue";
 
 const historyStore = useHistoryStore();
 const searchStore = useSearchStore();
+
+// breadcrumb
+const breadCrumbItems = [
+  {
+    label: "History",
+  },
+];
 
 watch(
   () => searchStore.search,
@@ -111,7 +125,7 @@ onMounted(() => {
 
 const onToBack = () => {
   searchStore.error = "";
-  searchStore.search = searchStore.searchSuccess;  
+  searchStore.search = searchStore.searchSuccess;
   searchStore.input = searchStore.searchSuccess;
 };
 </script>
@@ -121,6 +135,9 @@ const onToBack = () => {
   position: relative;
   height: fit-content;
   width: 100%;
+
+}
+.history__content{
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;

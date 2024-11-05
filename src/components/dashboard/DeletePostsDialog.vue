@@ -126,7 +126,8 @@ import { ref, defineModel, defineProps } from "vue";
 import { vOnClickOutside } from "@vueuse/components";
 import { getClasses } from "@/utils/classes";
 import { useToast } from "primevue/usetoast";
-import { deleteImage, deleteFromDB } from "@/server/index";
+import { deleteImage } from "@/server/storage";
+import { deleteFromDB } from "@/server/posts";
 import { uppercaseFirst, pluralize } from "@/utils/index";
 import { useServerStore } from "@/stores/server";
 

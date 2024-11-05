@@ -3,28 +3,29 @@
     <div class="aside__inner">
       <div class="aside__btns">
         <div
-          v-for="item in menuPages"
-          :key="item.id"
           :class="[
             'aside-btn-wrap',
             {
               'is--active':
-                route.matched[0]?.path === `/forecast/${item.router}`,
+                (/^\/forecast\/?$/.test($route.path) && item.router === '') ||
+                ($route.path.startsWith(`/forecast/${item.router}`) &&
+                  item.router !== ''),
             },
           ]"
+          v-for="item in menuPages"
+          :key="item.id"
         >
-          <button
-            @click="
-              (isActiveBtn = item.id), router.push(`/forecast/${item.router}`)
-            "
-            class="aside-btn"
-          >
+          <router-link :to="`/forecast/${item.router}`" class="aside-btn">
             <component :is="item.icon"></component>
-          </button>
+          </router-link>
         </div>
       </div>
       <div class="aside__bottom">
-        <button class="aside__bottom-btn">
+        <button
+          v-if="authStore.user"
+          @click="authStore.logoutUser()"
+          class="aside__bottom-btn"
+        >
           <i-streamline:interface-logout-arrow-exit-frame-leave-logout-rectangle-right />
         </button>
         <Switch
@@ -46,8 +47,7 @@
 </template>
 
 <script setup>
-import { ref, markRaw, watch } from "vue";
-import { useRoute } from "vue-router";
+import { computed } from "vue";
 import LineMdSunnyOutlineToMoonLoopTransition from "~icons/line-md/sunny-outline-to-moon-loop-transition";
 import LineMdMoonToSunnyOutlineLoopTransition from "~icons/line-md/moon-to-sunny-outline-loop-transition";
 import PhSquaresFour from "~icons/ph/squares-four";
@@ -55,18 +55,22 @@ import CarbonLocation from "~icons/carbon/location";
 import QuillCalendar from "~icons/quill/calendar";
 import FluentNews20Regular from "~icons/fluent/news-20-regular";
 import EpSetting from "~icons/ep/setting";
-import router from "@/router/router.js";
+import { useAuthStore } from "@/stores/auth";
 
-const route = useRoute();
+const authStore = useAuthStore();
 
-const isActiveBtn = ref(1);
-const menuPages = markRaw([
-  { id: 1, icon: PhSquaresFour, router: "" },
-  { id: 2, icon: CarbonLocation, router: "tomorrow" },
-  { id: 3, icon: QuillCalendar, router: "history" },
-  { id: 4, icon: FluentNews20Regular, router: "news" },
-  { id: 5, icon: EpSetting, router: "dashboard" },
-]);
+const menuPages = computed(() => {
+  const menu = [
+    { id: 1, icon: PhSquaresFour, router: "" },
+    { id: 2, icon: CarbonLocation, router: "tomorrow" },
+    { id: 3, icon: QuillCalendar, router: "history" },
+    { id: 4, icon: FluentNews20Regular, router: "news" },
+  ];
+  if (authStore.user) {
+    menu.push({ id: 5, icon: EpSetting, router: "dashboard" });
+  }
+  return menu;
+});
 
 const onChangeTheme = (value) => {};
 </script>
@@ -145,9 +149,22 @@ const onChangeTheme = (value) => {};
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
-    svg {
-      font-size: 20px;
+    gap: 10px;
+
+    &-btn {
+      padding: 10px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: #ffffff1e;
+      }
+      svg {
+        font-size: 20px;
+      }
     }
   }
 }

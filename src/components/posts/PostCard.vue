@@ -42,7 +42,7 @@
 <script setup>
 import { ref, defineProps, onMounted } from "vue";
 import analyze from "rgbaster";
-import { loadImage } from "@/server/index";
+import { loadImage } from "@/server/storage";
 import { useServerStore } from "@/stores/server";
 import { getLuminance } from "@/utils/index";
 

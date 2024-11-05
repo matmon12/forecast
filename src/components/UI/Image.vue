@@ -44,7 +44,7 @@ import { defineProps, onMounted, ref, watch } from "vue";
 import { getClasses } from "@/utils/classes";
 import Image from "primevue/image";
 import { useServerStore } from "@/stores/server";
-import { loadImage } from "@/server/index";
+import { loadImage } from "@/server/storage";
 
 const serverStore = useServerStore();
 const loading = ref(false);

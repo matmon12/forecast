@@ -2,6 +2,7 @@ import axios from "axios";
 import { useSearchStore } from "@/stores/search";
 
 const axiosApiInstance = axios.create();
+
 const apiKey = import.meta.env.VITE_API_KEY_WEATHER;
 
 axiosApiInstance.interceptors.request.use((config) => {
@@ -14,7 +15,7 @@ axiosApiInstance.interceptors.request.use((config) => {
 axiosApiInstance.interceptors.response.use(
   (response) => {
     const searchStore = useSearchStore();
-    searchStore.error = '';
+    searchStore.error = "";
     return response;
   },
   async function (error) {
@@ -23,4 +24,4 @@ axiosApiInstance.interceptors.response.use(
   }
 );
 
-export default axiosApiInstance;
+export { axiosApiInstance };

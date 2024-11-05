@@ -28,6 +28,8 @@
             >
           </div>
         </div>
+        <Divider />
+        <RatingPost/>
       </div>
       <div v-if="loadingPost" class="post-block post__skeleton">
         <Skeleton height="30px" class="post__skeleton-title" />
@@ -167,7 +169,7 @@
 <script setup>
 import { useRoute } from "vue-router";
 import { ref, markRaw, defineProps, onMounted, watch } from "vue";
-import { readToDB } from "@/server/index";
+import { readToDB } from "@/server/posts";
 import { query, where, limit } from "firebase/firestore";
 import { postsRef } from "@/server/firebase.config";
 import { onToBack } from "@/utils/index";
@@ -178,6 +180,8 @@ import FileIconsTelegram from "~icons/file-icons/telegram";
 import zen from "@/img/zen.svg";
 import tg from "@/img/tg.svg";
 
+const route = useRoute();
+
 const post = ref();
 const postsCategory = ref([]);
 const loadingPost = ref(false);
@@ -185,7 +189,6 @@ const loadingCategory = ref(false);
 const errorPost = ref();
 const errorCategory = ref();
 const limitCategory = 3;
-const route = useRoute();
 const currentUrl = window.location.href;
 
 const shareLinks = markRaw([
@@ -337,6 +340,7 @@ const navigateToPost = (post) => {
     },
   });
 };
+
 </script>
 
 <style lang="scss" scoped>

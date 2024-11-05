@@ -188,15 +188,11 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineModel, watch } from "vue";
+import { ref, defineProps, defineModel, watch, markRaw } from "vue";
 import { getClasses } from "@/utils/classes";
 import { areArraysEqual, uppercaseFirst, translitForUrl } from "@/utils/index";
-import {
-  deleteImage,
-  uploadImage,
-  writeToDB,
-  updateToDB,
-} from "@/server/index";
+import { deleteImage, uploadImage } from "@/server/storage";
+import { writeToDB, updateToDB } from "@/server/posts";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import { useForm, useField } from "vee-validate";
@@ -206,6 +202,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { v4 as uuidv4 } from "uuid";
 import { useServerStore } from "@/stores/server";
 import { useStaticStore } from "@/stores/static";
+import IonWarningOutline from "~icons/ion/warning-outline";
 
 const serverStore = useServerStore();
 const rulesStore = useRulesStore();
@@ -429,14 +426,19 @@ const saveNewPost = async () => {
 };
 
 const requireConfirmation = (event) => {
-  confirm.require({
+  const confirmInfo = markRaw({
     target: event.currentTarget,
     group: "headless",
     message: "Data will not be saved. Continue?",
+    rejectLabel: "Cancel",
+    acceptLabel: "OK",
+    icon: IonWarningOutline,
+    colorIcon: "#ffd900",
     accept: () => {
       hideDialog();
     },
   });
+  confirm.require(confirmInfo);
 };
 
 const hideDialog = () => {

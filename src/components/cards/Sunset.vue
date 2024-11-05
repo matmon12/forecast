@@ -51,7 +51,6 @@
 
 <script setup>
 import { ref, onMounted, computed, watch, defineProps } from "vue";
-import axiosApiInstance from "@/api";
 import { useSearchStore } from "@/stores/search";
 import { formattedTime, formatFromAMPM } from "@/utils/index";
 import PhSunFill from "~icons/ph/sun-fill";

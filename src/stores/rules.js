@@ -3,6 +3,11 @@ import { object, string, ref, boolean, array, number } from "yup";
 
 const stringRules = /^[a-zA-Zа-яА-Я\s]+$/;
 const symbolsRules = /^[^<>*\\/|"]+$/;
+const emailRules = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
+
+const getTextError = (message) => {
+  return `The password must contain at least 1 ${message} character!`;
+};
 
 export const useRulesStore = defineStore("rules", () => {
   const schemaSearch = object({
@@ -59,9 +64,56 @@ export const useRulesStore = defineStore("rules", () => {
     summary: string().required("The field must not be empty!"),
   });
 
+  const schemaSignUp = object({
+    password: string()
+      .required("Enter your password!")
+      .min(6, "The password must contain at least 6 characters!")
+      .matches(/[0-9]/, getTextError("numerical"))
+      .matches(/[a-z]/, getTextError("lowercase"))
+      .matches(/[A-Z]/, getTextError("capital")),
+    email: string()
+      .required("Enter your email!")
+      .test({
+        name: "test",
+        skipAbsent: true,
+        test(value, ctx) {
+          if (!emailRules.test(value)) {
+            return ctx.createError({ message: "Email is not valid!" });
+          }
+          return true;
+        },
+      }),
+    confirmPassword: string()
+      .required("Enter your password again!")
+      .oneOf([ref("password"), null], "Passwords do not match!"),
+  });
+
+  const schemaSignIn = object({
+    password: string()
+      .required("Enter your password!")
+      .min(6, "The password must contain at least 6 characters!")
+      .matches(/[0-9]/, getTextError("numerical"))
+      .matches(/[a-z]/, getTextError("lowercase"))
+      .matches(/[A-Z]/, getTextError("capital")),
+    email: string()
+      .required("Enter your email!")
+      .test({
+        name: "test",
+        skipAbsent: true,
+        test(value, ctx) {
+          if (!emailRules.test(value)) {
+            return ctx.createError({ message: "Email is not valid!" });
+          }
+          return true;
+        },
+      }),
+  });
+
   return {
     schemaSearch,
     schemaSearchDashboard,
     schemaPostDialog,
+    schemaSignUp,
+    schemaSignIn
   };
 });

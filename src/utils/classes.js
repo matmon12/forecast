@@ -357,6 +357,29 @@ export const getClasses = (mainClass) => {
       hiddenSelectedDay: `${mainClass}-datepicker-hidden-selectedday`,
       hiddenMonth: `${mainClass}-datepicker-hidden-month`,
       hiddenYear: `${mainClass}-datepicker-hidden-year`,
+    },
+    password: {
+      root: `${mainClass}-password`,
+      pcInputText: `${mainClass}-password-input`,
+      maskIcon: `${mainClass}-password-mask-icon`,
+      unmaskIcon: `${mainClass}-password-unmask-icon`,
+      overlay: `${mainClass}-password-overlay`,
+      content: `${mainClass}-password-content`,
+      meter: `${mainClass}-password-meter`,
+      meterLabel: `${mainClass}-password-meter-label`,	
+      meterText: `${mainClass}-password-meter-text`, 
+    },
+    toast: {
+      root: `${mainClass}-toast`,
+      message: `${mainClass}-toast-message`,
+      messageContent: `${mainClass}-toast-message-content`,
+      messageIcon: `${mainClass}-toast-message-icon`,
+      messageText: `${mainClass}-toast-message-text`,
+      summary: `${mainClass}-toast-summary`,
+      detail: `${mainClass}-toast-detail`,
+      buttonContainer: `${mainClass}-toast-button-container`,
+      closeButton: `${mainClass}-toast-close-button`,
+      closeIcon: `${mainClass}-toast-close-icon`,
     }
   };
 };

@@ -8,6 +8,8 @@
   />
 
   <div v-else class="tomorrow">
+    <Breadcrumb :model="breadCrumbItems" />
+
     <div class="tabs">
       <div
         v-for="(item, id) in forecastStore.forecastData?.forecast?.forecastday"
@@ -59,7 +61,7 @@
 <script setup>
 import { onMounted, ref, watch } from "vue";
 import { FORECAST_URL } from "@/constants/index";
-import axiosApiInstance from "@/api.js";
+import {axiosApiInstance} from "@/server/api";
 import { useSearchStore } from "@/stores/search";
 import { useForecastStore } from "@/stores/forecast";
 
@@ -69,6 +71,13 @@ const forecastStore = useForecastStore();
 const test = [{ test: 0 }, { test: 1 }, { test: 2 }];
 
 const dataDay = ref([{ day: "Today" }, { day: "Tomorrow" }, { day: "" }]);
+
+// breadcrumb
+const breadCrumbItems = [
+  {
+    label: "Forecast",
+  },
+];
 
 watch(
   () => searchStore.search,

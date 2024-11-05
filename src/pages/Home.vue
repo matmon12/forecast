@@ -27,7 +27,7 @@
 import { ref, onMounted, watch } from "vue";
 import { useSearchStore } from "@/stores/search";
 import { useForecastStore } from "@/stores/forecast";
-import axiosApiInstance from "@/api";
+import {axiosApiInstance} from "@/server/api";
 import { CURRENT_URL, ASTRO_URL, FORECAST_URL } from "../constants/index";
 
 const searchStore = useSearchStore();

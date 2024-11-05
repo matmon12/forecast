@@ -23,7 +23,7 @@
 <script setup>
 import { ref, onMounted, defineProps, watch } from "vue";
 import { useServerStore } from "@/stores/server";
-import { loadImage } from "@/server/index";
+import { loadImage } from "@/server/storage";
 
 const serverStore = useServerStore();
 

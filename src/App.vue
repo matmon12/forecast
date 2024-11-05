@@ -13,27 +13,30 @@
         </div>
       </div>
 
-      <Toast />
+      <Toast :pt="getClasses('app').toast" />
       <ConfirmPopup group="headless" :pt="getClasses('app').confirmpopup">
         <template #container="{ message, acceptCallback, rejectCallback }">
           <div class="app-confirmpopup-content">
-            <i-ion:warning-outline />
+            <component
+              :is="message.icon"
+              :style="{ color: message.colorIcon }"
+            ></component>
             <p class="app-confirmpopup-message">{{ message.message }}</p>
           </div>
           <div class="app-confirmpopup-footer">
             <Button
-              class="app-confirmpopup-reject-button"
+              class="app-confirmpopup-btn"
               @click="rejectCallback"
-              :pt="getClasses('no').button"
+              :pt="getClasses('reject').button"
               unstyled
-              >Cancel</Button
+              >{{ message.rejectLabel }}</Button
             >
             <Button
-              class="app-confirmpopup-accept-button"
+              class="app-confirmpopup-btn"
               @click="acceptCallback"
-              :pt="getClasses('yes').button"
+              :pt="getClasses('accept').button"
               unstyled
-              >OK</Button
+              >{{ message.acceptLabel }}</Button
             >
           </div>
         </template>
@@ -48,12 +51,15 @@ import { useSearchStore } from "@/stores/search";
 import Toast from "primevue/toast";
 import ConfirmPopup from "primevue/confirmpopup";
 import { getClasses } from "@/utils/classes";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useAuthStore } from "@/stores/auth";
 
-const searchStore = useSearchStore();
-const header = ref(null);
+const auth = getAuth();
+const authStore = useAuthStore();
 const isHeaderActive = ref(false);
 
 onMounted(() => {
+  checkUser();
   window.addEventListener("scroll", handleScroll);
 });
 
@@ -67,6 +73,29 @@ const handleScroll = () => {
   } else {
     isHeaderActive.value = false;
   }
+};
+
+const checkUser = () => {
+  // ранний доступ
+  const userInfo = JSON.parse(localStorage.getItem("auth"));
+  if (userInfo) {
+    authStore.user = userInfo.token;
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      authStore.user = user;
+      localStorage.setItem(
+        "auth",
+        JSON.stringify({
+          token: user.accessToken,
+        })
+      );
+    } else {
+      authStore.user = null;
+      localStorage.removeItem("auth");
+    }
+  });
 };
 </script>
 
@@ -116,7 +145,6 @@ main {
       margin-bottom: 10px;
       svg {
         font-size: 20px;
-        color: rgb(255, 217, 0);
       }
     }
     &-icon {
@@ -128,12 +156,76 @@ main {
       gap: 10px;
       justify-content: flex-end;
     }
-    &-reject-button {
+    &-btn {
+      height: 25px;
+      line-height: 1;
+      border-radius: 7px;
+      padding: 0 10px;
+      font-weight: 500;
       height: 30px;
+      transition: background-color 0.3s, color 0.3s;
     }
-    &-accept-button {
-      height: 30px;
+  }
+  &-toast {
+    width: 300px;
+    &-message.p-toast-message-success {
+      background-color: #6b98c65d;
+      color: #53a9ff;
+      border-color: #4583c2;
     }
+    &-message-content {
+      align-items: center;
+      gap: 15px;
+      padding: 10px;
+    }
+    &-message-icon {
+      width: 25px;
+      height: 25px;
+    }
+    &-message-text {
+      gap: 5px;
+    }
+    &-summary {
+      font-size: 14px;
+      line-height: 1.2;
+      font-weight: 500;
+    }
+    &-detail {
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+    &-close-button {
+      width: 20px;
+      height: 20px;
+    }
+    &-close-icon {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+.reject-btn {
+  color: #dedede;
+  background-color: #353535;
+  &:not(:disabled):hover {
+    background-color: #545454;
+  }
+  &:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+}
+.accept-btn {
+  color: #000;
+  background-color: #7b9dcf;
+  &:not(:disabled):hover {
+    background-color: #a9caff;
+  }
+  &:disabled {
+    opacity: 0.7;
+    cursor: default;
   }
 }
 </style>

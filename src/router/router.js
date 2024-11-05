@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useStaticStore } from "@/stores/static";
+import { useAuthStore } from "@/stores/auth";
+import { getAuth } from "firebase/auth";
 
 const Home = () => import("@/pages/Home.vue");
 const Error = () => import("@/pages/Error.vue");
@@ -10,42 +12,42 @@ const CategoryNews = () => import("@/pages/CategoryNews.vue");
 const Dashboard = () => import("@/pages/Dashboard.vue");
 const Post = () => import("@/pages/Post.vue");
 const NotFound = () => import("@/pages/NotFound.vue");
+const SignUp = () => import("@/pages/authentication/SignUp.vue");
+const SignIn = () => import("@/pages/authentication/SignIn.vue");
 
 const routes = [
-  // {
-  //   path: "/",
-  //   redirect: { name: "Home" },
-  // },
+  {
+    path: "/",
+    redirect: { name: "Home" },
+  },
   {
     path: "/forecast/",
     name: "Home",
     component: Home,
-    alias: "/",
   },
-  { path: "/forecast/error", name: "Error", component: Error, alias: "/error" },
+  { path: "/forecast/error", name: "Error", component: Error },
   {
     path: "/forecast/tomorrow",
     name: "Tomorrow",
     component: Tomorrow,
-    alias: "/tomorrow",
   },
   {
     path: "/forecast/history",
     name: "History",
     component: History,
-    alias: "/history",
   },
   {
     path: "/forecast/dashboard",
     name: "Dashboard",
     component: Dashboard,
-    alias: "/dashboard",
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: "/forecast/news",
     name: "News",
     component: News,
-    alias: "/news",
     beforeEnter: (to, from) => {
       const staticStore = useStaticStore();
       if (
@@ -76,14 +78,26 @@ const routes = [
     ],
   },
   {
+    path: "/forecast/signup",
+    name: "SignUp",
+    component: SignUp,
+    meta: {
+      requiresAuth: false,
+    },
+  },
+  {
+    path: "/forecast/signin",
+    name: "SignIn",
+    component: SignIn,
+    meta: {
+      requiresAuth: false,
+    },
+  },
+  {
     path: "/:pathMatch(.*)*",
     name: "NotFound",
     component: NotFound,
   },
-  // {
-  //   path: '/forecast/:afterForecast(.*)',
-  //   redirect: {name: "Tomorrow"}
-  // }
 ];
 
 const router = createRouter({
@@ -99,70 +113,16 @@ const router = createRouter({
   },
 });
 
-export default router;
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore();
 
-// const router1 = new Router({
-//   routes: [
-//     {
-//       path: "/",
-//       component: HelloWorld,
-//       meta: {
-//         breadCrumbs: [
-//           {
-//             to: "/", // hyperlink
-//             text: "Hello World", // crumb text
-//           },
-//         ],
-//       },
-//     },
-//     {
-//       path: "/earth",
-//       component: HelloEarth,
-//       meta: {
-//         breadCrumbs: [
-//           {
-//             to: "/earth", // hyperlink
-//             text: "Earth", // crumb text
-//           },
-//         ],
-//       },
-//       children: [
-//         {
-//           path: "moon",
-//           component: HelloMoon,
-//           meta: {
-//             breadCrumb: [
-//               {
-//                 to: "/earth", // hyperlink
-//                 text: "Earth", // crumb text
-//               },
-//               {
-//                 to: "/earth/moon", // hyperlink
-//                 text: "Moon", // crumb text
-//               },
-//             ],
-//           },
-//         },
-//       ],
-//     },
-//     {
-//       path: "/saturn",
-//       component: HelloSaturn,
-//       meta: {
-//         breadCrumb: [
-//           {
-//             to: "/saturn", // hyperlink
-//             text: "Saturn", // crumb text
-//           },
-//         ],
-//       },
-//       children: [
-//         {
-//           path: ":moon",
-//           component: HelloSaturnMoon,
-//           props: true,
-//         },
-//       ],
-//     },
-//   ],
-// });
+  if (to.meta.requiresAuth && !authStore.user) {
+    next({ name: "SignIn" });
+  } else if (to.meta.requiresAuth === false && authStore.user) {
+    next({path: "/forecast/"})
+  } else {
+    next();
+  }
+});
+
+export default router;

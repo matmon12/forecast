@@ -1,5 +1,7 @@
 <template>
   <div v-if="!errorPosts" class="dashboard">
+    <Breadcrumb :model="breadCrumbItems" />
+
     <h1 class="dashboard-title">Post management</h1>
 
     <Toolbar :pt="getClasses('dashboard').toolbar" unstyled>
@@ -395,9 +397,10 @@ import {
 } from "firebase/firestore";
 import { FilterMatchMode, FilterService } from "@primevue/core/api";
 import debounce from "lodash.debounce";
-import { readToDB } from "@/server/index";
+import { readToDB } from "@/server/posts";
 import { onToBack, uppercaseFirst } from "@/utils/index";
 import { onBeforeRouteLeave } from "vue-router";
+import TablerHome from '~icons/tabler/home';
 
 const dt = ref();
 const post = ref({});
@@ -406,6 +409,13 @@ const deletePostDialog = ref(false);
 const deletePostsDialog = ref(false);
 const postDialog = ref(false);
 const rowsPerPage = ref(5);
+
+// breadcrumb
+const breadCrumbItems = [
+  {
+    label: "Dashboard",
+  },
+];
 
 // posts
 const posts = ref([]);
@@ -767,7 +777,7 @@ const moveToStartPosition = () => {
 
 // предупреждение о несохраненных изменениях
 onBeforeRouteLeave((to, from) => {
-  if(postDialog.value) {
+  if (postDialog.value) {
     const answer = window.confirm(
       "Do you really want to leave? you have unsaved changes!"
     );

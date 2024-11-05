@@ -72,10 +72,10 @@ import {
   where,
 } from "firebase/firestore";
 import { postsRef } from "@/server/firebase.config";
-import { readToDB } from "@/server/index";
+import { readToDB } from "@/server/posts";
 import { onToBack } from "@/utils/index";
 import { useRoute } from "vue-router";
-import router from '@/router/router';
+import router from "@/router/router";
 
 const countSkeletons = ref(6);
 const postsPerPage = ref(6);
@@ -106,7 +106,7 @@ const categorySource = computed(() => {
   moveToStart();
 
   return route.params.category;
-}); 
+});
 
 const moveToStart = () => {
   posts.value = [];
@@ -154,8 +154,6 @@ watch(
 onMounted(() => {
   // рассчет индексов скелетонов для которых горизонтальная ориентация
   indicesGorizont.value = generateSequence(countSkeletons.value);
-
-  console.log(route.params.category)
 });
 
 const onErrorHandler = () => {
@@ -188,7 +186,7 @@ const navigateToPost = (post) => {
     params: {
       category: post.category,
       name: post.slug,
-    }
+    },
   });
 };
 </script>

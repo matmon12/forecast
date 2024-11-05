@@ -8,7 +8,7 @@
     <button
       @click="onSubmit"
       class="search-input-icon"
-      :disabled="searchStore.loading"
+      :disabled="searchStore.loading || !enabledSearch.includes($route.name)"
     >
       <i-mingcute:search-line />
     </button>
@@ -23,6 +23,7 @@
       @keyup.enter="!searchStore.loading ? onSubmit() : undefined"
       @focus="focusInput = true"
       @blur="focusInput = false"
+      :disabled="!enabledSearch.includes($route.name)"
     />
     <InputGroupAddon v-if="searchStore.loading" class="search-loading" unstyled>
       <i-svg-spinners:ring-resize />
@@ -42,6 +43,7 @@
       </small>
     </transition>
   </InputGroup>
+
 </template>
 
 <script setup>
@@ -55,6 +57,7 @@ import { ref, toValue, watch } from "vue";
 const rulesStore = useRulesStore();
 const searchStore = useSearchStore();
 const focusInput = ref();
+const enabledSearch = ref(["Home", "Tomorrow", "History"]);
 
 // validate
 const { defineField, handleSubmit, resetForm, errors } = useForm({
@@ -137,7 +140,7 @@ watch(
       font-size: 20px;
     }
   }
-  &-error{
+  &-error {
     font-weight: 500;
   }
 }

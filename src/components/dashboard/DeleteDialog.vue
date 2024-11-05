@@ -58,7 +58,8 @@ import { ref, defineModel, defineProps, defineEmits } from "vue";
 import { getClasses } from "@/utils/classes.js";
 import { vOnClickOutside } from "@vueuse/components";
 import { useToast } from "primevue/usetoast";
-import { deleteImage, deleteFromDB } from "@/server/index";
+import { deleteImage } from "@/server/storage";
+import { deleteFromDB } from "@/server/posts";
 import { uppercaseFirst } from "@/utils/index";
 import { useServerStore } from "@/stores/server";
 
