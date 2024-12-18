@@ -1,12 +1,7 @@
 <template>
   <div class="uploader">
     <div class="uploader__wrapper" v-if="image && !file">
-      <Image
-        :name="image"
-        :id="id"
-        :loading="loadingImage"
-        :error="errorImage"
-      >
+      <Image :name="image" :id="id" :path="path" preview>
         <template #error="{ error }">
           <Message
             severity="error"
@@ -43,8 +38,8 @@
       accept="image/*"
       :maxFileSize="1000000"
       :fileLimit="1"
-      invalidFileSizeMessage="{0}: file size should be smaller than {1}"
-      invalidFileTypeMessage="{0}: Invalid file type."
+      :invalidFileSizeMessage="JSON.stringify(invalidFileSizeMessage)"
+      :invalidFileTypeMessage="JSON.stringify(invalidFileTypeMessage)"
       :disabled="fileupload?.files.length >= fileupload?.fileLimit"
       :pt="{
         ...getClasses('dashboard').fileupload,
@@ -99,7 +94,7 @@
             :key="file.name + file.type + file.size"
           >
             <div class="uploader__item-img">
-              <Image :name="file.name" :url="file.objectURL" />
+              <Image :name="file.name" :url="file.objectURL" preview />
             </div>
             <div class="uploader__item-content">
               <span class="uploader__item-name">{{ file.name }}</span>
@@ -120,8 +115,15 @@
           :pt="getClasses('error').message"
           closable
           @close="fileupload.onMessageClose()"
-          ><i-codicon:error />{{ item }}</Message
-        >
+          ><i-codicon:error />
+          <p class="error-message-info">
+            <span class="error-message-name"
+              >{{ JSON.parse(item).name }}:
+            </span>
+            {{ JSON.parse(item).text }}
+            {{ JSON.parse(item)?.size }}
+          </p>
+        </Message>
 
         <div
           class="dashboard-fileupload-empty"
@@ -141,7 +143,7 @@
 </template>
 
 <script setup>
-import { ref, defineModel } from "vue";
+import { ref, defineModel, watch } from "vue";
 import { usePrimeVue } from "primevue/config";
 import { getClasses } from "@/utils/classes";
 
@@ -149,12 +151,20 @@ const $primevue = usePrimeVue();
 const image = defineModel("image");
 const file = defineModel("file");
 const fileupload = ref();
-const loadingImage = ref(false);
-const errorImage = ref();
+const invalidFileSizeMessage = {
+  name: "{0}",
+  text: "file size should be smaller than",
+  size: "{1}",
+};
+const invalidFileTypeMessage = {
+  name: "{0}",
+  text: "Invalid file type",
+};
 
 const props = defineProps({
-  id: String
-})
+  id: String,
+  path: String,
+});
 
 const formatSize = (bytes) => {
   const k = 1024;
@@ -181,9 +191,20 @@ const selectImage = (e) => {
   image.value = e.files[0]?.name;
   file.value = e.files[0];
 };
+
+// для очистки из родительского компонента
+watch(
+  () => file.value,
+  (newValue) => {
+    if (!newValue && !image.value && fileupload.value) {
+      fileupload.value.remove();
+    }
+  }
+);
 </script>
 
 <style lang="scss" scoped>
+@include ImageUpload();
 .uploader {
   border-radius: 6px;
   transition: box-shadow 0.3s, border-color 0.3s;
@@ -193,8 +214,8 @@ const selectImage = (e) => {
     width: 100%;
     border-radius: 10px;
     overflow: hidden;
-    border: 2px dashed #777777;
-    background-color: #18181b;
+    border: 2px dashed var(--grey-360);
+    background-color: var(--modal);
   }
   &-remove-img {
     position: absolute;
@@ -235,7 +256,7 @@ const selectImage = (e) => {
   }
   &__item-size {
     font-size: 14px;
-    color: #979797;
+    color: var(--grey-330);
   }
   &__empty-text {
     line-height: 1;
@@ -260,19 +281,63 @@ const selectImage = (e) => {
     border-radius: 5px;
     overflow: hidden;
   }
-  &.is-invalid{
-    .dashboard-fileupload{
+  &.is-invalid {
+    .dashboard-fileupload {
       @include Invalid();
     }
+  }
+}
+
+
+// btns
+.no,
+.yes {
+  &-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1;
+    border-radius: 7px;
+    padding: 0 10px;
+    color: var(--black-3);
+    font-weight: 500;
+    transition: background-color 0.3s, color 0.3s, filter 0.3s;
+    height: 35px;
+  }
+}
+.yes-btn {
+  background-color: var(--blue-360);
+  &:not(:disabled):hover {
+    filter: brightness(1.1);
+  }
+  &:disabled {
+    opacity: 0.7;
+    cursor: default;
+  }
+}
+
+.no-btn {
+  background-color: var(--grey-880);
+  color: var(--grey-50);
+  &:not(:disabled):hover {
+    filter: brightness(var(--brightness-rating));
+    background-color: var(--grey-880);
+  }
+  &:disabled {
+    cursor: default;
+    opacity: 0.6;
   }
 }
 </style>
 
 <style lang="scss">
+@include ImageUpload();
 .dashboard {
   &-fileupload {
     border-radius: inherit;
-    transition: all .3s;
+    transition: all 0.3s;
+    background-color: var(--modal-2);
+    color: var(--white);
 
     &-input {
     }
@@ -282,7 +347,7 @@ const selectImage = (e) => {
     &-content {
       height: 200px;
       margin: 0 15px 15px;
-      border: 2px dashed #6b99c6;
+      border: 2px dashed var(--blue-2);
       border-radius: 10px;
       padding: 10px;
       overflow-y: auto;
@@ -291,6 +356,7 @@ const selectImage = (e) => {
       flex-direction: column;
       gap: 10px;
       transition: border-color 0.3s;
+      background-color:var(--transparent-4);
 
       &.is-invalid {
         border-color: #ff8686;
@@ -331,9 +397,11 @@ const selectImage = (e) => {
 // message error
 .error {
   &-message {
-    border: 1px solid #920000;
-    border-left: 4px solid #b80202;
+    border: 1px solid var(--red-600);
+    border-left: 4px solid var(--red-500);
     outline: none;
+    background-color: var(--toast-error);
+
     &-offset {
       margin: 10px;
     }
@@ -348,20 +416,32 @@ const selectImage = (e) => {
     &-icon {
     }
     &-text {
-      color: #ff7f7f;
+      color: var(--red-160);
       font-size: 14px;
       display: flex;
       align-items: center;
       gap: 5px;
       font-size: 12px;
+      overflow: hidden;
       svg {
         min-width: 25px;
         color: #ff2b2b;
       }
     }
+    &-info {
+      max-width: 100%;
+      overflow: hidden;
+    }
+    &-name {
+      @include TextOverflow(1);
+      overflow-wrap: break-word;
+    }
     &-close-button {
       width: var(--p-message-close-button-width);
       height: var(--p-message-close-button-height);
+      &:hover{
+        background-color: var(--white-1);
+      }
     }
     &-close-icon {
       width: 12px;

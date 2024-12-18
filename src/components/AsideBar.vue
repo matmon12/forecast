@@ -20,27 +20,15 @@
           </router-link>
         </div>
       </div>
-      <div class="aside__bottom">
+      <div v-if="uiStore.xsAndLarger" class="aside__bottom">
         <button
-          v-if="authStore.user"
+          v-if="can('logout')"
           @click="authStore.logoutUser()"
           class="aside__bottom-btn"
         >
           <i-streamline:interface-logout-arrow-exit-frame-leave-logout-rectangle-right />
         </button>
-        <Switch
-          class="aside-switch"
-          @toggle-switch="(value) => onChangeTheme(value)"
-          :icons="[
-            LineMdMoonToSunnyOutlineLoopTransition,
-            LineMdSunnyOutlineToMoonLoopTransition,
-          ]"
-          :model-value="true"
-          :width="'--width'"
-          :height="'--height'"
-          :offset="'--offset'"
-          :colors="['#8d8d8d', '#fff', '#2f2f2f']"
-        />
+        <ThemeSwitch/>
       </div>
     </div>
   </div>
@@ -48,16 +36,19 @@
 
 <script setup>
 import { computed } from "vue";
-import LineMdSunnyOutlineToMoonLoopTransition from "~icons/line-md/sunny-outline-to-moon-loop-transition";
-import LineMdMoonToSunnyOutlineLoopTransition from "~icons/line-md/moon-to-sunny-outline-loop-transition";
 import PhSquaresFour from "~icons/ph/squares-four";
 import CarbonLocation from "~icons/carbon/location";
 import QuillCalendar from "~icons/quill/calendar";
 import FluentNews20Regular from "~icons/fluent/news-20-regular";
 import EpSetting from "~icons/ep/setting";
 import { useAuthStore } from "@/stores/auth";
+import { useUiStore } from "@/stores/ui";
+import { useAbility } from "@casl/vue";
+import { ability } from "../services/ability";
 
 const authStore = useAuthStore();
+const uiStore = useUiStore();
+const { can } = useAbility();
 
 const menuPages = computed(() => {
   const menu = [
@@ -66,18 +57,18 @@ const menuPages = computed(() => {
     { id: 3, icon: QuillCalendar, router: "history" },
     { id: 4, icon: FluentNews20Regular, router: "news" },
   ];
-  if (authStore.user) {
+  if (ability.can("visit", "Dashboard")) {
     menu.push({ id: 5, icon: EpSetting, router: "dashboard" });
   }
   return menu;
 });
 
-const onChangeTheme = (value) => {};
 </script>
 
 <style lang="scss" scoped>
+@include AsideBar();
 .aside {
-  background-color: $main;
+  background-color: var(--blue-dark);
   width: 70px;
   height: calc(100vh - 60px);
   position: fixed;
@@ -85,11 +76,7 @@ const onChangeTheme = (value) => {};
   border-radius: 20px;
   padding: 20px 0;
   overflow: hidden;
-
-  // переменные для switch
-  --width: 45px;
-  --height: 26px;
-  --offset: 3px;
+  z-index: 1300;
 
   &__inner {
     height: 100%;
@@ -126,7 +113,7 @@ const onChangeTheme = (value) => {};
         position: absolute;
         background: linear-gradient(
           90deg,
-          #c7c7c7a4 0%,
+          var(--aside-gradient) 0%,
           rgba(255, 255, 255, 0) 100%
         );
         height: 100%;
@@ -142,7 +129,7 @@ const onChangeTheme = (value) => {};
     }
     svg {
       font-size: 17px;
-      color: #cfcfcf;
+      color: var(--grey-200);
     }
   }
   &__bottom {
@@ -177,7 +164,7 @@ const onChangeTheme = (value) => {};
     left: 50%;
   }
   .aside-btn {
-    background-color: $grey;
+    background-color: var(--aside-active);
     box-shadow: 0 0 10px #00000084;
 
     svg {

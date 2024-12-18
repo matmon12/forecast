@@ -21,39 +21,18 @@
       </div>
     </div>
     <div class="tabs-wrapper">
-      <transition name="tabs">
-        <div class="tab-content" v-if="tabActive === 0">
-          <TomorrowHour
-            :forecast-hour="
-              forecastStore.forecastData?.forecast?.forecastday[0].hour
-            "
-            :forecast-astro="
-              forecastStore.forecastData?.forecast?.forecastday[0].astro
-            "
-            :timezone="forecastStore.forecastData?.location?.tz_id"
-          />
-        </div>
-        <div class="tab-content" v-else-if="tabActive === 1">
-          <TomorrowHour
-            :forecast-hour="
-              forecastStore.forecastData?.forecast?.forecastday[1].hour
-            "
-            :forecast-astro="
-              forecastStore.forecastData?.forecast?.forecastday[1].astro
-            "
-          />
-        </div>
-        <div class="tab-content" v-else-if="tabActive === 2">
-          <TomorrowHour
-            :forecast-hour="
-              forecastStore.forecastData?.forecast?.forecastday[2].hour
-            "
-            :forecast-astro="
-              forecastStore.forecastData?.forecast?.forecastday[2].astro
-            "
-          />
-        </div>
-      </transition>
+      <div v-for="item in [0, 1, 2]" :key="item" class="tab-content">
+        <TomorrowHour
+          v-if="tabActive === item"
+          :forecast-hour="
+            forecastStore.forecastData?.forecast?.forecastday[item].hour
+          "
+          :forecast-astro="
+            forecastStore.forecastData?.forecast?.forecastday[item].astro
+          "
+          :timezone="forecastStore.forecastData?.location?.tz_id"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -61,7 +40,7 @@
 <script setup>
 import { onMounted, ref, watch } from "vue";
 import { FORECAST_URL } from "@/constants/index";
-import {axiosApiInstance} from "@/server/api";
+import { axiosApiInstance } from "@/server/api";
 import { useSearchStore } from "@/stores/search";
 import { useForecastStore } from "@/stores/forecast";
 
@@ -125,6 +104,7 @@ const onToBack = () => {
 </script>
 
 <style lang="scss" scoped>
+@include Tomorrow();
 .tomorrow {
   width: 100%;
 }
@@ -134,13 +114,13 @@ const onToBack = () => {
 }
 .tab {
   cursor: pointer;
-  background-color: $grey;
+  background-color: var(--grey);
   overflow: hidden;
   border-radius: 20px;
   transition: all 0.5s;
 }
 .is--cheked {
-  background-color: #a1a1a170;
+  background-color: var(--grey-400);
 }
 .tabs-wrapper {
   position: relative;

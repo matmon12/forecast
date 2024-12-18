@@ -1,9 +1,9 @@
 <template>
   <Dialog
     v-model:visible="visible"
-    :style="{ width: '450px' }"
     modal
     :pt="getClasses('dashboard').dialog"
+    class="delete-posts-dialog"
     unstyled
   >
     <template #container="{ closeCallback }">
@@ -14,7 +14,7 @@
         <div class="dashboard-dialog-header">
           <span class="dashboard-dialog-title">Confirm</span>
           <div class="dashboard-dialog-header-actions">
-            <button @click="closeCallback">
+            <button v-if="!uiStore.xs2Smaller" @click="closeCallback">
               <i-ic:round-close />
             </button>
           </div>
@@ -41,7 +41,7 @@
           >
           <Button
             text
-            @click="deleteSelectedPosts"
+            @click="onCheckRole"
             :pt="getClasses('yes').button"
             unstyled
             ><i-ic:round-check />Yes</Button
@@ -55,7 +55,8 @@
     v-model:visible="visibleResult"
     :modal="true"
     :draggable="false"
-    :style="{ width: '25rem' }"
+    class="results-dialog"
+    :pt="{ mask: 'results-dialog-mask' }"
   >
     <template #container="{ closeCallback }">
       <div
@@ -65,14 +66,14 @@
         <div class="dashboard-dialog-header">
           <span class="dashboard-dialog-title">Results of the operation</span>
           <div class="dashboard-dialog-header-actions">
-            <button @click="closeCallback">
+            <button v-if="!uiStore.xs2Smaller" @click="closeCallback">
               <i-ic:round-close />
             </button>
           </div>
         </div>
 
         <Message
-          v-if="countDeletedPosts"
+          v-if="1"
           severity="info"
           :pt="getClasses('result-success').message"
         >
@@ -110,13 +111,27 @@
             </li>
           </ul>
         </Message>
+
+        <div v-if="uiStore.xs2Smaller" class="dashboard-dialog-footer">
+          <Button
+            text
+            @click="closeCallback()"
+            :pt="getClasses('no').button"
+            unstyled
+            ><i-iconoir:cancel />Close</Button
+          >
+        </div>
       </div>
     </template>
   </Dialog>
 
   <Teleport to="body">
     <transition>
-      <Spinner v-if="loading" style="border-radius: 0; position: fixed;" size="50" />
+      <Spinner
+        v-if="loading"
+        style="border-radius: 0; position: fixed; z-index: 1600"
+        size="50"
+      />
     </transition>
   </Teleport>
 </template>
@@ -130,9 +145,12 @@ import { deleteImage } from "@/server/storage";
 import { deleteFromDB } from "@/server/posts";
 import { uppercaseFirst, pluralize } from "@/utils/index";
 import { useServerStore } from "@/stores/server";
+import { ability } from "@/services/ability";
+import { useUiStore } from "@/stores/ui";
 
 const serverStore = useServerStore();
 const toast = useToast();
+const uiStore = useUiStore();
 
 const visible = defineModel("visible");
 const selectedPosts = defineModel("selected");
@@ -141,7 +159,13 @@ const countDeletedPosts = ref(0);
 const errors = ref([]);
 const loading = ref(false);
 
-const emits = defineEmits(['delete'])
+const emits = defineEmits(["delete"]);
+
+const onCheckRole = () => {
+  if (ability.can("delete", "Post")) {
+    deleteSelectedPosts();
+  }
+};
 
 const deleteSelectedPosts = async () => {
   countDeletedPosts.value = 0;
@@ -197,9 +221,9 @@ const deletePost = async (post) => {
     // Удалить запись из массива urls для удаленного поста
     serverStore.deleteUrl(post.id);
 
-    emits('delete', post.id)
+    emits("delete", post.id);
 
-    await deleteImage(post.image);
+    await deleteImage(post.image, "images/posts/");
   } catch (error) {
     throw { message: error.message, title: post.name };
   }
@@ -207,11 +231,12 @@ const deletePost = async (post) => {
 </script>
 
 <style lang="scss" scoped>
+@include DeletePostsDialog();
 .delete-dialog-selected-text {
   margin-bottom: 10px;
   span {
     font-weight: 600;
-    color: $blue;
+    color: var(--blue);
   }
 }
 
@@ -231,11 +256,11 @@ const deletePost = async (post) => {
   padding: 0 3px;
   max-height: 170px;
   overflow-y: auto;
-  @include Scroll(5px, 5px, #110000, #fd9696);
+  @include Scroll(5px, 5px, var(--red-1000), var(--red-200));
 }
 .result__list-item {
   margin-bottom: 10px;
-  background-color: #bb3b3b3b;
+  background-color: var(--red-60);
   border-radius: 5px;
   padding: 5px;
 }
@@ -251,23 +276,82 @@ const deletePost = async (post) => {
   font-size: 12px;
   font-weight: 400;
   line-height: 1.2;
-  color: #ff9696;
+  color: var(--red-200);
 }
 .result-info {
   font-size: 14px;
 }
+
+// btns
+.no,
+.yes {
+  &-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1;
+    border-radius: 7px;
+    padding: 0 10px;
+    font-weight: 500;
+    transition: background-color 0.3s, color 0.3s, filter 0.3s;
+    height: 35px;
+  }
+}
+.yes-btn {
+  color: var(--black-3);
+  background-color: var(--blue-360);
+  transition: filter 0.3s;
+  &:not(:disabled):hover {
+    filter: brightness(1.3);
+  }
+  &:disabled {
+    opacity: 0.7;
+    cursor: default;
+  }
+}
+
+.no-btn {
+  color: var(--grey-50);
+  background-color: var(--grey-900);
+  transition: background-color 0.3s;
+  &:not(:disabled):hover {
+    background-color: var(--cancel-hover);
+  }
+  &:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+}
 </style>
 
 <style lang="scss">
+@include DeletePostsDialog();
+// dialog
+.delete-posts-dialog.dashboard-dialog {
+  width: 450px;
+  background-color: var(--grey-1170);
+}
+.results-dialog {
+  width: 25rem;
+  background: var(--grey-1050);
+
+  &-mask {
+    z-index: 1500 !important;
+  }
+}
+
 // message
 .confirm {
   &-message {
-    border-left: 5px solid #e76a1d;
+    border-left: 5px solid var(--orange);
+    background-color: var(--message-warn);
+    outline-color: var(--yellow-3);
+
     &-header {
       display: flex;
       gap: 5px;
       align-items: flex-end;
-      color: #ff873d;
+      color: var(--orange-2);
       margin-bottom: 5px;
 
       svg {
@@ -286,6 +370,7 @@ const deletePost = async (post) => {
     }
     &-text {
       font-size: 14px;
+      color: var(--yellow-4);
     }
   }
 }
@@ -294,9 +379,9 @@ const deletePost = async (post) => {
 .result-error {
   &-message {
     overflow: hidden;
-    border: 1px solid #b80202;
-    border-left: 5px solid #b80202;
-    background-color: #f44b4b1d;
+    border: 1px solid var(--red-500);
+    border-left: 5px solid var(--red-500);
+    background-color: var(--red-50);
     &-content {
       padding: 5px 7px;
     }
@@ -309,6 +394,7 @@ const deletePost = async (post) => {
     border-left: 5px solid #24b8fd;
     margin-bottom: 10px;
     color: #24b8fd;
+    background-color: var(--success-back);
   }
 }
 
@@ -320,8 +406,8 @@ const deletePost = async (post) => {
     border-radius: 3px;
     padding: 2px 7px;
     margin-bottom: 5px;
-    background-color: #ffc9c933;
-    color: #ffa3a3;
+    background-color: var(--red-110);
+    color: var(--red-150);
     &-icon {
     }
     &-label {

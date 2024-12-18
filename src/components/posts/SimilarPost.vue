@@ -40,7 +40,7 @@ const getImageUrl = async () => {
   loadingImage.value = true;
   errorImage.value = null;
   try {
-    const urlImage = await loadImage(props.image);
+    const urlImage = await loadImage(props.image, "images/posts/");
     serverStore.setUrl(props.id, urlImage);
   } catch (error) {
     errorImage.value = JSON.parse(error.message);
@@ -66,22 +66,23 @@ watch(
 </script>
 
 <style lang="scss" scoped>
+@include SimilarPost();
 .similar-post__wrapper {
   border-radius: 10px;
   overflow: hidden;
   position: relative;
 }
 .similar-post__content {
-  background-color: #2d2d2d;
+  background-color: var(--grey-850);
   height: 100%;
   display: flex;
   gap: 15px;
   padding: 10px;
-  transition: background-color 0.2s;
+  transition: filter 0.2s;
   cursor: pointer;
 
   &:hover {
-    background-color: #ffffff1e;
+    filter: brightness(var(--brightness-rating));
   }
 }
 .similar-post__imgwrap {
@@ -92,7 +93,7 @@ watch(
   overflow: hidden;
   box-shadow: 0 0 10px #0000006e;
   position: relative;
-  background-color: #3e3e3e;
+  background-color: var(--grey-900);
 }
 .similar-post__img {
   width: 100%;
@@ -104,6 +105,7 @@ watch(
   flex-grow: 1;
 }
 .similar-post__title {
+  @include TextOverflow(3);
 }
 
 .similar-post__skeleton-texts {
@@ -114,6 +116,18 @@ watch(
 .similar-post__skeleton-text {
   border-radius: 4px;
 }
+.p-skeleton {
+  background-color: var(--skeleton-text);
+  &::after {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0),
+      var(--skeleton-animation),
+      rgba(255, 255, 255, 0)
+    );
+  }
+}
+
 .similar-post-error {
   font-size: 24px;
   position: absolute;

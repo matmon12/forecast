@@ -5,7 +5,7 @@
       <Image
         v-if="!error"
         :alt="name"
-        preview
+        :preview="preview"
         :pt="{
           ...getClasses('picture').image,
         }"
@@ -54,11 +54,13 @@ const props = defineProps({
   id: String,
   name: String,
   url: String,
+  path: String,
+  preview: Boolean,
 });
 
 onMounted(() => {
   if (props.id && !serverStore.urls[props.id]) {
-    getImage(props.name);
+    getImage(props.name, props.path);
   }
 });
 
@@ -66,15 +68,15 @@ watch(
   () => serverStore.urls[props.id],
   (newValue) => {
     if (!newValue) {
-      getImage(props.name);
+      getImage(props.name, props.path);
     }
   }
 );
 
-const getImage = (name) => {
+const getImage = (name, path) => {
   loading.value = true;
   error.value = null;
-  loadImage(name)
+  loadImage(name, path)
     .then((url) => {
       serverStore.setUrl(props.id, url);
     })
@@ -85,7 +87,6 @@ const getImage = (name) => {
       loading.value = false;
     });
 };
-
 </script>
 
 <style lang="scss" scoped>
@@ -114,6 +115,10 @@ const getImage = (name) => {
     width: 100%;
     height: 100%;
 
+    &:hover > .picture-image-preview-mask {
+      background: var(--mask);
+    }
+
     &-img {
       max-height: 100%;
       object-fit: contain;
@@ -128,6 +133,7 @@ const getImage = (name) => {
       gap: 5px;
     }
     &-mask {
+      z-index: 1500 !important;
       .p-image-action {
         width: 40px;
         height: 40px;
@@ -149,9 +155,18 @@ const getImage = (name) => {
   }
   &-skeleton {
     z-index: 100;
+    background-color: var(--skeleton-text);
+    &::after {
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0),
+        var(--skeleton-animation),
+        rgba(255, 255, 255, 0)
+      );
+    }
   }
   &-error {
-    background-color: #262727;
+    background-color: var(--grey-1010);
     width: 100%;
     height: 100%;
     display: flex;

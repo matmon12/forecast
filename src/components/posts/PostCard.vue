@@ -49,7 +49,7 @@ import { getLuminance } from "@/utils/index";
 const firstSentence = /^(.*?[?!.])(?=\s*[A-ZА-ЯЁ]|$)/s;
 const loadingImage = ref(false);
 const errorImage = ref();
-const colorBack = ref("#000");
+const colorBack = ref("var(--black-2)");
 const colorText = ref("#fff");
 const serverStore = useServerStore();
 
@@ -65,7 +65,7 @@ const getImageUrl = async () => {
   loadingImage.value = true;
   errorImage.value = null;
   try {
-    const urlImage = await loadImage(props.image);
+    const urlImage = await loadImage(props.image, "images/posts/");
     serverStore.setUrl(props.id, urlImage);
   } catch (error) {
     errorImage.value = JSON.parse(error.message);
@@ -105,6 +105,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@include PostCard();
 @property --colorGradient {
   syntax: "<color>";
   initial-value: #000;
@@ -116,13 +117,14 @@ onMounted(() => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background-color: #ffffff1a;
+  background-color: var(--white-5);
   cursor: pointer;
   transition: box-shadow 0.3s, transform 0.3s;
   position: relative;
+  box-shadow: 0 0 10px 1px var(--boxshadow--card);
 
   &:hover {
-    box-shadow: 0 0 15px 2px rgba(255, 255, 255, 0.537);
+    box-shadow: 0 0 15px 2px var(--boxshadow--card);
     transform: translateY(-5px);
   }
 }
@@ -147,7 +149,7 @@ onMounted(() => {
 
     &-wrap {
       padding: 15px 0 15px 15px;
-      min-width: 40%;                                                           
+      min-width: 40%;
       width: 40%;
     }
   }
@@ -210,6 +212,15 @@ onMounted(() => {
   left: 0;
   top: 0;
   z-index: -1;
+  background-color: var(--skeleton-back);
+  &::after {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0),
+      var(--skeleton-animation),
+      rgba(255, 255, 255, 0)
+    );
+  }
 }
 .card-error {
   position: absolute;
@@ -217,6 +228,6 @@ onMounted(() => {
   top: 50%;
   transform: translate(-50%, -50%);
   font-size: 30px;
-  color: #9d9d9d;
+  color: var(--grey-330);
 }
 </style>

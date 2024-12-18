@@ -6,8 +6,9 @@
         <Header :class="{ 'is--active': isHeaderActive }" />
         <div class="content">
           <router-view v-slot="{ Component }">
+            <Spinner v-if="authStore.loading" :size="50" />
             <keep-alive :include="['Dashboard']">
-              <component :is="Component"></component>
+              <component :is="Component" />
             </keep-alive>
           </router-view>
         </div>
@@ -46,20 +47,33 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 import { useSearchStore } from "@/stores/search";
 import Toast from "primevue/toast";
 import ConfirmPopup from "primevue/confirmpopup";
 import { getClasses } from "@/utils/classes";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useAuthStore } from "@/stores/auth";
+import { useUiStore } from "@/stores/ui";
 
 const auth = getAuth();
 const authStore = useAuthStore();
+const uiStore = useUiStore();
 const isHeaderActive = ref(false);
 
+// адаптив
+watch(
+  () => uiStore.activeBreakpoint,
+  (newValue) => {
+    document.body.className = newValue;
+  },
+  {
+    immediate: true,
+  }
+);
+
 onMounted(() => {
-  checkUser();
+  getUserId();
   window.addEventListener("scroll", handleScroll);
 });
 
@@ -75,31 +89,17 @@ const handleScroll = () => {
   }
 };
 
-const checkUser = () => {
-  // ранний доступ
+const getUserId = () => {
+  // получить id пользоваателя
   const userInfo = JSON.parse(localStorage.getItem("auth"));
   if (userInfo) {
-    authStore.user = userInfo.token;
+    authStore.uid = userInfo.uid;
   }
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      authStore.user = user;
-      localStorage.setItem(
-        "auth",
-        JSON.stringify({
-          token: user.accessToken,
-        })
-      );
-    } else {
-      authStore.user = null;
-      localStorage.removeItem("auth");
-    }
-  });
 };
 </script>
 
 <style scoped lang="scss">
+@include App();
 main {
   padding: 30px 0;
 }
@@ -118,33 +118,38 @@ main {
 </style>
 
 <style lang="scss">
+@include App();
 .app {
   &-confirmpopup {
     padding: 10px;
     font-size: 14px;
-    background-color: #18181b;
-    border-color: #6b6b6b;
+    background-color: var(--grey-1050);
+    border-color: var(--grey-340);
+
     &.p-confirmpopup-flipped:before {
-      border-top-color: #6b6b6b;
+      border-top-color: var(--grey-340);
       border-bottom-color: transparent;
     }
     &.p-confirmpopup-flipped:after {
-      border-top-color: #18181b;
+      border-top-color: var(--grey-1050);
       border-bottom-color: transparent;
     }
     &:before {
-      border-bottom-color: #6b6b6b;
+      border-bottom-color: var(--grey-340);
     }
     &:after {
-      border-bottom-color: #18181b;
+      border-bottom-color: var(--grey-1050);
     }
     &-content {
       display: flex;
       align-items: center;
       gap: 10px;
       margin-bottom: 10px;
+      color: var(--white);
       svg {
         font-size: 20px;
+        path{
+        }
       }
     }
     &-icon {
@@ -168,10 +173,15 @@ main {
   }
   &-toast {
     width: 300px;
+    z-index: 1600 !important;
     &-message.p-toast-message-success {
-      background-color: #6b98c65d;
-      color: #53a9ff;
+      background-color: var(--blue-40);
+      color: var(--blue-450);
       border-color: #4583c2;
+    }
+    &-message.p-toast-message-error {
+      background-color: var(--toast-error);
+      color: var(--red-300);
     }
     &-message-content {
       align-items: center;
@@ -194,6 +204,7 @@ main {
       font-size: 13px;
       font-weight: 400;
       line-height: 1.2;
+      color: var(--white-4);
     }
     &-close-button {
       width: 20px;
@@ -207,10 +218,11 @@ main {
 }
 
 .reject-btn {
-  color: #dedede;
-  background-color: #353535;
+  color: var(--grey-50);
+  background-color: var(--grey-900);
+  transition: filter .3s;
   &:not(:disabled):hover {
-    background-color: #545454;
+    filter: brightness(var(--brightness-rating));
   }
   &:disabled {
     cursor: default;
@@ -218,10 +230,11 @@ main {
   }
 }
 .accept-btn {
-  color: #000;
-  background-color: #7b9dcf;
+  color: var(--black-3);
+  background-color: var(--blue-360);
+  transition: filter .3s;
   &:not(:disabled):hover {
-    background-color: #a9caff;
+    filter: brightness(1.3);
   }
   &:disabled {
     opacity: 0.7;

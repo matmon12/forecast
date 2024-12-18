@@ -143,6 +143,14 @@ watch(
   }
 );
 
+// корректировка позиции
+watch(
+  () => props.width,
+  () => {
+    setRoundPos();
+  }
+);
+
 onMounted(() => {
   id.value = uuidv4();
 
@@ -216,7 +224,6 @@ const setRoundPos = () => {
   position: absolute;
   transform: translate(-50%, 50%);
   filter: drop-shadow(0 0 10px rgba(0, 0, 0, 1));
-
 }
 
 .round {

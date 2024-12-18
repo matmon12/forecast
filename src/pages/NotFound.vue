@@ -14,6 +14,7 @@
 <script setup></script>
 
 <style lang="scss" scoped>
+@include NotFound();
 .notfound {
   @include Card();
   width: 100%;
@@ -26,7 +27,7 @@
 }
 .notfound-img {
   font-size: 10em;
-  color: $blue;
+  color: var(--blue-160);
   filter: drop-shadow(5px 5px 5px #000000);
 }
 .notfound-title {
@@ -59,19 +60,23 @@
   &-home {
     color: #000;
     font-weight: 500;
-    background-color: #7b9dcf;
+    background-color: var(--blue-380);
+    transition: filter .3s;
     &:not(:disabled):hover {
-      background-color: #a9caff;
+      filter: brightness(var(--brightness-rating));
     }
   }
 
   &-back {
     color: #fff;
-    border: 2px solid #7b9dcf;
+    border: 2px solid var(--blue-370);
+    background-color: var(--transparent-5);
+    transition: filter .3s, background-color .3s;
     &:not(:disabled):hover {
-      background-color: #7b9dcf;
-      color: #000;
-      font-weight: 500;
+      background-color: var(--blue-370);
+      filter: brightness(var(--brightness-moon));
+      color: var(--black-3);
+      font-weight: var(--font-weight-2);
     }
   }
 }

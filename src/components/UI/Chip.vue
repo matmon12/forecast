@@ -16,14 +16,15 @@ const props = defineProps({
 </script>
 
 <style lang="scss" scoped>
+@include Chip();
 .chip {
   display: flex;
   align-items: center;
   gap: 10px;
-  background-color: $blue;
+  background-color: var(--blue-100);
   border-radius: 5px;
   padding: 3px 8px 3px 10px;
-  color: $black;
+  color: #000;
   height: 30px;
 
   &-btn {

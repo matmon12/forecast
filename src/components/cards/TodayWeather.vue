@@ -128,6 +128,7 @@ const getCurDate = (tz) => {
 </script>
 
 <style lang="scss" scoped>
+@include TodayWeather();
 .summary {
   @include Card();
   display: flex;
@@ -139,14 +140,14 @@ const getCurDate = (tz) => {
   }
 
   &__location {
-    background-color: $white-2;
+    background-color: var(--white-2);
     height: 33px;
     display: flex;
     gap: 5px;
     align-items: center;
     border-radius: 33px;
     padding: 0 20px 0 10px;
-    color: $black;
+    color: #000;
   }
 
   &__location-text {
@@ -185,6 +186,7 @@ const getCurDate = (tz) => {
 
   &__temp-text {
     color: #ffffffc9;
+    color: var(--grey-200);
   }
 
   &__right {
@@ -198,6 +200,21 @@ const getCurDate = (tz) => {
   &__img-wrap {
     height: 190px;
     max-width: 250px;
+    position: relative;
+    z-index: 0;
+    &::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: -1;
+      width: 70%;
+      height: 70%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      box-shadow: 0 0 40px 30px var(--shadow-img-1);
+      background-color: var(--shadow-img-2);
+    }
     // display: flex;
     // justify-content: flex-end;
   }
@@ -211,7 +228,7 @@ const getCurDate = (tz) => {
   }
 
   &__right-feels {
-    color: #ffffffc9;
+    color: var(--grey-200);
   }
 }
 .summary-week {
@@ -220,7 +237,7 @@ const getCurDate = (tz) => {
 }
 .summary-date {
   line-height: 1.3;
-  color: #ffffffc9;
+  color: var(--grey-200);
 }
 .summary-img {
   width: 100%;

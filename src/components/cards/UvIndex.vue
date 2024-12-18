@@ -9,9 +9,9 @@
         :model-value="uvIndex"
         :colors-line="['#aec5ee', '#788aa3', '#4f6378', '#3c4d5b', '#2c3a45']"
         :color-point="'#fff'"
-        :stroke-width="10"
-        :size-point="18"
-        :width="180"
+        :stroke-width="responsiveKnob[uiStore.activeBreakpoint]?.strokeWidth || 10"
+        :size-point="responsiveKnob[uiStore.activeBreakpoint]?.sizePoint || 18"
+        :width="responsiveKnob[uiStore.activeBreakpoint]?.width || 180"
       />
       <div class="uv-box">
         <p class="uv-value">{{ Math.round(uvIndex) }}/13</p>
@@ -23,6 +23,10 @@
 
 <script setup>
 import { ref, defineProps } from "vue";
+import { useUiStore } from "@/stores/ui";
+
+const uiStore = useUiStore();
+
 const screenWidth = ref(window.innerWidth);
 
 const textLevel = ref({
@@ -49,9 +53,17 @@ const props = defineProps({
     default: 0,
   },
 });
+
+const responsiveKnob = {
+  md: { width: 150, strokeWidth: 10, sizePoint: 18 },
+  sm2: { width: 150, strokeWidth: 10, sizePoint: 18 },
+  xs3: { width: 120, strokeWidth: 6, sizePoint: 14 },
+  xs4: { width: 100, strokeWidth: 6, sizePoint: 12 },
+};
 </script>
 
 <style lang="scss" scoped>
+@include UvIndex();
 .uv {
   @include Card();
   display: flex;

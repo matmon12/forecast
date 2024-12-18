@@ -246,6 +246,15 @@
                   : totalPrecip(item.precip_mm)
               }}
             </p>
+            <div class="hour-precip-img">
+              <svg xmlns="http://www.w3.org/2000/svg" width="60" height="5">
+                <path
+                  fill="#427ba9"
+                  fill-rule="evenodd"
+                  d="M0 1.004s8.245.928 18.75 1c5.825.04 11.794-.108 18.75-1 6.883-.882 12.966-1.033 18.75-1 10.601.062 18.75 1 18.75 1V5H0V1.004Z"
+                />
+              </svg>
+            </div>
             <div
               class="hour-precip-graph"
               :style="{
@@ -396,7 +405,7 @@ const getColorTemp = (temp) => {
 };
 
 const getColorWind = (wind) => {
-  return wind > 10 ? "#ff0000" : "#fff";
+  return wind > 10 ? "#ff0000" : "inherit";
 };
 
 const getColorHumidity = (humidity) => {
@@ -482,6 +491,7 @@ const getTextTemp = (temp) => {
 </script>
 
 <style lang="scss" scoped>
+@include TomorrowHour();
 .hour {
   @include Card();
   padding-top: 20px;
@@ -493,7 +503,7 @@ const getTextTemp = (temp) => {
   width: 100%;
   overflow: auto;
   overflow-x: scroll;
-  @include Scroll(10px, 10px, #333333, #7d7d7d);
+  @include Scroll(10px, 10px, var(--grey-900), var(--grey-350));
 }
 .hour-table {
   width: max-content;
@@ -503,7 +513,7 @@ const getTextTemp = (temp) => {
   display: flex;
   // gap: 10px;
   &:nth-child(1) {
-    background-color: #2d2d2d;
+    background-color: var(--grey-800);
   }
 }
 td {
@@ -523,13 +533,28 @@ td {
 .hour-time {
   font-size: 14px;
   line-height: 1;
-  color: #a1a1a1;
+  color: var(--grey-100);
   font-weight: 600;
 }
 .hour-imgwrapper {
   height: 50px;
   max-width: 45px;
   margin: 0 auto;
+  // position: relative;
+  // z-index: 0;
+  // &::after {
+  //   content: "";
+  //   position: absolute;
+  //   left: 50%;
+  //   top: 50%;
+  //   z-index: -1;
+  //   width: 1%;
+  //   height: 1%;
+  //   transform: translate(-50%, -50%);
+  //   border-radius: 50%;
+  //   box-shadow: 0 0 10px 10px var(--shadow-img-1);
+  //   background-color: var(--shadow-img-2);
+  // }
 }
 .hour-img {
   width: 100%;
@@ -541,7 +566,7 @@ td {
 }
 .hour-title {
   font-size: 13px;
-  color: #b6b6b6;
+  color: var(--grey-100);
   min-width: 140px;
   max-width: 140px;
   text-align: left;
@@ -549,7 +574,7 @@ td {
   display: block;
   border-right: 1px solid #464646;
   padding: 7px 5px;
-  background-color: #2d2d2d;
+  background-color: var(--grey-800);
 }
 .hour-temp {
   font-weight: 700;
@@ -557,52 +582,55 @@ td {
 .hour-feel {
 }
 .hour-wind-spped {
+  color: var(--white);
 }
 .hour-wind-gusts {
 }
 .hour-dir-arrow {
+  color: var(--white);
 }
 .hour-dir-text {
   font-size: 13px;
-  color: #9c9c9c;
+  color: var(--grey-300);
 }
 .hour-humidity {
+  color: var(--white);
 }
 .hour-pressure {
+  color: var(--white);
 }
 .hour-precip {
   justify-content: flex-end;
   padding: 7px 0 0;
+  gap: 0;
   &:is(.is--precip-null) {
     padding-bottom: 2px;
     .hour-precip-graph {
       display: none;
     }
+    .hour-precip-img{
+      display: none;
+    }
     .hour-precip-text {
-      color: #aaaaaa;
+      color: var(--grey-100);
     }
   }
 }
 .hour-precip-text {
   font-size: 14px;
-  color: #90ccfc;
+  color: var(--blue-200);
+}
+.hour-precip-img {
+  display: flex;
+  height: 5px;
+  path{
+    fill: var(--blue-500);
+  }
 }
 .hour-precip-graph {
   height: 1px;
   width: 100%;
-  background-color: #427ba9;
-  position: relative;
-  &::after {
-    content: "";
-    background-image: url("@/img/precip.svg");
-    background-repeat: repeat-x;
-    background-size: cover;
-    position: absolute;
-    width: 100%;
-    height: 5px;
-    top: -5px;
-    left: 0;
-  }
+  background-color: var(--blue-500);
 }
 .hour-moon-text,
 .hour-sun-text {
@@ -610,11 +638,13 @@ td {
   gap: 15px;
   span {
     color: #9c9c9c;
+    color: var(--grey-100);
   }
 }
 .hour-moon-icon {
   width: 35px;
   margin-top: 2px;
+  filter: brightness(var(--brightness-phase));
 }
 .hour-moon {
   height: 75px;
@@ -629,10 +659,10 @@ td {
 }
 
 .is--night {
-  background-color: #0b1a38;
+  background-color: var(--blue-800);
 }
 .is--day {
-  background-color: #092e5ca8;
+  background-color: var(--blue-700);
 }
 </style>
 

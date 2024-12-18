@@ -19,5 +19,6 @@ export const firebaseApp = initializeApp(firebaseConfig);
 export const db = getFirestore(firebaseApp);
 
 export const postsRef = collection(db, "posts");
+export const ratingsRef = collection(db, "ratings");
 
 export const auth = getAuth(firebaseApp);

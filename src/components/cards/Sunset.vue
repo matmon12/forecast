@@ -12,7 +12,7 @@
             :max="max"
             :model-value="currentTime"
             :color-point="'#ffaa00'"
-            :colors-line="['#fbdb66a3']"
+            :colors-line="['var(--yellow)']"
             :stroke-width="10"
             :size-point="40"
             :color-back="'#404040'"
@@ -160,6 +160,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@include Sunset();
 .sun {
   @include Card();
   display: flex;
@@ -192,7 +193,7 @@ onMounted(() => {
 .sun__aside {
   height: 100%;
   width: 140px;
-  background-color: #2d313aaf;
+  background-color: var(--grey-700);
   border-radius: 15px;
   padding: 15px;
   box-shadow: 0 0 10px #00000035;
@@ -203,7 +204,7 @@ onMounted(() => {
 .sun__aside-item {
 }
 .sun__aside-title {
-  color: #aeaeae;
+  color: var(--grey-300);
   font-size: 17px;
   font-weight: 500;
   line-height: 1;
@@ -218,7 +219,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: flex-end;
   span {
-    color: #929292;
+    color: var(--grey-light);
     font-size: 17px;
     font-weight: 500;
   }
@@ -246,11 +247,11 @@ onMounted(() => {
     align-items: center;
   }
   &-title {
-    color: #c1c1c1;
+    color: var(--grey-200);
   }
   span {
     font-size: 20px;
-    color: #a4a4a4;
+    color: var(--grey-300);
   }
 }
 .sun-icons {

@@ -113,6 +113,7 @@ const onToBack = () => {
 </script>
 
 <style scoped lang="scss">
+@include Home();
 .home {
   width: 100%;
   height: fit-content;
@@ -142,7 +143,7 @@ const onToBack = () => {
 
 .highlight {
   @include Card();
-  background: radial-gradient(circle, $main 0%, $grey 100%);
+  background: radial-gradient(circle, var(--main) 0%, var(--grey) 100%);
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 15px;

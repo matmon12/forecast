@@ -1,16 +1,18 @@
+@include Auth();
+
 .auth {
     @include Card();
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: radial-gradient(circle, rgba(126, 165, 223, 0.5137254902) 0%, #1e1e1e 80%);
+    background: radial-gradient(circle, var(--blue-640) 0%, var(--grey-1190) 80%);
 }
 .auth__content {
     @include Card();
     padding: 30px 25px;
     width: 450px;
-    background-color: #18181b;
+    background-color: var(--grey-1110);
     box-shadow: 0 0 15px #000000ca;
 }
 .auth-title {
@@ -31,13 +33,16 @@
 }
 
 .auth__input-icon {
-    background-color: #262628;
+    background-color: var(--grey-920);
+    color: var(--placeholder-filter-2);
 }
 
 .auth__input-clear {
     padding: 7px;
     border-color: #3f3f46;
     border-left: none;
+    background-color: var(--grey-920);
+    color: var(--placeholder-filter-2);
 }
 
 .auth__input-title {
@@ -57,7 +62,7 @@
         padding: 0 7px;
         font-weight: 500;
         width: min-content;
-        background-color: #18181b;
+        background-color: var(--grey-1110);
     }
 
     &::before {
@@ -80,14 +85,14 @@
     font-size: 14px;
 }
 .auth__redirect-link {
-    color: $blue;
+    color: var(--blue-2);
     font-weight: 500;
 }
 .auth-btn {
-    background-color: $blue;
+    background-color: var(--blue-2);
     border-radius: 5px;
     width: 100%;
-    color: $black;
+    color: var(--black-3);
     margin-top: 40px;
     height: 40px;
     display: flex;
@@ -102,21 +107,21 @@
         filter: brightness(1.2);
     }
     &:disabled {
-        cursor: default;
         filter: brightness(0.8);
+        cursor: default;
     }
 }
 .auth-btn-more {
     width: 100%;
-    background-color: #27272a;
-    color: #fff;
+    background-color: var(--grey-1010);
+    color: var(--white);
     border: none;
     height: 40px;
     font-size: 14px;
     transition: filter 0.3s;
 
     &:hover {
-        filter: brightness(1.2);
+        filter: brightness(var(--brightness-rating));
     }
 }
 
@@ -160,6 +165,13 @@
 
         &-inputtext {
             font-size: 14px;
+            background-color: var(--grey-960);
+            color: var(--white);
+
+            &::placeholder{
+                color: var(--placeholder-filter);
+            }
+
             &:enabled:focus {
                 @include Focus();
             }
@@ -171,8 +183,11 @@
         &-message {
             overflow: hidden;
             margin-bottom: 20px;
+            color: var(--yellow-4);
+            background-color: var(--message-warn);
+            outline-color: var(--yellow-3);
             &-content {
-                border-left: 4px solid #fa8117;
+                border-left: 4px solid var(--orange-3);
                 padding-top: 15px;
                 padding-bottom: 15px;
             }
@@ -183,12 +198,15 @@
                 gap: 10px;
                 svg {
                     font-size: 20px;
-                    width: 40px;
+                    min-width: 40px;
                     color: #fa8117;
                 }
-                span{
+                span {
                     width: 100%;
                 }
+            }
+            &-close-button:hover{
+                background-color: var(--white-6);
             }
         }
     }

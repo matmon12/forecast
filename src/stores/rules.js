@@ -109,11 +109,45 @@ export const useRulesStore = defineStore("rules", () => {
       }),
   });
 
+  const schemaProfileSetting = object({
+    name: string()
+      .required("The field must not be empty!")
+      .min(3, "Minimum 3 characters!")
+      .test({
+        name: "symbols",
+        skipAbsent: true,
+        test(value, ctx) {
+          if (!symbolsRules.test(value)) {
+            return ctx.createError({
+              message: "Invalid characters",
+            });
+          }
+          return true;
+        },
+      }),
+    lastname: string()
+      .required("The field must not be empty!")
+      .min(3, "Minimum 3 characters!")
+      .test({
+        name: "symbols",
+        skipAbsent: true,
+        test(value, ctx) {
+          if (!symbolsRules.test(value)) {
+            return ctx.createError({
+              message: "Invalid characters!",
+            });
+          }
+          return true;
+        },
+      }),
+  });
+
   return {
     schemaSearch,
     schemaSearchDashboard,
     schemaPostDialog,
     schemaSignUp,
-    schemaSignIn
+    schemaSignIn,
+    schemaProfileSetting,
   };
 });

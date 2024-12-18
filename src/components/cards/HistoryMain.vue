@@ -9,7 +9,9 @@
         <SelectButton
           :value="valueHour"
           :options="optionsHour"
-          :color-btn="'#6b99c6'"
+          :color-btn="'var(--blue-150)'"
+          :colorBack="'var(--grey-400)'"
+          :color-text="'var(--grey-200)'"
           @toggle-select="
             (category) => {
               valueHour = category;
@@ -29,8 +31,10 @@
 import { ref, defineProps, watch, computed, onMounted } from "vue";
 import { Line } from "vue-chartjs";
 import { useHistoryStore } from "@/stores/history";
+import { useUiStore } from "@/stores/ui";
 
 const historyStore = useHistoryStore();
+const uiStore = useUiStore();
 
 const todayData = ref([]);
 const min = ref(0);
@@ -43,6 +47,16 @@ const optionsHour = ref([
   { name: "Humidity", value: "humidity", measurement: "%" },
   { name: "Precip", value: "precip_mm", measurement: "mm" },
 ]);
+
+// ui настройки графика
+const pointRadius = ref(4);
+const pointHoverRadius = ref(7);
+const borderWidth = ref(2);
+const ticksFontSize = ref(14);
+const ticksPadding = ref(10);
+const titleFont = ref(13);
+const titleMarginBottom = ref(5);
+const bodyFont = ref(13);
 
 const props = defineProps({
   weatherToday: Array,
@@ -90,6 +104,26 @@ const getStep = (value) => {
 };
 
 const dataToday = computed(() => {
+  let colorGradient = "#6b98c6";
+  let colorBorder = "#3299ff";
+
+  // разрешение экрана
+  if (uiStore.smSmaller) {
+    pointRadius.value = 3;
+    pointHoverRadius.value = 4;
+    borderWidth.value = 1;
+  } else {
+    pointRadius.value = 4;
+    pointHoverRadius.value = 7;
+    borderWidth.value = 2;
+  }
+
+  // theme
+  if (!uiStore.theme) {
+    colorGradient = "#18436e";
+    colorBorder = "#022e5a";
+  }
+
   return {
     labels: [
       "0:00",
@@ -126,22 +160,22 @@ const dataToday = computed(() => {
           const canvas = ctx.chart.ctx;
           const gradient = canvas.createLinearGradient(0, 0, 0, 350);
 
-          gradient.addColorStop(0, "#6b98c6cb");
-          gradient.addColorStop(0.5, "#6b98c675");
+          gradient.addColorStop(0, `${colorGradient}cb`);
+          gradient.addColorStop(0.5, `${colorGradient}75`);
           gradient.addColorStop(1, "transparent");
 
           return gradient;
         },
-        borderColor: "#3299ff",
+        borderColor: colorBorder,
         tension: 0.5,
-        pointBackgroundColor: "#3299ff",
-        pointHoverRadius: 7,
-        pointRadius: 4,
-        pointHoverBorderColor: "#3299ff",
-        pointHoverBackgroundColor: "#3299ff",
+        pointBackgroundColor: colorBorder,
+        pointHoverRadius: pointHoverRadius.value,
+        pointRadius: pointRadius.value,
+        pointHoverBorderColor: colorBorder,
+        pointHoverBackgroundColor: colorBorder,
         pointBorderWidth: 1,
         pointHoverBorderWidth: 1,
-        borderWidth: 2,
+        borderWidth: borderWidth.value,
         data: todayData.value,
       },
     ],
@@ -149,6 +183,30 @@ const dataToday = computed(() => {
 });
 
 const optionsToday = computed(() => {
+  let colorTicks = "#c0c0c0";
+  let colorLabel = "#58a6f3";
+
+  // разрешение экрана
+  if (uiStore.smSmaller) {
+    ticksFontSize.value = 11;
+    ticksPadding.value = 5;
+    titleFont.value = 11;
+    titleMarginBottom.value = 2;
+    bodyFont.value = 11;
+  } else {
+    ticksFontSize.value = 14;
+    ticksPadding.value = 10;
+    titleFont.value = 13;
+    titleMarginBottom.value = 5;
+    bodyFont.value = 13;
+  }
+
+  // theme
+  if (!uiStore.theme) {
+    colorTicks = "#000000";
+    colorLabel = "#18436ecb";
+  }
+
   return {
     responsive: true,
     maintainAspectRatio: false,
@@ -162,9 +220,9 @@ const optionsToday = computed(() => {
           display: true,
         },
         ticks: {
-          color: "#c0c0c0",
+          color: colorTicks,
           font: {
-            size: 14,
+            size: ticksFontSize.value,
             family: "Montserrat",
             weight: 400,
             lineHeight: 1,
@@ -182,11 +240,11 @@ const optionsToday = computed(() => {
           display: true,
         },
         ticks: {
-          color: "#c0c0c0",
+          color: colorTicks,
           stepSize: stepSize.value,
-          padding: 10,
+          padding: ticksPadding.value,
           font: {
-            size: 14,
+            size: ticksFontSize.value,
             family: "Montserrat",
             weight: 500,
             lineHeight: 1.5,
@@ -204,15 +262,15 @@ const optionsToday = computed(() => {
         backgroundColor: "#a7a7a77c", // Цвет фона подсказки
         titleColor: "#000", // Цвет заголовка подсказки
         titleFont: {
-          size: 13,
+          size: titleFont.value,
           family: "Montserrat",
           weight: 600,
           lineHeight: 1.2,
         },
-        titleMarginBottom: 5,
+        titleMarginBottom: titleMarginBottom.value,
         bodyColor: "#000",
         bodyFont: {
-          size: 13,
+          size: bodyFont.value,
           family: "Montserrat",
           weight: 500,
           lineHeight: 1.2,
@@ -228,7 +286,7 @@ const optionsToday = computed(() => {
           labelColor: function (tooltipItem, chart) {
             return {
               borderColor: "#000",
-              backgroundColor: "#58a6f3",
+              backgroundColor: colorLabel,
             };
           },
           label: function (tooltipItem, chart) {
@@ -247,6 +305,7 @@ const optionsToday = computed(() => {
 </script>
 
 <style lang="scss" scoped>
+@include HistoryMain();
 .history-main {
   display: flex;
   flex-direction: column;
@@ -273,7 +332,7 @@ const optionsToday = computed(() => {
 .history-subtitle {
   line-height: 1;
   margin-bottom: 5px;
-  color: #6ea5dc;
+  color: var(--blue-600);
 }
 .history-title {
   font-size: 30px;

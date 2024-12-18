@@ -107,12 +107,14 @@ import { useForm } from "vee-validate";
 import { useRulesStore } from "@/stores/rules";
 import { signIn } from "../../server/auth";
 import { useToast } from "primevue/usetoast";
+import { useAuthStore } from "@/stores/auth";
 import router from "@/router/router";
 
 const error = ref();
 const loading = ref(false);
 
 const rulesStore = useRulesStore();
+const authStore = useAuthStore();
 const toast = useToast();
 
 const signinUser = async () => {
@@ -128,6 +130,15 @@ const signinUser = async () => {
       detail: "Signin successful!",
       life: 3000,
     });
+
+    // локальные данные
+    authStore.uid = user.uid;
+    localStorage.setItem(
+      "auth",
+      JSON.stringify({
+        uid: user.uid,
+      })
+    );
 
     router.push({ path: "/forecast/" });
   } catch (e) {
@@ -167,7 +178,7 @@ const onSubmit = handleSubmit((value) => {
   margin-top: 10px;
 }
 .auth-forgot-link {
-  color: $blue;
+  color: var(--blue-160);
   font-weight: 500;
   font-size: 15px;
 }

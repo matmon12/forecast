@@ -9,12 +9,16 @@ import Aura from "@primevue/themes/aura";
 import { VueQueryPlugin } from "vue-query";
 import FocusTrap from "primevue/focustrap";
 import Tooltip from "primevue/tooltip";
-import ToastService from 'primevue/toastservice';
-import ConfirmationService from 'primevue/confirmationservice';
+import ToastService from "primevue/toastservice";
+import ConfirmationService from "primevue/confirmationservice";
 import anime from "animejs/lib/anime.es.js";
-import { VueMaskDirective } from 'v-mask';
-import VueResize from 'vue-resize';
-import 'vue-resize/dist/vue-resize.css';
+import { VueMaskDirective } from "v-mask";
+import VueResize from "vue-resize";
+import { abilitiesPlugin } from "@casl/vue";
+import { ability } from "@/services/ability";
+import VueTelInput from "vue-tel-input";
+import "vue-tel-input/vue-tel-input.css";
+import "vue-resize/dist/vue-resize.css";
 import "./index.scss";
 
 /* firebase */
@@ -60,7 +64,7 @@ directives.forEach((directive) => {
 });
 app.directive("focustrap", FocusTrap);
 app.directive("tooltip", Tooltip);
-app.directive('mask', VueMaskDirective);
+app.directive("mask", VueMaskDirective);
 
 app.provide("plugins", { anime });
 
@@ -85,10 +89,9 @@ app
   })
   .use(VueResize)
   .use(VueQueryPlugin)
+  .use(VueTelInput)
   .use(VueFire, {
     firebaseApp,
-    // modules: [
-    //   VueFireAuth(),
-    // ]
   })
+  .use(abilitiesPlugin, ability)
   .mount("#app");

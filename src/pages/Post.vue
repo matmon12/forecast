@@ -29,16 +29,23 @@
           </div>
         </div>
         <Divider />
-        <RatingPost/>
+        <RatingPost v-if="post" :idPost="post.id" :rating="post.rating" />
       </div>
       <div v-if="loadingPost" class="post-block post__skeleton">
-        <Skeleton height="30px" class="post__skeleton-title" />
-        <Skeleton height="30px" width="60%" class="post__skeleton-title" />
+        <Skeleton
+          :height="uiStore.xs2Smaller ? '18px' : '30px'"
+          class="post__skeleton-title"
+        />
+        <Skeleton
+          :height="uiStore.xs2Smaller ? '18px' : '30px'"
+          width="60%"
+          class="post__skeleton-title"
+        />
         <div class="post__skeleton-header">
           <div class="post__skeleton-header-item">
             <Skeleton width="20px" height="20px" />
             <Skeleton
-              width="110px"
+              :width="uiStore.xs2Smaller ? '80px' : '110px'"
               height="10px"
               class="post__skeleton-header-text"
             />
@@ -46,26 +53,39 @@
           <div class="post__skeleton-header-item">
             <Skeleton width="20px" height="20px" />
             <Skeleton
-              width="110px"
+              :width="uiStore.xs2Smaller ? '80px' : '110px'"
               height="10px"
               class="post__skeleton-header-text"
             />
           </div>
         </div>
         <div class="post__skeleton-text">
-          <Skeleton />
-          <Skeleton />
-          <Skeleton width="40%" />
+          <Skeleton :height="uiStore.xs2Smaller ? '0.8rem' : '1rem'" />
+          <Skeleton :height="uiStore.xs2Smaller ? '0.8rem' : '1rem'" />
+          <Skeleton
+            :height="uiStore.xs2Smaller ? '0.8rem' : '1rem'"
+            width="40%"
+          />
         </div>
         <div class="post__skeleton-imgwrap">
-          <Skeleton height="300px" />
-          <Skeleton class="post__skeleton-subtext" width="180px" />
+          <Skeleton :height="uiStore.xs2Smaller ? '150px' : '300px'" />
+          <Skeleton
+            class="post__skeleton-subtext"
+            :height="uiStore.xs2Smaller ? '0.8rem' : '1rem'"
+            width="180px"
+          />
         </div>
         <div class="post__skeleton-text">
-          <Skeleton />
-          <Skeleton />
-          <Skeleton width="70%" />
-          <Skeleton width="40%" />
+          <Skeleton :height="uiStore.xs2Smaller ? '0.8rem' : '1rem'" />
+          <Skeleton :height="uiStore.xs2Smaller ? '0.8rem' : '1rem'" />
+          <Skeleton
+            :height="uiStore.xs2Smaller ? '0.8rem' : '1rem'"
+            width="70%"
+          />
+          <Skeleton
+            :height="uiStore.xs2Smaller ? '0.8rem' : '1rem'"
+            width="40%"
+          />
         </div>
       </div>
       <div class="post__left-footer">
@@ -173,14 +193,17 @@ import { readToDB } from "@/server/posts";
 import { query, where, limit } from "firebase/firestore";
 import { postsRef } from "@/server/firebase.config";
 import { onToBack } from "@/utils/index";
+import { useUiStore } from "../stores/ui";
 import router from "@/router/router";
 import AkarIconsVkFill from "~icons/akar-icons/vk-fill";
 import FormkitWhatsapp from "~icons/formkit/whatsapp";
 import FileIconsTelegram from "~icons/file-icons/telegram";
 import zen from "@/img/zen.svg";
 import tg from "@/img/tg.svg";
+import { QuillDeltaToHtmlConverter } from "quill-delta-to-html";
 
 const route = useRoute();
+const uiStore = useUiStore();
 
 const post = ref();
 const postsCategory = ref([]);
@@ -246,8 +269,9 @@ const getPost = async () => {
       query(postsRef, where("slug", "==", route.params.name))
     );
     post.value = querySnapshot?.docs[0]?.data();
-
-    if (!post.value) {
+    if (post.value) {
+      post.value.description = convertDeltaToHtml(post.value.description);
+    } else {
       router.push({
         name: "NotFound",
         params: {
@@ -280,12 +304,25 @@ const getPostsCategory = async (category) => {
     querySnapshot.forEach((doc) => {
       postsCategory.value.push(doc.data());
     });
+    if (postsCategory.value.length > 0) {
+      postsCategory.value.forEach((item) => {
+        item.description = convertDeltaToHtml(item.description);
+      });
+    }
   } catch (error) {
     const stringToObject = JSON.parse(error.message);
     errorCategory.value = stringToObject.description;
   } finally {
     loadingCategory.value = false;
   }
+};
+
+// преобразование в html
+const convertDeltaToHtml = (text) => {
+  const stringToObject = JSON.parse(text);
+  var converter = new QuillDeltaToHtmlConverter(stringToObject?.ops, {});
+  const html = converter.convert();
+  return html;
 };
 
 watch(
@@ -340,12 +377,12 @@ const navigateToPost = (post) => {
     },
   });
 };
-
 </script>
 
 <style lang="scss" scoped>
+@include Post();
 .post {
-  color: $white;
+  color: var(--white);
   display: grid;
   grid-template-columns: 640px auto;
   column-gap: 15px;
@@ -353,7 +390,7 @@ const navigateToPost = (post) => {
 
 .post-block {
   padding: 15px;
-  background-color: $grey;
+  background-color: var(--grey);
   border-radius: 10px;
 }
 
@@ -372,12 +409,12 @@ const navigateToPost = (post) => {
   align-items: center;
   gap: 10px;
   font-size: 13px;
-  color: #ccc;
+  color: var(--grey-200);
   letter-spacing: 0.1px;
 
   svg {
     font-size: 16px;
-    color: $blue;
+    color: var(--blue-2);
   }
 }
 
@@ -404,15 +441,15 @@ const navigateToPost = (post) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #525252;
+  background-color: var(--grey-650);
   border-radius: 5px;
   height: 30px;
   font-size: 16px;
-  color: $white;
+  color: var(--white);
   transition: filter 0.3s;
 
   &:hover {
-    filter: brightness(1.3);
+    filter: brightness(var(--brightness-rating));
   }
 }
 .post__subscribe {
@@ -437,8 +474,9 @@ const navigateToPost = (post) => {
   align-items: center;
   gap: 10px;
   font-size: 14px;
-  color: $white;
+  color: #fff;
   transition: filter 0.3s;
+  box-shadow: 0 0 8px #000000cf;
 
   &:hover {
     filter: brightness(1.3);
@@ -513,13 +551,24 @@ const navigateToPost = (post) => {
 .post__skeleton-subtext {
   margin: 10px 0 0 auto;
 }
+.p-skeleton {
+  background-color: var(--skeleton-text);
+  &::after {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0),
+      var(--skeleton-animation),
+      rgba(255, 255, 255, 0)
+    );
+  }
+}
 
 // skeleton category
 .post__category-skeleton {
   height: 100px;
   display: flex;
   gap: 15px;
-  background-color: #2d2d2d;
+  background-color: var(--grey-850);
   padding: 10px;
   border-radius: 10px;
 }
@@ -535,7 +584,7 @@ const navigateToPost = (post) => {
 
 // error category
 .post__category-error {
-  background-color: #2d2d2d;
+  background-color: var(--grey-850);
   border-radius: 10px;
   height: 400px;
   display: flex;
@@ -572,14 +621,50 @@ const navigateToPost = (post) => {
   flex-wrap: wrap;
 }
 .post__tags-item {
-  background-color: #464646;
-  // color: #000;
+  background-color: var(--grey-500);
+  color: var(--white);
 }
 </style>
 
 <style lang="scss">
+body:not(.dark) {
+  .post-text {
+    span,
+    p,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      color: #000 !important;
+    }
+  }
+}
 .post-text {
   font-size: 16px;
+
+  a {
+    color: var(--blue-200) !important;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.2rem;
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-size: 1rem;
+  }
 
   p {
     text-align: justify;
@@ -608,7 +693,7 @@ const navigateToPost = (post) => {
     }
     tr {
       &:nth-child(2n) {
-        background-color: #1a1a1a;
+        background-color: var(--grey-950);
       }
     }
   }
@@ -616,6 +701,7 @@ const navigateToPost = (post) => {
     text-align: right;
   }
   .ql-video {
+    height: 400px;
     width: 100%;
     margin: 20px 0;
     display: block;

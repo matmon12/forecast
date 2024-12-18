@@ -1,24 +1,28 @@
 <template>
   <div class="news">
     <Breadcrumb :model="breadCrumbItems" />
-    <SelectButton
-      class="news-selectbtn"
-      :value="$route.params.category ? $route.params.category : ''"
-      :options="optionsMenu"
-      :color-btn="'#6b99c6'"
-      @toggle-select="
-        (menuItem) => {
-          $router.push(`/forecast/news/${menuItem}`);
-        }
-      "
-    />
+    <div class="news-selectbtn-wrapper">
+      <SelectButton
+        class="news-selectbtn"
+        :value="$route.params.category ? $route.params.category : ''"
+        :options="optionsMenu"
+        :color-btn="'var(--blue-150)'"
+        :color-back="'var(--grey-400)'"
+        :color-text="'var(--grey-200)'"
+        @toggle-select="
+          (menuItem) => {
+            $router.push(`/forecast/news/${menuItem}`);
+          }
+        "
+      />
+    </div>
     <router-view />
   </div>
 </template>
 
 <script setup>
 import { ref, markRaw, computed } from "vue";
-import TablerHome from '~icons/tabler/home';
+import TablerHome from "~icons/tabler/home";
 import { useRoute, onBeforeRouteUpdate } from "vue-router";
 
 const route = useRoute();
@@ -53,6 +57,7 @@ const breadCrumbItems = computed(() => {
 </script>
 
 <style lang="scss" scoped>
+@include News();
 .news {
   width: 100%;
   display: flex;
@@ -60,6 +65,19 @@ const breadCrumbItems = computed(() => {
 }
 .news-selectbtn {
   width: 100%;
-  margin-bottom: 15px;
+  overflow-x: auto;
+
+  &-wrapper {
+    display: flex;
+    overflow-x: hidden;
+    white-space: nowrap;
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  :deep() {
+    .selectbtn-text {
+      white-space: nowrap;
+    }
+  }
 }
 </style>

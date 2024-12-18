@@ -1,20 +1,6 @@
 <template>
-  <Editor
-    v-model="description"
-    editorStyle="height: 240px"
-    :pt="getClasses('dashboard').editor"
-    ref="editor"
-    placeholder="Enter text of post here..."
-    :modules="{
-      history: {
-        delay: 1000,
-        maxStack: 100,
-        userOnly: true,
-      },
-    }"
-    @load="onLoadEditor"
-  >
-    <template v-slot:toolbar>
+  <div class="editor">
+    <div id="toolbar">
       <span class="ql-formats dashboard-editor-formats">
         <select class="ql-header dashboard-editor-header ql-btn">
           <option value="1"></option>
@@ -95,12 +81,21 @@
           class="ql-image dashboard-editor-image ql-btn"
         ></button>
       </span>
-    </template>
-  </Editor>
+    </div>
+    <div id="editor"></div>
+
+    <resize-observer
+      @notify="
+        (sizes) => {
+          replaceDropdown(sizes.width);
+        }
+      "
+    />
+  </div>
 </template>
 
 <script setup>
-import { ref, defineModel, computed, watch } from "vue";
+import { ref, defineModel, computed, watch, onMounted } from "vue";
 import { getClasses } from "@/utils/classes";
 import Pickr from "@simonwep/pickr";
 import debounce from "lodash.debounce";
@@ -110,7 +105,7 @@ import Quill from "quill";
 const description = defineModel("description");
 const lengthDescription = defineModel("length");
 
-const editor = ref();
+let editor;
 var pickr,
   pickerMode = "color";
 const colorPicker = ref("#ffffff");
@@ -147,6 +142,54 @@ const colorsBack = ref([
   { name: "default", value: "reset" },
 ]);
 
+const initQuill = () => {
+  const options = {
+    modules: {
+      toolbar: "#toolbar",
+    },
+    placeholder: "Enter text of post here...",
+    theme: "snow",
+  };
+
+  editor = new Quill("#editor", options);
+
+  // add default value
+  const Delta = Quill.import("delta");
+  if (description.value) {
+    const stringToObject = JSON.parse(description.value);
+    editor.setContents(new Delta(stringToObject));
+
+    // для сохранения поста без изменения текста
+    updateValue();
+  }
+
+  // реактивное обновление
+  editor.on("text-change", () => {
+    updateValue();
+  });
+};
+
+onMounted(() => {
+  initQuill();
+
+  // length text
+  updateLength();
+
+  initPickr();
+  validatePickr();
+
+  addColor();
+  addHandlers();
+
+  initPosDropdown();
+
+  // replaceSpaces();
+});
+
+const updateValue = () => {
+  description.value = editor.getContents();
+};
+
 const handlerColor = (type, value) => {
   pickerMode = type;
   if (value === "color-picker" || value === "new-color") {
@@ -156,24 +199,6 @@ const handlerColor = (type, value) => {
   } else {
     selectColor(type, value);
   }
-};
-
-const onLoadEditor = () => {
-  // add default value
-  editor.value.quill.clipboard.dangerouslyPasteHTML(description.value);
-
-  // length text
-  updateLength();
-
-  initPickr();
-
-  validatePickr();
-
-  addColor();
-
-  addHandlers();
-
-  replaceSpaces();
 };
 
 const initPickr = () => {
@@ -282,7 +307,7 @@ const addColor = () => {
       line.style.stroke = colorPicker.value;
       button.classList.add("ql-active");
     }
-    if (pickerMode === "backgroundColor") {
+    if (pickerMode === "background") {
       backgroundPicker.value = color.toHEXA().toString().toLowerCase();
       selectColor("background", backgroundPicker.value);
 
@@ -324,7 +349,8 @@ const addColor = () => {
 };
 
 const addHandlers = () => {
-  var toolbar = editor.value.quill.getModule("toolbar");
+  // color / background
+  var toolbar = editor.getModule("toolbar");
   toolbar.addHandler("color", (value) => handlerColor("color", value));
   toolbar.addHandler("background", (value) =>
     handlerColor("background", value)
@@ -333,7 +359,7 @@ const addHandlers = () => {
 
 const replaceSpaces = () => {
   const Delta = Quill.import("delta");
-  editor.value.quill.clipboard.addMatcher(Node.ELEMENT_NODE, (node, delta) => {
+  editor.clipboard.addMatcher(Node.ELEMENT_NODE, (node, delta) => {
     const ops = delta.ops.map((op) => ({
       insert:
         typeof op.insert === "string"
@@ -346,8 +372,7 @@ const replaceSpaces = () => {
 };
 
 const selectColor = (type, value) => {
-  editor.value.quill.format(type, value);
-  description.value = editor.value.quill.root.innerHTML;
+  editor.format(type, value);
 };
 
 watch(
@@ -358,49 +383,180 @@ watch(
 );
 
 const updateLength = debounce(() => {
-  lengthDescription.value = editor.value.quill
-    .getText()
-    .replace(/\s+/g, "").length;
+  lengthDescription.value = editor.getText().replace(/\s+/g, "").length;
 }, 300);
+
+// позиция dropdown для цветов при resize
+const initPosDropdown = () => {
+  // при первом открытии списка (без resize)
+  const buttonColor = document.querySelector(
+    ".dashboard-editor-color .ql-picker-label"
+  );
+  const buttonBack = document.querySelector(
+    ".dashboard-editor-background .ql-picker-label"
+  );
+
+  buttonColor.addEventListener("click", () => {
+    replaceDropdown();
+  });
+  buttonBack.addEventListener("click", () => {
+    replaceDropdown();
+  });
+};
+const replaceDropdown = () => {
+  const buttonColor = document.querySelector(
+    ".dashboard-editor-color .ql-picker-label"
+  );
+  const optionsColor = document.querySelector(
+    ".dashboard-editor-color .ql-picker-options"
+  );
+  const buttonBack = document.querySelector(
+    ".dashboard-editor-background .ql-picker-label"
+  );
+  const optionsBack = document.querySelector(
+    ".dashboard-editor-background .ql-picker-options"
+  );
+  setPosDropdown(buttonColor, optionsColor);
+  setPosDropdown(buttonBack, optionsBack);
+};
+const setPosDropdown = (button, options) => {
+  const widthOptions = 120;
+  const widthDocument = document.documentElement.clientWidth;
+  if (button && options) {
+    const rightBtn = button.getBoundingClientRect().right;
+    const offsetLeftBtn = button.getBoundingClientRect().left;
+    const widthBtn = button.getBoundingClientRect().width;
+    const offsetRightBtn = widthDocument - rightBtn;
+    const offsetOptions = widthOptions - widthBtn;
+    const offsetCenterOptions = (widthOptions - widthBtn) / 2;
+
+    if (offsetRightBtn <= offsetCenterOptions + 10) {
+      options.style.left = "auto";
+      options.style.right = 0;
+    } else if (offsetLeftBtn <= offsetCenterOptions + 10) {
+      options.style.left = 0;
+    } else {
+      options.style.left = `calc(50% - ${widthOptions / 2}px)`;
+    }
+  }
+};
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+@include Description();
+
+.editor {
+  color: var(--white);
+}
+</style>
 
 <style lang="scss">
+@import "quill/dist/quill.snow.css" layer(quill);
+
+.editor {
+  &.is-invalid {
+    .ql-container {
+      @include Invalid();
+    }
+  }
+}
+
+// toolbar
+.ql-toolbar {
+  background-color: var(--black-4);
+  font-family: "Montserrat", sans-serif;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-bottom: 0;
+  border-radius: 6px;
+  border-color: #3f3f46;
+}
+
+// container
+.ql-container {
+  height: 240px;
+  background-color: var(--grey-1050);
+  border-radius: 6px;
+  border: 1px solid #3f3f46;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  transition: box-shadow 0.3s;
+}
+.ql-editor {
+  order: 1;
+  @include Scroll(7px, 7px, var(--grey-880), var(--grey-370));
+  &.ql-blank::before {
+    color: var(--placeholder-filter);
+    font-style: normal;
+  }
+  &.ql-blank:focus::before {
+    content: "";
+  }
+  .ql-video {
+    width: 100%;
+  }
+}
+
+// active / hover
+.ql-snow.ql-toolbar button:not(.ql-active):hover,
+.ql-snow .ql-toolbar button:not(.ql-active):hover,
+.ql-snow.ql-toolbar .ql-picker-label:not(.ql-active):hover,
+.ql-snow .ql-toolbar .ql-picker-label:not(.ql-active):hover,
+.ql-snow.ql-toolbar .ql-picker-item:not(.ql-selected):hover,
+.ql-snow .ql-toolbar .ql-picker-item:not(.ql-selected):hover {
+  color: inherit;
+}
+
+// btns / svg
+.ql-stroke {
+  stroke: var(--placeholder-filter);
+}
+.ql-fill {
+  fill: var(--placeholder-filter);
+}
+.ql-snow .ql-picker {
+  color: var(--placeholder-filter);
+}
+
+// formats
+.ql-formats {
+  border: 1px solid var(--grey-380);
+  border-radius: 5px;
+  margin-right: 0;
+  background-color: var(--grey-1200);
+  padding: 2px;
+  display: flex;
+  width: min-content;
+  position: relative;
+}
+
+// header
+.ql-header {
+  &:has(> .ql-active) {
+    font-weight: 600;
+    background-color: #6b99c6;
+  }
+}
+.ql-picker-label {
+  padding-left: 5px;
+}
+
 // editor
 .dashboard {
   &-editor {
-    &.is-invalid {
-      .dashboard-editor-content {
-        @include Invalid();
-      }
-    }
-    &-toolbar {
-      background-color: #000;
-      font-family: "Montserrat", sans-serif;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      border-bottom: 0;
-    }
     &-formats {
-      border: 1px solid #4d4d4d;
+      border: 1px solid var(--grey-380);
       border-radius: 5px;
       margin-right: 0;
-      background-color: #cccccc2d;
+      background-color: var(--grey-1200);
       padding: 2px;
       display: flex;
       width: min-content;
       position: relative;
-    }
-    &-header {
-      &:has(> .ql-active) {
-        background-color: #6b99c6;
-        font-weight: 600;
-      }
-      & .ql-picker-item + .ql-picker-item {
-        margin-top: 5px;
-      }
     }
     &-color {
       &:has(> .ql-active) {
@@ -418,23 +574,6 @@ const updateLength = debounce(() => {
         background-color: #6b99c6;
       }
     }
-    &-link {
-    }
-    &-image {
-    }
-    &-codeBlock {
-    }
-    &-clean {
-    }
-    &-content {
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      font-family: "Montserrat", sans-serif;
-      font-size: 14px;
-      border-top: 1px solid var(--p-editor-content-border-color);
-      transition: box-shadow 0.3s;
-    }
   }
 }
 
@@ -442,21 +581,22 @@ const updateLength = debounce(() => {
 .p-tooltip .editor {
   &-tooltip {
     &-text {
-      background: #c5c5c5;
+      background: #ffffff;
       color: #000000;
       font-weight: 500;
-      padding: 5px 6px;
+      padding: 2px 6px;
+      font-size: 12px;
     }
   }
 }
 .p-tooltip.p-tooltip-bottom {
   .editor-tooltip-arrow {
-    border-bottom-color: #c5c5c5;
+    border-bottom-color: #ffffff;
   }
 }
 .p-tooltip.p-tooltip-top {
   .editor-tooltip-arrow {
-    border-top-color: #c5c5c5;
+    border-top-color: #ffffff;
   }
 }
 
@@ -471,7 +611,7 @@ const updateLength = debounce(() => {
   }
   // ховер если у Элемента и детей нет класса
   &:hover:not(.ql-active, :has(.ql-active)) {
-    background-color: #424242;
+    background-color: var(--grey-390);
   }
   // button
   &.ql-active {
@@ -504,33 +644,39 @@ const updateLength = debounce(() => {
 
 // open list
 .ql-expanded {
-  & .ql-picker-label {
-    color: #7ca9d5;
+  .ql-picker-label {
+    border-color: transparent;
+  }
+  & .ql-picker-label:not(.ql-active) {
+    color: var(--blue-90);
   }
   & .ql-stroke {
-    stroke: #7ca9d5;
+    stroke: var(--blue-90);
   }
   & .ql-color-label {
-    fill: #7ca9d5;
+    fill: var(--blue-90);
   }
 
   // dropdown
   .ql-picker-options {
-    background-color: #1a1a1a;
+    background-color: var(--grey-1200);
   }
   &:not(.ql-icon-picker) .ql-picker-item {
     padding: 5px;
   }
   .ql-picker-options .ql-picker-item:not(.ql-selected):hover {
-    background-color: #363636;
+    background-color: var(--options-hover);
   }
 }
 
 // dropdown
 .ql-picker-options {
   padding: 5px;
+  border-color: #3f3f46;
+  border-radius: 5px;
 }
 .ql-picker-item {
+  border-radius: 5px;
   &.ql-selected {
     background-color: #7ca9d5;
     color: #000;
@@ -549,7 +695,7 @@ const updateLength = debounce(() => {
     align-items: center;
     justify-content: center;
     position: relative;
-    background-color: $blue;
+    background-color: var(--blue-4);
     color: #000;
     font-weight: 600;
 
@@ -586,24 +732,23 @@ const updateLength = debounce(() => {
   &[data-value="reset"] {
     padding: 5px 0;
     height: auto;
-    border: 1px solid $blue;
+    border: 1px solid var(--blue-2);
   }
 }
 
 .ql-expanded
   .ql-picker-options
   .ql-picker-item:not(.ql-selected)[data-value="color-picker"]:hover {
-  background-color: $blue;
   border-color: inherit;
-  background-color: #96b5e7;
+  background-color: var(--picker-hover);
+  color: #000;
 }
 
 // new color
 .ql-picker-item {
   &[data-value="new-color"] {
-    background-color: #000;
     position: relative;
-    background-color: #262626;
+    background-color: var(--grey-990);
 
     &::before {
       content: "+";
@@ -633,19 +778,19 @@ const updateLength = debounce(() => {
   height: 15px;
   width: 100%;
   border-radius: 3px;
-  border-color: #515151;
+  border-color: var(--grey-740);
   margin: 0;
   transition: border-color 0.3s;
 }
 .ql-color-picker .ql-picker-item:hover {
-  border-color: #ffffff;
+  border-color: var(--white);
 }
 
 // align list
 .ql-icon-picker .ql-picker-item {
   padding: 2px;
   .ql-stroke {
-    stroke: #bababa;
+    stroke: var(--grey-100);
   }
   &.ql-selected {
     .ql-stroke {
@@ -654,18 +799,6 @@ const updateLength = debounce(() => {
   }
 }
 
-// editor
-.ql-editor {
-  order: 1;
-  @include Scroll(7px, 7px, #333333, #7d7d7d);
-  &.ql-blank::before {
-    color: #a1a1aa;
-    font-style: normal;
-  }
-  .ql-video {
-    width: 100%;
-  }
-}
 // tooltip
 .ql-tooltip {
   position: sticky;
@@ -674,10 +807,10 @@ const updateLength = debounce(() => {
   transform: translateY(0);
   top: 0 !important;
   margin-top: 0 !important;
-  background: #242424;
-  border: 1px solid #7ca9d5;
-  box-shadow: 0 0 10px #7ca9d5;
-  color: #bbbbbb;
+  background: var(--grey-1200);
+  border: 1px solid var(--blue-90);
+  box-shadow: 0 0 10px var(--blue-90);
+  color: var(--grey-100);
   padding: 5px 12px;
   border-radius: 5px;
 
@@ -687,15 +820,15 @@ const updateLength = debounce(() => {
   }
 
   &::before {
-    color: #fff;
+    color: var(--white);
   }
 
   input[type="text"] {
-    border: 1px solid #989898;
+    border: 1px solid var(--grey-330);
     border-radius: 5px;
-    color: #fff;
+    color: var(--white);
     &::placeholder {
-      color: #8f8f8f;
+      color: var(--grey-340);
     }
   }
 
@@ -711,7 +844,7 @@ const updateLength = debounce(() => {
   .ql-action {
     color: #000;
     font-weight: 600;
-    background-color: $blue;
+    background-color: var(--blue-4);
     display: flex;
     align-items: center;
     &::after {
@@ -721,15 +854,15 @@ const updateLength = debounce(() => {
     }
   }
   .ql-remove {
-    border: 1px solid $blue;
-    color: #fff;
+    border: 1px solid var(--blue-4);
+    color: var(--white);
     &::before {
       margin-left: 0;
     }
   }
 
   .ql-preview {
-    color: $blue;
+    color: var(--blue-2);
     position: relative;
 
     &::after {
@@ -739,9 +872,14 @@ const updateLength = debounce(() => {
       left: 0;
       width: 100%;
       height: 1px;
-      background-color: $blue;
+      background-color: var(--blue-2);
     }
   }
+}
+
+// table
+.ql-editor td {
+  border-color: inherit;
 }
 
 //////////////////////
@@ -769,8 +907,8 @@ const updateLength = debounce(() => {
 .pcr-app {
   border-radius: 10px;
   overflow: hidden;
-  background: $grey;
-  border: 1px solid #5e5e5e;
+  background: var(--grey);
+  border: 1px solid var(--grey-740);
   font-family: "Montserrat", sans-serif;
 }
 .pcr-app[data-theme="nano"] .pcr-selection {
@@ -789,12 +927,12 @@ const updateLength = debounce(() => {
   .pcr-color-preview
   .pcr-current-color {
   border-radius: 6px;
-  border: 1px solid #8e8e8e;
+  border: 1px solid var(--grey-340);
 }
 .pcr-app .pcr-selection .pcr-picker {
   height: 12px;
   width: 12px;
-  border: 1px solid #fff;
+  border: 1px solid var(--white);
   border-radius: 100%;
 }
 .pcr-app .pcr-selection .pcr-color-palette {
@@ -840,11 +978,11 @@ const updateLength = debounce(() => {
 }
 .pcr-app .pcr-interaction .pcr-result {
   flex: 1 1 100%;
-  color: #ffffff;
+  color: var(--white);
   flex-grow: 1;
   border-radius: 5px;
-  background: $black;
-  border: 1px solid #555555;
+  background: var(--black);
+  border: 1px solid var(--grey-740);
   position: relative;
   display: block;
 
@@ -858,26 +996,26 @@ const updateLength = debounce(() => {
 
 .pcr-app .pcr-interaction .pcr-type {
   border-radius: 5px;
-  background-color: #5d5d5d;
+  background-color: var(--grey-660);
   transition: background-color 0.3s, filter 0.3s;
-  color: #fff;
+  color: var(--white);
   order: 2;
 
   &:not(.active):hover {
-    background-color: #727272;
+    filter: brightness(var(--brightness-rating));
   }
 }
 .pcr-app .pcr-interaction .pcr-type.active {
-  color: #000;
-  background: $blue;
+  color: var(--black);
+  background: var(--blue-2);
   font-weight: 600;
   &:hover {
     filter: brightness(1.2);
   }
 }
 .pcr-app .pcr-interaction .pcr-save {
-  background: $blue;
-  color: $black;
+  background: var(--blue-2);
+  color: var(--black);
   font-weight: 600;
   border-radius: 5px;
   margin-left: auto;
@@ -885,7 +1023,7 @@ const updateLength = debounce(() => {
   order: 3;
 
   &:not(:disabled):hover {
-    filter: brightness(0.8);
+    filter: brightness(1.2);
   }
   &:disabled {
     cursor: default;

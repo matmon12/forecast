@@ -23,6 +23,9 @@
 <script setup>
 import { ref, defineProps, computed, watch, onMounted } from "vue";
 import { PolarArea } from "vue-chartjs";
+import { useUiStore } from "@/stores/ui";
+
+const uiStore = useUiStore();
 
 const props = defineProps({
   history: Array,
@@ -57,124 +60,143 @@ const init = () => {
 };
 
 const dataPolarArea = computed(() => {
+  let colorBackMin = "#3d93f5";
+  let colorBackMax = "#963df5";
+
+  if (!uiStore.theme) {
+    colorBackMin = "#1399ff";
+    colorBackMax = "#8411ff";
+  }
+
   return {
     labels: dataDays.value,
     datasets: [
       {
         label: "Min",
         data: min.value,
-        backgroundColor: "#3d93f54d",
+        backgroundColor: `${colorBackMin}4d`,
         borderColor: "#000",
         borderWidth: 1,
-        hoverBackgroundColor: "#3d93f5b2",
+        hoverBackgroundColor: `${colorBackMin}b2`,
       },
       {
         label: "Max",
         data: max.value,
-        backgroundColor: "#963df571",
+        backgroundColor: `${colorBackMax}71`,
         borderColor: "#000",
         borderWidth: 1,
-        hoverBackgroundColor: "#963df5a7",
+        hoverBackgroundColor: `${colorBackMax}a7`,
       },
     ],
   };
 });
 
-const optionsPolarArea = {
-  responsive: true,
-  maintainAspectRatio: true,
-  scales: {
-    r: {
-      ticks: {
-        color: "#d4d4d4",
-        backdropColor: "transparent",
-        font: {
-          size: 12,
-          family: "Montserrat",
-          weight: 400,
-          lineHeight: 1,
+const optionsPolarArea = computed(() => {
+  let colorTicks = "#d4d4d4";
+  let colorLines = "#5d5d5d";
+
+  if (!uiStore.theme) {
+    colorTicks = "#000000";
+    colorLines = "#464646";
+  }
+
+  return {
+    responsive: true,
+    maintainAspectRatio: true,
+    scales: {
+      r: {
+        ticks: {
+          color: colorTicks,
+          backdropColor: "transparent",
+          font: {
+            size: 12,
+            family: "Montserrat",
+            weight: 400,
+            lineHeight: 1,
+          },
+        },
+        grid: {
+          color: colorLines,
+        },
+        angleLines: {
+          color: colorLines,
         },
       },
-      grid: {
-        color: "#5d5d5d",
-      },
-      angleLines: {
-        color: "#5d5d5d",
-      },
     },
-  },
-  plugins: {
-    legend: {
-      display: false,
-      position: "bottom",
-      labels: {
-        color: "#c0c0c0",
-        font: {
+    plugins: {
+      legend: {
+        display: false,
+        position: "bottom",
+        labels: {
+          color: "#c0c0c0",
+          font: {
+            size: 13,
+            family: "Montserrat",
+            weight: 400,
+            lineHeight: 1.2,
+          },
+          padding: 7,
+          usePointStyle: true,
+          pointStyle: "rectRounded",
+          pointStyleWidth: 35,
+          useBorderRadius: true,
+          borderRadius: 5,
+          pointStyleColor: "#fff",
+          text: ["Min", "Max"],
+        },
+        title: {
+          display: false,
+        },
+      },
+      tooltip: {
+        intersect: false,
+        padding: 5,
+        backgroundColor: "#c5c5c55d", // Цвет фона подсказки
+        titleColor: "#000", // Цвет заголовка подсказки
+        titleFont: {
           size: 13,
           family: "Montserrat",
-          weight: 400,
+          weight: 600,
           lineHeight: 1.2,
         },
-        padding: 7,
+        titleMarginBottom: 3,
+        bodyColor: "#000",
+        bodyFont: {
+          size: 13,
+          family: "Montserrat",
+          weight: 500,
+          lineHeight: 1.2,
+        },
+        bodyAlign: "left",
+        boxWidth: 15,
+        boxHeight: 15,
+        boxPadding: 5,
+        borderColor: "#000",
+        borderWidth: 1,
         usePointStyle: true,
-        pointStyle: "rectRounded",
-        pointStyleWidth: 35,
-        useBorderRadius: true,
-        borderRadius: 5,
-        pointStyleColor: "#fff",
-        text: ["Min", "Max"],
-      },
-      title: {
-        display: false,
-      },
-    },
-    tooltip: {
-      intersect: false,
-      padding: 5,
-      backgroundColor: "#c5c5c55d", // Цвет фона подсказки
-      titleColor: "#000", // Цвет заголовка подсказки
-      titleFont: {
-        size: 13,
-        family: "Montserrat",
-        weight: 600,
-        lineHeight: 1.2,
-      },
-      titleMarginBottom: 3,
-      bodyColor: "#000",
-      bodyFont: {
-        size: 13,
-        family: "Montserrat",
-        weight: 500,
-        lineHeight: 1.2,
-      },
-      bodyAlign: "left",
-      boxWidth: 15,
-      boxHeight: 15,
-      boxPadding: 5,
-      borderColor: "#000",
-      borderWidth: 1,
-      usePointStyle: true,
-      callbacks: {
-        labelColor: function (tooltipItem, chart) {
-          if (tooltipItem.datasetIndex === 1) {
-            return {
-              borderColor: "#000",
-              backgroundColor: "#963df5",
-            };
-          } else {
-            return {
-              borderColor: "#000",
-              backgroundColor: "#3d93f5e9",
-            };
-          }
+        callbacks: {
+          labelColor: function (tooltipItem, chart) {
+            if (tooltipItem.datasetIndex === 1) {
+              return {
+                borderColor: "#000",
+                backgroundColor: "#963df5",
+              };
+            } else {
+              return {
+                borderColor: "#000",
+                backgroundColor: "#3d93f5e9",
+              };
+            }
+          },
         },
       },
     },
-  },
-};
+  };
+});
 </script>
 
 <style lang="scss" scoped>
+@include HistoryPolarArea();
 .polar-area {
   @include Card();
   padding-bottom: 20px;
@@ -188,15 +210,15 @@ const optionsPolarArea = {
   font-size: 14px;
 }
 .polar-area-subtitle {
-  color: #963df571;
   margin-bottom: 5px;
-  color: #6ea5dc;
+  color: var(--blue-600);
 }
 .polar-area-title {
   font-size: 22px;
 }
 .polar-area-graph {
   display: flex;
+  height: 250px;
   justify-content: center;
   align-items: center;
   flex-grow: 1;
@@ -220,7 +242,7 @@ const optionsPolarArea = {
   border: 1px solid #000;
 }
 .footer-text {
-  color: #c0c0c0;
+  color: var(--grey-150);
   font-size: 13px;
   line-height: 1;
 }

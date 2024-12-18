@@ -22,9 +22,11 @@ const props = defineProps({
 </script>
 
 <style lang="scss" scoped>
+@include Error();
+
 .error-page {
   width: 100%;
-  background-color: $grey;
+  background-color: var(--grey);
   border-radius: 20px;
   display: flex;
   align-items: center;
@@ -32,12 +34,14 @@ const props = defineProps({
   flex-direction: column;
   svg {
     font-size: 10em;
-    color: rgb(255, 173, 58);
+    color: var(--yellow-6);
+    filter: drop-shadow(5px 5px 5px #000000);
   }
 }
 .error-page-text {
-  color: $white;
+  color: var(--white);
   font-size: 20px;
+  font-weight: 500;
 }
 
 .error-page-btns {
@@ -47,25 +51,32 @@ const props = defineProps({
 }
 
 .error-page-btn {
+  width: 150px;
   flex-grow: 1;
-  color: $white;
+  color: var(--white);
   padding: 10px;
   border-radius: 8px;
   margin-top: 40px;
   font-size: 16px;
-  transition: background-color 0.3s;
-  border: 1px solid $main;
+  transition: background-color 0.3s, filter .3s, font-weight .3s;
   &:nth-child(1) {
+    border: 1px solid var(--blue-630);
+    background-color: var(--transparent-6);
+    font-weight: var(--font-weight);
+
     &:hover {
-      background-color: $blue;
+      color: #000;
+      background-color: var(--blue-110);
+      font-weight: 500;
+      filter: brightness(var(--brightness-btn));
     }
   }
   &:nth-child(2) {
     font-weight: 500;
-    color: $black;
-    background-color: $blue;
+    color: var(--black-3);
+    background-color: var(--blue-160);
     &:hover{
-      background-color: #7ea5dfbc;
+      filter: brightness(1.2);
     }
   }
 }

@@ -4,7 +4,15 @@
     :style="{ width: '500px' }"
     :modal="true"
     maximizable
-    :pt="getClasses('dashboard').dialog"
+    :pt="{
+      ...getClasses('dashboard').dialog,
+      root: {
+        class: [
+          'dashboard-dialog',
+          !uiStore.xsAndLarger ? 'p-dialog-maximized' : '',
+        ],
+      },
+    }"
     ref="dialogPost"
     @hide="resetForm"
   >
@@ -13,7 +21,7 @@
         <div class="dashboard-dialog-header">
           <span class="dashboard-dialog-title">Confirm</span>
           <div class="dashboard-dialog-header-actions">
-            <button @click="maximizeCallback">
+            <button v-if="uiStore.xsAndLarger" @click="maximizeCallback">
               <i-tabler:window-maximize v-if="!dialogPost?.maximized" />
               <i-tabler:window-minimize v-else />
             </button>
@@ -29,6 +37,7 @@
               v-model:image="image"
               v-model:file="file"
               :id="post.id"
+              :path="'images/posts/'"
               :class="{ 'is-invalid': errors.image }"
             />
             <transition name="fade">
@@ -147,6 +156,7 @@
               v-model="tags"
               :limit-tags="5"
               placeholder="Select a tag..."
+              classSelect="post-dialog-tags"
               :class="{ 'is-invalid': errors.tags }"
             />
             <transition name="fade">
@@ -156,6 +166,7 @@
             </transition>
           </div>
         </div>
+        
         <div class="dashboard-dialog-footer">
           <Button
             text
@@ -180,7 +191,7 @@
     <transition>
       <Spinner
         v-if="loading"
-        style="border-radius: 0; position: fixed"
+        style="border-radius: 0; position: fixed; z-index: 1600;"
         size="50"
       />
     </transition>
@@ -203,10 +214,13 @@ import { v4 as uuidv4 } from "uuid";
 import { useServerStore } from "@/stores/server";
 import { useStaticStore } from "@/stores/static";
 import IonWarningOutline from "~icons/ion/warning-outline";
+import { ability } from "@/services/ability";
+import { useUiStore } from "../../stores/ui";
 
 const serverStore = useServerStore();
 const rulesStore = useRulesStore();
 const staticStore = useStaticStore();
+const uiStore = useUiStore();
 const toast = useToast();
 const confirm = useConfirm();
 
@@ -290,12 +304,12 @@ watch(
 );
 
 const savePost = () => {
-  if (props.post.id) {
-    // edit
-
+  // edit
+  if (props.post.id && ability.can("update", "Post")) {
     saveEditedPost();
-  } else {
-    // new
+  }
+  // new
+  if (!props.post.id && ability.can("create", "Post")) {
     saveNewPost();
   }
 };
@@ -304,18 +318,19 @@ const saveEditedPost = async () => {
   loading.value = true;
   let success = false;
   let updatedPost = {};
-
+  
   if (props.post.name !== values.name) {
     updatedPost.name = values.name;
     updatedPost.slug = translitForUrl(values.name);
   }
-  if (props.post.description !== description.value) {
-    updatedPost.description = description.value;
+  const objectToString = JSON.stringify(description.value)
+  if (props.post.description !== objectToString) {
+    updatedPost.description = objectToString;
   }
   if (props.post.category !== values.category) {
     updatedPost.category = values.category;
   }
-  if (props.post.description !== description.value) {
+  if (props.post.description !== objectToString) {
     updatedPost.time = getTimeReading();
   }
   if (props.post.summary !== values.summary) {
@@ -331,14 +346,14 @@ const saveEditedPost = async () => {
 
   try {
     if (file.value) {
-      await uploadImage(image.value, file.value);
+      await uploadImage(image.value, file.value, "images/posts/");
     }
 
     await updateToDB(props.post.id, updatedPost);
     success = true;
 
     if (file.value) {
-      await deleteImage(props.post.image);
+      await deleteImage(props.post.image, "images/posts/");
     }
   } catch (error) {
     const stringToObject = JSON.parse(error.message);
@@ -383,12 +398,13 @@ const saveEditedPost = async () => {
 
 const saveNewPost = async () => {
   const id = uuidv4();
+  const objectToString = JSON.stringify(description.value)
 
   const newPost = {
     id: id,
     name: values.name,
     slug: translitForUrl(values.name),
-    description: description.value,
+    description: objectToString,
     summary: values.summary,
     image: values.image,
     category: values.category,
@@ -400,7 +416,7 @@ const saveNewPost = async () => {
 
   loading.value = true;
   try {
-    await uploadImage(image.value, file.value);
+    await uploadImage(image.value, file.value, "images/posts/");
     await writeToDB(id, newPost);
 
     emits("upload", newPost);
@@ -433,7 +449,7 @@ const requireConfirmation = (event) => {
     rejectLabel: "Cancel",
     acceptLabel: "OK",
     icon: IonWarningOutline,
-    colorIcon: "#ffd900",
+    colorIcon: "var(--yellow-2)",
     accept: () => {
       hideDialog();
     },
@@ -460,6 +476,7 @@ const replaceSpaces = (event, field) => {
 </script>
 
 <style lang="scss" scoped>
+@include PostDialog();
 .post-dialog {
   &__block {
     display: flex;
@@ -472,6 +489,7 @@ const replaceSpaces = (event, field) => {
     margin-bottom: 10px;
     line-height: 1;
     font-size: 14px;
+    color: var(--white);
   }
   &-small {
   }
@@ -488,7 +506,7 @@ const replaceSpaces = (event, field) => {
   &__radios-text {
     font-size: 14px;
     line-height: 1;
-    color: #a6a6a6;
+    color: var(--grey-100);
   }
   &__inputs {
     display: flex;
@@ -496,8 +514,12 @@ const replaceSpaces = (event, field) => {
   &-inputtext {
     width: 100%;
     padding-right: 35px;
+    background-color: var(--grey-960);
+    color: var(--white);
+
     &::placeholder {
       font-size: 14px;
+      color: var(--placeholder-filter);
     }
     &:not(.p-invalid):enabled:focus {
       @include Focus();
@@ -517,8 +539,53 @@ const replaceSpaces = (event, field) => {
     right: 10px;
     position: absolute;
     top: 50%;
-    color: #b4b4b4;
+    color: var(--grey-100);
     cursor: pointer;
   }
+}
+
+// btns
+.no,
+.yes {
+  &-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1;
+    border-radius: 7px;
+    padding: 0 10px;
+    color: var(--black);
+    font-weight: 500;
+    transition: background-color 0.3s, color 0.3s, filter 0.3s;
+    height: 35px;
+  }
+}
+.yes-btn {
+  background-color: var(--blue-360);
+  &:not(:disabled):hover {
+    filter: brightness(1.1);
+  }
+  &:disabled {
+    opacity: 0.7;
+    cursor: default;
+  }
+}
+
+.no-btn {
+  background-color: var(--grey-900);
+  color: var(--grey-50);
+  &:not(:disabled):hover {
+    background-color: var(--cancel-hover);
+  }
+  &:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+}
+</style>
+
+<style lang="scss">
+.post-dialog-tags.select-wrapper {
+  z-index: 1500;
 }
 </style>

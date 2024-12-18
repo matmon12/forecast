@@ -1,6 +1,6 @@
 <template>
   <div class="breadcrumb">
-    <Button severity="secondary" @click="$router.go(-1)" class="breadcrumb-back"
+    <Button v-if="!uiStore.smSmaller" severity="secondary" @click="$router.go(-1)" class="breadcrumb-back"
       ><i-ic:round-arrow-back-ios-new />
       Back
     </Button>
@@ -35,6 +35,9 @@
 <script setup>
 import { ref, defineProps, onMounted } from "vue";
 import TablerHome from "~icons/tabler/home";
+import {useUiStore} from "../stores/ui"
+
+const uiStore = useUiStore();
 
 const props = defineProps({
   model: Array,
@@ -42,10 +45,15 @@ const props = defineProps({
 </script>
 
 <style lang="scss" scoped>
+@include Breadcrumb(); 
+
 .breadcrumb {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
+  width: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .breadcrumb-back {
@@ -55,9 +63,10 @@ const props = defineProps({
   gap: 6px;
   margin-right: 10px;
   color: #000;
-  background-color: $blue;
+  background-color: var(--blue-100);
   font-weight: 500;
   transition: filter 0.3s;
+  border: none;
   svg {
     font-size: 12px;
   }
@@ -74,20 +83,22 @@ const props = defineProps({
   display: flex;
   align-items: center;
   font-size: 14px;
+  white-space: nowrap;
 }
 
 .breadcrumb__list-link {
-  color: #fff;
+  color: var(--white);
+  font-weight: var(--font-weight);
   line-height: 1;
 }
 .breadcrumb__list-text {
   line-height: 1;
   font-weight: 500;
-  color: #9b9b9b;
+  color: var(--grey-300);
 }
 .breadcrumb__list-separator {
   display: flex;
   margin: 0 5px;
-  color: #afafaf;
+  color: var(--grey-300);
 }
 </style>

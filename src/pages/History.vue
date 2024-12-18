@@ -131,6 +131,7 @@ const onToBack = () => {
 </script>
 
 <style lang="scss" scoped>
+@include History();
 .history {
   position: relative;
   height: fit-content;

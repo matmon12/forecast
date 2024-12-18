@@ -45,6 +45,7 @@ const onShowTags = (countTags) => {
 </script>
 
 <style lang="scss" scoped>
+@include TagsTable();
 .dashboard-table {
   &-tags {
     display: flex;
@@ -54,7 +55,9 @@ const onShowTags = (countTags) => {
       cursor: pointer;
       transition: filter 0.3s;
       height: 27px;
-      // padding: 0 7px;
+      background-color: var(--blue-50);
+      color: var(--blue-250);
+
       svg {
         font-size: 16px;
       }
@@ -78,10 +81,12 @@ const onShowTags = (countTags) => {
     overflow: hidden;
     display: flex;
     justify-content: left;
+    background-color: var(--grey-930);
 
     &-label {
       font-weight: 500;
       white-space: nowrap;
+      color: var(--grey-150);
     }
   }
 }

@@ -11,13 +11,15 @@
       :min="630"
       :max="850"
       :size="110"
-      :valueColor="'#68a2ff'"
+      :valueColor="'var(--blue-400)'"
       :rangeColor="'#404040'"
       :valueTemplate="`${mmHgPressure}`"
       readonly
     />
     <div class="pressure__footer">
-      <div class="pressure__left">{{ mmHgPressure }}<span>mmHg</span></div>
+      <div class="pressure__left">
+        {{ mmHgPressure }}<span v-if="!uiStore.xs2Smaller">mmHg</span>
+      </div>
       <div class="pressure-right">{{ getTextDesc(mmHgPressure) }}</div>
     </div>
   </div>
@@ -27,7 +29,9 @@
 import Knob from "primevue/knob";
 import { ref, defineProps, computed, watch, inject, onMounted } from "vue";
 import { mbToMmHg } from "@/utils/index";
+import { useUiStore } from "../../stores/ui";
 
+const uiStore = useUiStore();
 const { anime } = inject("plugins");
 
 const props = defineProps({
@@ -76,6 +80,7 @@ const getTextDesc = (value) => {
 </script>
 
 <style lang="scss" scoped>
+@include Pressure();
 .pressure {
   @include Card();
   display: flex;
@@ -105,7 +110,7 @@ const getTextDesc = (value) => {
 .pressure__left {
   line-height: 1;
   span {
-    color: #acacac;
+    color: var(--grey-300);
     font-size: 13px;
     margin-left: 3px;
   }
@@ -113,7 +118,7 @@ const getTextDesc = (value) => {
 .pressure-right {
   line-height: 1;
   font-size: 14px;
-  color: #87e8fa;
+  color: var(--cyanogen);
 }
 </style>
 
@@ -132,6 +137,6 @@ const getTextDesc = (value) => {
   font-family: "Montserrat", sans-serif;
   font-weight: 500;
   font-size: 18px;
-  fill: #fff;
+  fill: var(--white);
 }
 </style>

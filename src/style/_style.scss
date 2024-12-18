@@ -1,7 +1,7 @@
 
 body{
-  background-color: $black;
-  color: $white;
+  background-color: var(--black);
+  color: var(--white);
   font-family: "Montserrat", sans-serif;
   line-height: 1.5;
   overflow-x: hidden;
@@ -21,7 +21,7 @@ body{
 .error {
   color: rgb(255, 35, 35);
   position: absolute;
-  bottom: -15px;
+  top: calc(100% + 1px);
   left: 0;
   z-index: -1;
   line-height: 1;
@@ -35,7 +35,7 @@ body{
 
 .fade-enter-from,
 .fade-leave-to {
-  bottom: 0;
+  top: 50%;
 }
 
 .v-enter-active,

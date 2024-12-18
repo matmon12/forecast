@@ -6,10 +6,15 @@
       :key="id"
       @click="onClickBtn(item.value)"
       :style="{
-        backgroundColor: activeBtn === item.value ? props.colorBtn : '',
+        backgroundColor: activeBtn === item.value ? props.colorBtn : colorBack,
       }"
     >
-      <p class="selectbtn-text">{{ item.name }}</p>
+      <p
+        class="selectbtn-text"
+        :style="{ color: activeBtn === item.value ? '#000' : colorText }"
+      >
+        {{ item.name }}
+      </p>
     </div>
   </div>
 </template>
@@ -27,6 +32,10 @@ const props = defineProps({
     required: false,
   },
   colorBack: {
+    type: String,
+    required: false,
+  },
+  colorText: {
     type: String,
     required: false,
   },
@@ -62,7 +71,8 @@ const onClickBtn = (value) => {
   }
 
   &-item {
-    transition: background-color 0.3s;
+    background-color: #4f4f4f;
+    transition: background-color 0.3s, filter .3s;
     border-radius: 5px;
     padding: 5px 12px;
     cursor: pointer;
@@ -71,6 +81,8 @@ const onClickBtn = (value) => {
     border-radius: 5px;
     display: flex;
     text-align: center;
+    height: fit-content;
+
     &.is--active {
       // background-color: #6b99c6;
       color: #000000;
@@ -78,7 +90,7 @@ const onClickBtn = (value) => {
       font-weight: 500;
     }
     &:not(.is--active):hover {
-      background-color: #757575;
+      filter: brightness(1.3);
     }
   }
 }

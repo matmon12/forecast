@@ -7,11 +7,9 @@ import {
 } from "firebase/storage";
 import { errorCodes } from "@/utils/errors";
 
-const storage = getStorage();
-
 const getError = (code, operation, process) => {
   const errorMessage = {
-    description: errorCodes.storage[error.code],
+    description: errorCodes.storage[code],
     process: process,
     operation: operation,
     object: "image",
@@ -20,8 +18,9 @@ const getError = (code, operation, process) => {
   return new Error(objectToString);
 };
 
-export const loadImage = async (name) => {
-  const pathReference = stRef(storage, `images/${name}`);
+export const loadImage = async (name, path) => {
+  const storage = getStorage();
+  const pathReference = stRef(storage, `${path}${name}`);
   try {
     const urlImage = await getDownloadURL(pathReference);
     return urlImage;
@@ -30,8 +29,9 @@ export const loadImage = async (name) => {
   }
 };
 
-export const deleteImage = async (image) => {
-  const deleteReference = stRef(storage, `images/${image}`);
+export const deleteImage = async (image, path) => {
+  const storage = getStorage();
+  const deleteReference = stRef(storage, `${path}${image}`);
   await deleteObject(deleteReference)
     .then(() => {})
     .catch((error) => {
@@ -39,8 +39,9 @@ export const deleteImage = async (image) => {
     });
 };
 
-export const uploadImage = async (image, file) => {
-  const uploadRef = stRef(storage, `images/${image}`);
+export const uploadImage = async (image, file, path) => {
+  const storage = getStorage();
+  const uploadRef = stRef(storage, `${path}${image}`);
   await uploadBytesResumable(uploadRef, file)
     .then(() => {})
     .catch((error) => {

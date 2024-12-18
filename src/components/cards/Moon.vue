@@ -167,6 +167,7 @@ const init = () => {
 </script>
 
 <style lang="scss" scoped>
+@include Moon();
 .moon {
   @include Card();
   display: flex;
@@ -197,13 +198,14 @@ const init = () => {
   position: relative;
   overflow: hidden;
   border-radius: 50%;
-  box-shadow: 0 0 20px #c9f4ff5b;
+  box-shadow: 0 0 20px var(--boxshadow--moon);
 }
 img {
   width: 100%;
+  filter: brightness(var(--brightness-moon));
 }
 .moon-shadow {
-  background-color: #242424c2;
+  background-color: var(--shadow-moon);
   width: 100%;
   height: 100%;
   position: absolute;
@@ -221,7 +223,7 @@ img {
 .moon__aside {
   height: 100%;
   min-width: 125px;
-  background-color: #2d313aaf;
+  background-color: var(--grey-700);
   border-radius: 15px;
   padding: 15px;
   box-shadow: 0 0 10px #00000035;
@@ -232,7 +234,7 @@ img {
 .moon__aside-item {
 }
 .moon__aside-title {
-  color: #aeaeae;
+  color: var(--grey-300);
   font-size: 15px;
   font-weight: 500;
   line-height: 1;
@@ -247,7 +249,7 @@ img {
   justify-content: space-between;
   align-items: flex-end;
   span {
-    color: #929292;
+    color: var(--grey-light);
     font-size: 15px;
     font-weight: 500;
   }
@@ -265,7 +267,7 @@ img {
   font-weight: 500;
 }
 .moon__info-phase {
-  color: #87e8fa;
+  color: var(--cyanogen);
   line-height: 1.1;
   font-size: 25px;
 }

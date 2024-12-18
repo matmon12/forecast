@@ -380,6 +380,25 @@ export const getClasses = (mainClass) => {
       buttonContainer: `${mainClass}-toast-button-container`,
       closeButton: `${mainClass}-toast-close-button`,
       closeIcon: `${mainClass}-toast-close-icon`,
+    },
+    drawer: {
+      root: `${mainClass}-drawer`,
+      header: `${mainClass}-drawer-header`,
+      title: `${mainClass}-drawer-title`,
+      pcCloseButton: `${mainClass}-drawer-close-button`,	
+      content: `${mainClass}-drawer-content`,
+      footer: `${mainClass}-drawer-footer`,
+      mask: `${mainClass}-drawer-mask`,
+    },
+    panel: {
+      root: `${mainClass}-panel`,
+      header: `${mainClass}-panel-header`,
+      title: `${mainClass}-panel-title`,
+      headerActions: `${mainClass}-panel-header-actions`,
+      pcToggleButton: `${mainClass}-panel-toggle-button`,
+      contentContainer: `${mainClass}-panel-content-container`,
+      content: `${mainClass}-panel-content`,
+      footer: `${mainClass}-panel-footer`,
     }
   };
 };

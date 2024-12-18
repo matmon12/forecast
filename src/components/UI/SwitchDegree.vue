@@ -28,6 +28,7 @@ const toggleCheckbox = () => {
 </script>
 
 <style lang="scss" scoped>
+
 .switch {
   position: relative;
   display: inline-block;
@@ -44,7 +45,7 @@ const toggleCheckbox = () => {
   position: absolute;
   cursor: pointer;
   inset: 0;
-  background-color: $white-2;
+  background-color: var(--white-2);
   transition: all 0.4s;
   border-radius: 20px;
   display: flex;
@@ -54,20 +55,20 @@ const toggleCheckbox = () => {
 
   &-text {
     z-index: 10;
-    color: $grey;
+    color: var(--grey);
     font-weight: 500;
     font-size: 20px;
     line-height: 1;
     transition: color 0.3s;
     &.is--active {
-      color: $white-2;
+      color: var(--white-2);
     }
   }
 }
 
 .round {
   position: absolute;
-  background-color: $grey-2;
+  background-color: var(--grey-2);
   transition: all 0.4s;
   display: flex;
   align-items: center;

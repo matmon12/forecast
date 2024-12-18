@@ -18,11 +18,11 @@ const props = defineProps({
 
 <style lang="scss" scoped>
 .spinner {
-  background-color: #404040b0;
+  background-color: var(--grey-610);
   position: absolute;
   inset: 0;
   border-radius: 20px;
-  z-index: 9999;
+  z-index: 1200;
 
   svg {
     position: absolute;

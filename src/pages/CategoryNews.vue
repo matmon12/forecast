@@ -8,7 +8,7 @@
         :class="[
           'category__skeleton',
           {
-            'category__skeleton-gorizont': indicesGorizont.includes(index),
+            'category__skeleton-gorizont': generateSequence.includes(index),
           },
         ]"
       >
@@ -16,14 +16,17 @@
           <Skeleton height="100%" class="category__skeleton-img" />
         </div>
         <div class="category__skeleton-texts">
-          <Skeleton height="1.1rem" class="category__skeleton-text" />
           <Skeleton
-            height="1.1rem"
+            :height="uiStore.xs2Smaller ? '0.8rem' : '1.1rem'"
+            class="category__skeleton-text"
+          />
+          <Skeleton
+            :height="uiStore.xs2Smaller ? '0.8rem' : '1.1rem'"
             width="70%"
             class="category__skeleton-text"
           />
           <Skeleton
-            height="1.1rem"
+            :height="uiStore.xs2Smaller ? '0.8rem' : '1.1rem'"
             width="50%"
             class="category__skeleton-text"
           />
@@ -36,7 +39,7 @@
         :title="post.name"
         :image="post.image"
         :summary="post.summary"
-        :orientation="indicesGorizont.includes(index) ? 'gorizont' : ''"
+        :orientation="generateSequence.includes(index) ? 'gorizont' : ''"
         @click="navigateToPost(post)"
         class="category__item"
       />
@@ -75,12 +78,14 @@ import { postsRef } from "@/server/firebase.config";
 import { readToDB } from "@/server/posts";
 import { onToBack } from "@/utils/index";
 import { useRoute } from "vue-router";
+import { useUiStore } from "../stores/ui";
 import router from "@/router/router";
 
 const countSkeletons = ref(6);
+const countPosts = ref(countSkeletons.value);
 const postsPerPage = ref(6);
-const indicesGorizont = ref([]);
 const route = useRoute();
+const uiStore = useUiStore();
 
 // posts
 const posts = ref([]);
@@ -129,8 +134,8 @@ const getPosts = async () => {
     // получение последнего видимого поста
     lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
 
-    // рассчет индексов постов для которых горизонтальная ориентация
-    indicesGorizont.value = generateSequence(posts.value.length);
+    // рассчет индексов постов для которых горизонтальная ориентация (для этого)
+    countPosts.value = posts.value.length;
 
     // количество загруженных постов
     countLoadedPosts.value = querySnapshot.docs.length;
@@ -151,11 +156,6 @@ watch(
   { immediate: true }
 );
 
-onMounted(() => {
-  // рассчет индексов скелетонов для которых горизонтальная ориентация
-  indicesGorizont.value = generateSequence(countSkeletons.value);
-});
-
 const onErrorHandler = () => {
   getPosts();
 };
@@ -164,21 +164,33 @@ const moveNextPage = () => {
   cursorNextPage.value = lastVisible;
 };
 
-const generateSequence = (count) => {
+const generateSequence = computed(() => {
   let current = 0;
   const indices = [current];
+  let numberOne = 3;
+  let numberTwo = 1;
+  let numberThree = 4;
 
-  while (current <= count) {
-    if (indices.length % 3 === 0) {
-      current += 1;
+  if (uiStore.mdSmaller) {
+    numberOne = 2;
+    numberThree = 3;
+  }
+  if (uiStore.smSmaller) {
+    numberTwo = 3;
+    numberThree = 3;
+  }
+
+  while (current <= countPosts.value) {
+    if (indices.length % numberOne === 0) {
+      current += numberTwo;
     } else {
-      current += 4;
+      current += numberThree;
     }
     indices.push(current);
   }
 
   return indices;
-};
+});
 
 const navigateToPost = (post) => {
   router.push({
@@ -192,6 +204,7 @@ const navigateToPost = (post) => {
 </script>
 
 <style lang="scss" scoped>
+@include CategoryNews();
 .category {
   display: flex;
   flex-direction: column;
@@ -211,7 +224,7 @@ const navigateToPost = (post) => {
   width: 180px;
   height: 38px;
   padding: 4px 10px;
-  background-color: #6b99c6;
+  background-color: var(--blue-100);
   border-radius: 10px;
   margin: 15px auto 0;
   color: #000;
@@ -231,7 +244,7 @@ const navigateToPost = (post) => {
 }
 .category__skeleton {
   padding: 15px;
-  background-color: #ffffff10;
+  background-color: var(--skeleton-back);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
@@ -244,6 +257,18 @@ const navigateToPost = (post) => {
   }
   &-text {
     margin-bottom: 7px;
+  }
+  &-img,
+  &-text {
+    background-color: var(--skeleton-text);
+    &::after {
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0),
+        var(--skeleton-animation),
+        rgba(255, 255, 255, 0)
+      );
+    }
   }
 }
 .category__skeleton-gorizont {
@@ -259,6 +284,6 @@ const navigateToPost = (post) => {
   }
 }
 .category-error {
-  height: 100%;
+  flex-grow: 1;
 }
 </style>

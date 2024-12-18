@@ -138,3 +138,9 @@ export const translitForUrl = (text) => {
 
   return answer;
 };
+
+export const getUsername = (email) => {
+  if (email) {
+    return uppercaseFirst(email.split("@")[0]);
+  }
+};

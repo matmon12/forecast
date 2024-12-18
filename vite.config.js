@@ -78,7 +78,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@import "@/style/var.scss"; @import "@/style/adaptive.scss";`,
+        additionalData: `@import "@/style/var.scss"; @import "@/style/_adaptive.scss";`,
       },
     },
   },

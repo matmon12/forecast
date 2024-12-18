@@ -13,6 +13,9 @@
 <script setup>
 import { ref, defineProps, watch, onMounted, computed } from "vue";
 import { Radar } from "vue-chartjs";
+import { useUiStore } from "@/stores/ui";
+
+const uiStore = useUiStore();
 
 const props = defineProps({
   history: Array,
@@ -21,6 +24,10 @@ const props = defineProps({
 const dataDays = ref([]);
 const dataChance = ref([]);
 const dataHumidity = ref([]);
+
+// ui настройки графика
+const titleFont = ref(13);
+const bodyFont = ref(13);
 
 watch(
   () => props.history,
@@ -41,20 +48,34 @@ const init = () => {
   dataChance.value = props.history.map((item) => item.day.daily_chance_of_rain);
   dataHumidity.value = props.history.map((item) => item.day.avghumidity);
 
-  dataDays.value = props.history.map((item) => `${item.date.split('-')[1]}.${item.date.split('-')[2]}`);
+  dataDays.value = props.history.map(
+    (item) => `${item.date.split("-")[1]}.${item.date.split("-")[2]}`
+  );
 };
 
 const dataRadar = computed(() => {
+  let colorBackH = "#10b981";
+  let colorBackC = "#6ea5dc";
+  let colorBackAlphaH = "#10b98138";
+  let colorBackAlphaC = "#46627e75";
+
+  if (!uiStore.theme) {
+    colorBackH = "#085b3f";
+    colorBackAlphaH = "#1f98705e";
+    colorBackC = "#0a58a7";
+    colorBackAlphaC = "#156dbf7a"
+  }
+
   return {
     labels: dataDays.value,
     datasets: [
       {
         label: "Humidity",
         data: dataHumidity.value,
-        backgroundColor: "#10b98138",
-        borderColor: "#10b981",
+        backgroundColor: colorBackAlphaH,
+        borderColor: colorBackH,
         borderWidth: 1,
-        hoverBackgroundColor: "#10b981",
+        hoverBackgroundColor: colorBackH,
         pointBackgroundColor: "#0f835c",
         pointBorderColor: "#000",
         pointRadius: 3,
@@ -63,11 +84,11 @@ const dataRadar = computed(() => {
       {
         label: "Chance of rain",
         data: dataChance.value,
-        backgroundColor: "#46627e75",
-        borderColor: "#6ea5dc",
+        backgroundColor: colorBackAlphaC,
+        borderColor: colorBackC,
         borderWidth: 1,
-        hoverBackgroundColor: "#10a0b9",
-        pointBackgroundColor: "#6ea5dc",
+        hoverBackgroundColor: colorBackC,
+        pointBackgroundColor: colorBackC,
         pointBorderColor: "#000",
         pointRadius: 3,
         pointHoverRadius: 5,
@@ -76,93 +97,116 @@ const dataRadar = computed(() => {
   };
 });
 
-const optionsRadar = {
-  responsive: true,
-  maintainAspectRatio: true,
-  scales: {
-    r: {
-      ticks: {
-        color: "#d4d4d4",
-        backdropColor: "transparent",
-        font: {
-          size: 12,
-          family: "Montserrat",
-          weight: 400,
-          lineHeight: 1,
+const optionsRadar = computed(() => {
+  let colorTicks = "#d4d4d4";
+  let colorLegend = "#c0c0c0";
+  let colorLines = "#5d5d5d";
+
+  // разрешение экрана
+  if (uiStore.xs2Smaller) {
+    titleFont.value = 11;
+    bodyFont.value = 11;
+  } else {
+    titleFont.value = 13;
+    bodyFont.value = 13;
+  }
+
+  // theme
+  if (!uiStore.theme) {
+    colorTicks = "#000000";
+    colorLegend = "#000000";
+    colorLines = "#464646";
+  }
+
+  return {
+    responsive: true,
+    maintainAspectRatio: true,
+    scales: {
+      r: {
+        ticks: {
+          color: colorTicks,
+          backdropColor: "transparent",
+          font: {
+            size: 12,
+            family: "Montserrat",
+            weight: 400,
+            lineHeight: 1,
+          },
         },
-      },
-      grid: {
-        color: "#5d5d5d",
-      },
-      angleLines: {
-        color: "#5d5d5d",
-      },
-      pointLabels: {
-        color: "#d4d4d4",
-        padding: 0,
-        font: {
-          size: 13,
-          family: "Montserrat",
-          weight: 400,
-          lineHeight: 1,
+        grid: {
+          color: colorLines,
+        },
+        angleLines: {
+          color: colorLines,
+        },
+        pointLabels: {
+          color: colorTicks,
+          padding: 0,
+          font: {
+            size: 13,
+            family: "Montserrat",
+            weight: 400,
+            lineHeight: 1,
+          },
         },
       },
     },
-  },
-  plugins: {
-    legend: {
-      position: "bottom",
-      labels: {
-        color: "#c0c0c0",
-        font: {
-          size: 13,
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: {
+          color: colorLegend,
+          font: {
+            size: 13,
+            family: "Montserrat",
+            weight: 400,
+            lineHeight: 1.2,
+          },
+          padding: 7,
+          usePointStyle: true,
+          pointStyle: "rectRounded",
+          pointStyleWidth: 35,
+          useBorderRadius: true,
+          borderRadius: 5,
+        },
+        title: {
+          display: false,
+        },
+      },
+      tooltip: {
+        intersect: false,
+        padding: 5,
+        backgroundColor: "#c5c5c55d", // Цвет фона подсказки
+        titleColor: "#000", // Цвет заголовка подсказки
+        titleFont: {
+          size: titleFont.value,
           family: "Montserrat",
-          weight: 400,
+          weight: 600,
           lineHeight: 1.2,
         },
-        padding: 7,
+        titleMarginBottom: 3,
+        bodyColor: "#000",
+        bodyFont: {
+          size: bodyFont.value,
+          family: "Montserrat",
+          weight: 500,
+          lineHeight: 1.2,
+        },
+        bodyAlign: "left",
+        boxWidth: 15,
+        boxHeight: 15,
+        boxPadding: 5,
+        borderColor: "#000",
+        borderWidth: 1,
         usePointStyle: true,
-        pointStyle: "rectRounded",
-        pointStyleWidth: 35,
-        useBorderRadius: true,
-        borderRadius: 5,
-      },
-      title: {
-        display: false,
       },
     },
-    tooltip: {
-      intersect: false,
-      padding: 5,
-      backgroundColor: "#c5c5c55d", // Цвет фона подсказки
-      titleColor: "#000", // Цвет заголовка подсказки
-      titleFont: {
-        size: 13,
-        family: "Montserrat",
-        weight: 600,
-        lineHeight: 1.2,
-      },
-      titleMarginBottom: 3,
-      bodyColor: "#000",
-      bodyFont: {
-        size: 12,
-        family: "Montserrat",
-        weight: 500,
-        lineHeight: 1.2,
-      },
-      bodyAlign: "left",
-      boxWidth: 15,
-      boxHeight: 15,
-      boxPadding: 5,
-      borderColor: "#000",
-      borderWidth: 1,
-      usePointStyle: true,
-    },
-  },
-};
+  };
+});
 </script>
 
 <style lang="scss" scoped>
+@include HistoryRadar();
 .radar {
   @include Card();
   display: flex;
@@ -176,13 +220,14 @@ const optionsRadar = {
 .radar-subtitle {
   color: #5d5d5d;
   margin-bottom: 5px;
-  color: #6ea5dc;
+  color: var(--blue-600);
 }
 .radar-title {
   font-size: 22px;
 }
 .radar-graph {
   flex-grow: 1;
+  height: 300px;
   display: flex;
   justify-content: center;
   align-items: center;

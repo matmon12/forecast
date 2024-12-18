@@ -4,13 +4,15 @@
       <p v-if="!selectedTags?.length" class="tags-placeholder">
         {{ placeholder }}
       </p>
-      <div v-else class="tags__content">
-        <Chip
-          v-for="tag of selectedTags"
-          :key="tag"
-          :label="tag"
-          @remove="(e) => remove(e, tag)"
-        />
+      <div v-else class="tags__container">
+        <div class="tags__content">
+          <Chip
+            v-for="tag of selectedTags"
+            :key="tag"
+            :label="tag"
+            @remove="(e) => remove(e, tag)"
+          />
+        </div>
       </div>
       <span :class="['tags-arrow', { 'is-open': showSelect }]"
         ><i-ep:arrow-down-bold
@@ -310,6 +312,7 @@ const isDisabled = (tag) => {
 </script>
 
 <style lang="scss" scoped>
+@include Tags();
 .tags {
   position: relative;
   &.is-invalid {
@@ -318,17 +321,23 @@ const isDisabled = (tag) => {
     }
   }
 }
+
+.select-wrapper{
+  background-color: var(--modal);
+  box-shadow: 0 0 5px #474747;
+}
+
 .tags__wrapper {
   min-height: 40px;
   width: 100%;
-  background-color: #09090b;
+  background-color: var(--grey-960);
   border: 1px solid #52525b;
   border-radius: 6px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 5px 15px 5px 5px;
-  color: #a5a5ab;
+  color: var(--grey-320);
   cursor: pointer;
   transition: box-shadow 0.3s, border-color 0.3s;
 }
@@ -354,16 +363,20 @@ const isDisabled = (tag) => {
   gap: 5px;
   flex-wrap: wrap;
 }
+.tags__container {
+  height: 100%;
+}
 .tags-header {
   display: flex;
   padding: 10px 15px 15px;
   gap: 10px;
+  
   &-btn {
-    background-color: $blue;
-    border-color: $blue;
+    background-color: var(--blue-100);
+    border-color: var(--blue-100);
     font-weight: 500;
     transition: filter 0.3s;
-    &:hover {
+    &:not(:disabled):hover {
       filter: brightness(1.1);
     }
   }
@@ -371,7 +384,7 @@ const isDisabled = (tag) => {
 .tags-body {
   height: 100%;
   overflow-y: auto;
-  @include Scroll(10px, 10px, #333333, #7d7d7d);
+  @include Scroll(10px, 10px, var(--grey-900), var(--grey-350));
   padding: 0 5px 10px;
 }
 
@@ -384,9 +397,9 @@ const isDisabled = (tag) => {
 .tags__list-group-label {
   font-size: 16px;
   font-weight: 600;
-  color: #858585;
+  color: var(--grey-340);
   line-height: 1;
-  // color: $blue;
+  // color: var(--blue);
 }
 .tags__list-group-header {
   display: flex;
@@ -396,7 +409,7 @@ const isDisabled = (tag) => {
   margin-bottom: 7px;
   svg {
     font-size: 16px;
-    color: $blue;
+    color: var(--blue-2);
   }
 }
 .tags__list-item {
@@ -424,12 +437,13 @@ const isDisabled = (tag) => {
   font-size: 14px;
   padding: 5px 15px;
   border-top: 1px solid #4e4e51;
+  background-color: var(--transparent-3);
 }
 
 // input
 .tags {
   &-iconfield {
-    background-color: $black;
+    background-color: var(--black-3);
     border-radius: 7px;
     padding: 0 10px;
     display: flex;
@@ -454,7 +468,7 @@ const isDisabled = (tag) => {
   &-inputtext {
     flex-grow: 1;
     &::placeholder {
-      color: #a5a5ab;
+      color: var(--grey-100);
     }
   }
   &-input-wrapper {
@@ -463,33 +477,38 @@ const isDisabled = (tag) => {
     position: relative;
   }
 }
-</style>
 
-<style lang="scss">
-// checkbox
-.tags {
-  &-checkbox {
-    &.p-checkbox-checked .tags-checkbox-box {
-      border-color: $blue;
-      background: $blue;
-      svg {
-        color: $black;
+:deep() {
+  // checkbox
+  .tags {
+    &-checkbox {
+      &.p-checkbox-checked .tags-checkbox-box {
+        border-color: #6b99c6;
+        background: #6b99c6;
+        svg {
+          color: #000;
+        }
       }
-    }
 
-    &.p-disabled .tags-checkbox-box {
-      background: #3f3f46;
-      border-color: #3f3f46;
-    }
-    &-box {
-      transition: border-color 0.3s;
-      svg {
-        color: transparent;
-        width: 16px;
+      
+      &.p-disabled .tags-checkbox-box {
+        background: var(--grey-760);
+        border-color: var(--grey-760);
+      }
+      &-box {
+        background-color: var(--grey-960);
+        transition: border-color 0.3s;
+        svg {
+          color: transparent;
+          width: 16px;
+        }
       }
     }
   }
 }
+</style>
+
+<style lang="scss">
 .tags__list-item:not(:has(.tags-checkbox.p-disabled)):hover {
   .tags-checkbox:not(.p-checkbox-checked) {
     .tags-checkbox-box {
@@ -498,10 +517,10 @@ const isDisabled = (tag) => {
   }
 }
 .tags__list-item:not(:has(.tags-checkbox.p-disabled)):hover {
-  background-color: #303030;
+  background-color: var(--grey-970);
 }
 .tags__list-item:has(.tags-checkbox.p-disabled) {
   cursor: default;
-  color: rgb(178, 178, 178);
+  color: var(--grey-100);
 }
 </style>

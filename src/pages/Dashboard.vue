@@ -4,54 +4,101 @@
 
     <h1 class="dashboard-title">Post management</h1>
 
-    <Toolbar :pt="getClasses('dashboard').toolbar" unstyled>
-      <template #start>
-        <Button @click="openNew" :pt="getClasses('new').button" unstyled>
-          <span class="new-btn-label">New</span>
-          <i-fluent:add-16-filled />
-        </Button>
-        <Button
-          @click="confirmDeleteSelected"
-          :disabled="!selectedPosts || !selectedPosts.length"
-          :pt="getClasses('delete').button"
-          unstyled
-        >
-          <span class="delete-btn-label">Delete</span>
-          <i-mi:delete />
-        </Button>
-      </template>
+    <Panel
+      v-if="uiStore.mdSmaller"
+      header="Sorting"
+      toggleable
+      collapsed
+      :pt="getClasses('dashboard').panel"
+    >
+      <Sorting
+        v-model:sortField="currentSortOrder.sortField"
+        v-model:sortOrder="currentSortOrder.sortOrder"
+        @sort="hideExpandedPost()"
+      />
 
-      <template #end>
-        <Button
-          @click="clearFilters"
-          :pt="getClasses('delete').button"
-          unstyled
-          :disabled="disableClearBtn"
-        >
-          <i-ci:filter-off />
-          <span class="delete-btn-label">Clear</span>
-        </Button>
-        <Button
-          @click="exportCSV($event)"
-          :pt="getClasses('export').button"
-          unstyled
-          ><i-ph:export-bold />
-          <span class="export-btn-label">Export</span>
-        </Button>
+      <template #toggleicon="{ collapsed }">
+        <i-ep:arrow-down-bold v-if="collapsed" />
+        <i-ep:arrow-up-bold v-else />
       </template>
-    </Toolbar>
+    </Panel>
+
+    <Panel
+      v-if="uiStore.mdSmaller"
+      header="Filters"
+      toggleable
+      collapsed
+      :pt="getClasses('dashboard').panel"
+    >
+      <div class="dashboard-panel-list">
+        <div class="dashboard-panel-item">
+          <h6 class="dashboard-panel-item-title">Date</h6>
+          <DateFilter
+            v-model="filters.date.value"
+            @date-select="hideExpandedPost(), moveFirstPage(), dateSelect()"
+            @clear-click="hideExpandedPost(), moveFirstPage(), dateSelect()"
+          />
+        </div>
+        <div class="dashboard-panel-item">
+          <h6 class="dashboard-panel-item-title">Title</h6>
+          <NameFilter
+            :name="filters.name.value"
+            @search="
+              (value) => {
+                hideExpandedPost();
+                moveFirstPage();
+                filters.name.value = value;
+              }
+            "
+          />
+        </div>
+        <div class="dashboard-panel-item">
+          <h6 class="dashboard-panel-item-title">Tags</h6>
+          <TagsFilter
+            :tags="filters.tags.value"
+            @change="
+              (value) => {
+                hideExpandedPost();
+                moveFirstPage();
+                filters.tags.value = value;
+              }
+            "
+          />
+        </div>
+        <div class="dashboard-panel-item">
+          <h6 class="dashboard-panel-item-title">Category</h6>
+          <CategoryFilter
+            :category="filters.category.value"
+            :categories="categories"
+            @change="
+              (value) => {
+                hideExpandedPost();
+                moveFirstPage();
+                filters.category.value = value;
+              }
+            "
+          />
+        </div>
+      </div>
+
+      <template #toggleicon="{ collapsed }">
+        <i-ep:arrow-down-bold v-if="collapsed" />
+        <i-ep:arrow-up-bold v-else />
+      </template>
+    </Panel>
 
     <DataTable
       ref="dt"
       v-model:selection="selectedPosts"
       v-model:filters="filters"
+      v-model:expandedRows="expandedRows"
       :value="posts"
       dataKey="id"
-      filterDisplay="row"
+      :filterDisplay="uiStore.mdSmaller ? null : 'row'"
       :loading="loadingPosts"
       scrollable
-      scrollHeight="550px"
-      removableSort
+      :scrollHeight="uiStore.mdSmaller ? '410px' : '550px'"
+      reorderableColumns
       :sort-field="currentSortOrder.sortField"
       :sort-order="currentSortOrder.sortOrder"
       @sort="
@@ -61,9 +108,14 @@
       "
       :pt="{
         ...getClasses('dashboard').datatable,
+        tableContainer: {
+          class: 'dashboard-datatable-table-container',
+          style: uiStore.mdSmaller ? 'overflow-x: hidden;' : '',
+        },
       }"
     >
       <Column
+        columnKey="checkbox"
         selectionMode="multiple"
         :exportable="false"
         :pt="{
@@ -77,6 +129,7 @@
         }"
       />
       <Column
+        v-if="!uiStore.mdSmaller"
         field="date"
         header="Date"
         sortable
@@ -86,11 +139,9 @@
         :pt="getClasses('dashboard').column"
       >
         <template #sorticon="{ sorted, sortOrder }">
-          <i-fluent:arrow-sort-up-lines-20-filled
-            v-if="sorted && sortOrder === 1"
-          />
+          <i-fluent:arrow-sort-up-lines-20-filled v-if="sortOrder === 1" />
           <i-fluent:arrow-sort-down-lines-20-filled
-            v-else-if="sorted && sortOrder !== 1"
+            v-else-if="sortOrder === -1"
           />
           <i-fluent:arrow-sort-20-filled v-else />
         </template>
@@ -98,47 +149,33 @@
           {{ formattedDate(data.date) }}
         </template>
         <template #filter="{ filterModel, filterCallback }">
-          <DatePicker
+          <DateFilter
             v-model="filterModel.value"
-            date-format="dd.mm.y"
-            show-icon
-            fluid
-            :show-on-focus="false"
-            :manual-input="false"
-            :min-date="minDate"
-            :max-date="maxDate"
-            showButtonBar
-            selection-mode="range"
-            @date-select="filterCallback(), dateSelect(), moveFirstPage()"
-            @clear-click="
-              (filterModel.value = []),
-                filterCallback(),
-                dateSelect(),
-                moveFirstPage()
-            "
-            placeholder="Select date"
-            :pt="{
-              ...getClasses('dashboard').datepicker,
-              pcInput: getClasses('dashboard-datepicker').inputtext,
-            }"
+            @date-select="filterCallback(), moveFirstPage(), dateSelect()"
+            @clear-click="filterCallback(), moveFirstPage(), dateSelect()"
           />
         </template>
       </Column>
       <Column
         field="name"
-        header="Title"
-        sortable
+        :header="uiStore.mdSmaller ? null : 'Title'"
+        :sortable="!uiStore.mdSmaller"
         :showClearButton="false"
         :showFilterMenu="false"
-        style="min-width: 15rem"
-        :pt="getClasses('dashboard').column"
+        :pt="{
+          ...getClasses('dashboard').column,
+          bodyCell: {
+            class: [
+              'dashboard-datatable-body-cell',
+              'dashboard-datatable-name',
+            ],
+          },
+        }"
       >
         <template #sorticon="{ sorted, sortOrder }">
-          <i-fluent:arrow-sort-up-lines-20-filled
-            v-if="sorted && sortOrder === 1"
-          />
+          <i-fluent:arrow-sort-up-lines-20-filled v-if="sortOrder === 1" />
           <i-fluent:arrow-sort-down-lines-20-filled
-            v-else-if="sorted && sortOrder !== 1"
+            v-else-if="sortOrder === -1"
           />
           <i-fluent:arrow-sort-20-filled v-else />
         </template>
@@ -148,33 +185,43 @@
           </p>
         </template>
         <template #filter="{ filterModel, filterCallback }">
-          <IconField :pt="getClasses('dashboard-search').iconfield" unstyled>
-            <InputIcon :pt="getClasses('dashboard-search').inputicon" unstyled>
-              <i-octicon:search-16 />
-            </InputIcon>
-            <InputText
-              v-model="filterModel.value"
-              type="text"
-              placeholder="Search..."
-              @input="searchByName(filterCallback)"
-              :pt="getClasses('dashboard-search').inputtext"
-              unstyled
-            />
-          </IconField>
+          <NameFilter
+            :name="filters.name.value"
+            @search="
+              (value) => {
+                moveFirstPage();
+                filters.name.value = value;
+              }
+            "
+          />
         </template>
       </Column>
       <Column
-        header="Image"
-        style="min-width: 8rem"
-        :pt="getClasses('dashboard').column"
+        columnKey="image"
+        :header="uiStore.mdSmaller ? null : 'Image'"
+        :pt="{
+          ...getClasses('dashboard').column,
+          bodyCell: {
+            class: [
+              'dashboard-datatable-body-cell',
+              'dashboard-datatable-image',
+            ],
+          },
+        }"
       >
         <template #body="{ data }">
           <div class="dashboard-table-img">
-            <Image :id="data.id" :name="data.image" style="width: 80px" />
+            <Image
+              :id="data.id"
+              :name="data.image"
+              :path="'images/posts/'"
+              preview
+            />
           </div>
         </template>
       </Column>
       <Column
+        v-if="!uiStore.mdSmaller"
         field="tags"
         header="Tags"
         :showClearButton="false"
@@ -186,17 +233,19 @@
           <TagsTable :tags="data.tags" />
         </template>
         <template #filter="{ filterModel, filterCallback }">
-          <Tags
-            class="dashboard-filter-tags"
-            v-model="filterModel.value"
-            class-select="dashboard-filter"
-            :limit-tags="5"
-            placeholder="Select a tag..."
-            @change="filterCallback(), moveFirstPage()"
+          <TagsFilter
+            :tags="filters.tags.value"
+            @change="
+              (value) => {
+                moveFirstPage();
+                filters.tags.value = value;
+              }
+            "
           />
         </template>
       </Column>
       <Column
+        v-if="!uiStore.mdSmaller"
         field="category"
         header="Category"
         :showClearButton="false"
@@ -215,41 +264,20 @@
           />
         </template>
         <template #filter="{ filterModel, filterCallback }">
-          <MultiSelect
-            v-model="filterModel.value"
-            :options="categories"
-            placeholder="Not selected"
-            :pt="{
-              ...getClasses('category').multiselect,
-              pcHeaderCheckbox: { ...getClasses('dashboard').checkbox },
-              pcOptionCheckbox: { ...getClasses('dashboard').checkbox },
-            }"
-            @change="filterCallback(), moveFirstPage()"
-          >
-            <template #value="{ value, placeholder }">
-              <p v-if="!value.length" class="category-multiselect-placeholder">
-                {{ placeholder }}
-              </p>
-              <div class="category-multiselect-tags" v-auto-animate>
-                <Tag
-                  class="category-multiselect-tag"
-                  v-for="item in value"
-                  :key="item"
-                  :value="uppercaseFirst(item)"
-                  :style="{
-                    backgroundColor: colorsTags[item.toLowerCase()].colorBack,
-                    color: colorsTags[item.toLowerCase()].color,
-                  }"
-                />
-              </div>
-            </template>
-            <template #option="{ option }">
-              {{ uppercaseFirst(option) }}
-            </template>
-          </MultiSelect>
+          <CategoryFilter
+            :category="filters.category.value"
+            :categories="categories"
+            @change="
+              (value) => {
+                moveFirstPage();
+                filters.category.value = value;
+              }
+            "
+          />
         </template>
       </Column>
       <Column
+        v-if="!uiStore.mdSmaller"
         field="rating"
         header="Rating"
         sortable
@@ -257,24 +285,21 @@
         :pt="getClasses('dashboard').column"
       >
         <template #sorticon="{ sorted, sortOrder }">
-          <i-fluent:arrow-sort-up-lines-20-filled
-            v-if="sorted && sortOrder === 1"
-          />
+          <i-fluent:arrow-sort-up-lines-20-filled v-if="sortOrder === 1" />
           <i-fluent:arrow-sort-down-lines-20-filled
-            v-else-if="sorted && sortOrder !== 1"
+            v-else-if="sortOrder === -1"
           />
           <i-fluent:arrow-sort-20-filled v-else />
         </template>
         <template #body="{ data }">
-          <Rating
-            :modelValue="data.rating"
-            :readonly="true"
-            :cancel="false"
-            :pt="getClasses('dashboard').rating"
-          />
+          <Tag :severity="getColorRating(data.rating)">
+            <i-material-symbols:signal-cellular-alt-rounded />
+            {{ data.rating }}</Tag
+          >
         </template>
       </Column>
       <Column
+        v-if="!uiStore.mdSmaller"
         field="time"
         header="Time"
         sortable
@@ -282,11 +307,9 @@
         :pt="getClasses('dashboard').column"
       >
         <template #sorticon="{ sorted, sortOrder }">
-          <i-fluent:arrow-sort-up-lines-20-filled
-            v-if="sorted && sortOrder === 1"
-          />
+          <i-fluent:arrow-sort-up-lines-20-filled v-if="sortOrder === 1" />
           <i-fluent:arrow-sort-down-lines-20-filled
-            v-else-if="sorted && sortOrder !== 1"
+            v-else-if="sortOrder === -1"
           />
           <i-fluent:arrow-sort-20-filled v-else />
         </template>
@@ -297,22 +320,56 @@
           />
         </template>
       </Column>
-      <Column :exportable="false" :pt="getClasses('dashboard').column">
+      <Column
+        v-if="!uiStore.mdSmaller"
+        :exportable="false"
+        :pt="getClasses('dashboard').column"
+      >
         <template #body="{ data }">
           <div class="dashboard-table-controls">
             <Button
+              v-if="can('update', 'Post')"
               @click="openEditPostModal(data)"
               :pt="getClasses('edit').button"
               unstyled
               ><i-lucide:edit
             /></Button>
             <Button
+              v-if="can('delete', 'Post')"
               @click="confirmDeletePost(data)"
               :pt="getClasses('remove').button"
               unstyled
               ><i-mi:delete
             /></Button>
           </div>
+        </template>
+      </Column>
+      <Column
+        v-if="uiStore.mdSmaller"
+        expander
+        :pt="{
+          ...getClasses('dashboard').column,
+          bodyCell: {
+            class: [
+              'dashboard-datatable-body-cell',
+              'dashboard-datatable-expander',
+            ],
+          },
+        }"
+      >
+        <template #body="{ data, rowTogglerCallback }">
+          <Button
+            @click="rowTogglerCallback()"
+            severity="secondary"
+            variant="text"
+            rounded
+            :class="[
+              'dashboard-datatable-row-toggle-button',
+              { 'is-active': Object.keys(expandedRows).includes(data.id) },
+            ]"
+          >
+            <i-ep:arrow-up-bold />
+          </Button>
         </template>
       </Column>
 
@@ -332,6 +389,53 @@
         </div>
       </template>
 
+      <template #header>
+        <div class="dashboard-datatable-header-left">
+          <Button
+            v-if="can('create', 'Post')"
+            @click="openNew"
+            :pt="getClasses('new').button"
+            unstyled
+          >
+            <span class="new-btn-label">New</span>
+            <i-fluent:add-16-filled />
+          </Button>
+          <Button
+            v-if="can('delete', 'Post')"
+            @click="confirmDeleteSelected"
+            :disabled="!selectedPosts || !selectedPosts.length"
+            :pt="getClasses('delete').button"
+            unstyled
+          >
+            <span v-if="!uiStore.xs2Smaller" class="delete-btn-label"
+              >Delete</span
+            >
+            <i-mi:delete />
+          </Button>
+        </div>
+        <div class="dashboard-datatable-header-right">
+          <Button
+            @click="clearFilters"
+            :pt="getClasses('delete').button"
+            unstyled
+            :disabled="disableClearBtn"
+          >
+            <i-ci:filter-off />
+            <span v-if="!uiStore.xs2Smaller" class="delete-btn-label"
+              >Clear</span
+            >
+          </Button>
+          <Button
+            v-if="!uiStore.mdSmaller"
+            @click="exportCSV($event)"
+            :pt="getClasses('export').button"
+            unstyled
+            ><i-ph:export-bold />
+            <span class="export-btn-label">Export</span>
+          </Button>
+        </div>
+      </template>
+
       <template #footer>
         <Button
           @click="moveToStartPosition"
@@ -339,6 +443,95 @@
           unstyled
           ><i-ph:arrow-up-bold
         /></Button>
+      </template>
+
+      <template #expansion="{ data }">
+        <table class="expansion-table">
+          <tbody class="expansion-tbody">
+            <tr class="expansion-row">
+              <td class="expansion-body-cell expansion-text">Date</td>
+              <td class="expansion-body-cell expansion-content">
+                {{ formattedDate(data.date) }}
+              </td>
+            </tr>
+            <tr class="expansion-row">
+              <td class="expansion-body-cell expansion-text">Title</td>
+              <td class="expansion-body-cell expansion-content">
+                {{ data.name }}
+              </td>
+            </tr>
+            <tr class="expansion-row">
+              <td class="expansion-body-cell expansion-text">Image</td>
+              <td class="expansion-body-cell expansion-content">
+                <Image
+                  :id="data.id"
+                  :name="data.image"
+                  :path="'images/posts/'"
+                  preview
+                  style="width: 80px"
+                />
+              </td>
+            </tr>
+            <tr class="expansion-row">
+              <td class="expansion-body-cell expansion-text">Tags</td>
+              <td class="expansion-body-cell expansion-content">
+                <TagsTable :tags="data.tags" />
+              </td>
+            </tr>
+            <tr class="expansion-row">
+              <td class="expansion-body-cell expansion-text">Category</td>
+              <td class="expansion-body-cell expansion-content">
+                <Tag
+                  :value="uppercaseFirst(data.category)"
+                  :style="{
+                    backgroundColor:
+                      colorsTags[data.category.toLowerCase()].colorBack,
+                    color: colorsTags[data.category.toLowerCase()].color,
+                  }"
+                />
+              </td>
+            </tr>
+            <tr class="expansion-row">
+              <td class="expansion-body-cell expansion-text">Rating</td>
+              <td class="expansion-body-cell expansion-content">
+                <Tag :severity="getColorRating(data.rating)">
+                  <i-material-symbols:signal-cellular-alt-rounded />
+                  {{ data.rating }}</Tag
+                >
+              </td>
+            </tr>
+            <tr class="expansion-row">
+              <td class="expansion-body-cell expansion-text">Time</td>
+              <td class="expansion-body-cell expansion-content">
+                <Tag
+                  :value="`${getTimeReading(data.time)} min`"
+                  :severity="getColorLabel(data.time)"
+                />
+              </td>
+            </tr>
+            <tr class="expansion-row">
+              <td class="expansion-body-cell expansion-text">Action</td>
+              <td class="expansion-body-cell expansion-content">
+                <div class="dashboard-table-controls">
+                  <Button
+                    v-if="can('update', 'Post')"
+                    @click="openEditPostModal(data)"
+                    :pt="getClasses('edit').button"
+                    unstyled
+                    ><i-lucide:edit
+                  /></Button>
+                  <Button
+                    v-if="can('delete', 'Post')"
+                    @click="confirmDeletePost(data)"
+                    :pt="getClasses('remove').button"
+                    unstyled
+                    ><i-mi:delete
+                  /></Button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </template>
     </DataTable>
   </div>
@@ -381,9 +574,6 @@ import {
   onActivated,
   onDeactivated,
 } from "vue";
-import IconField from "primevue/iconfield";
-import InputIcon from "primevue/inputicon";
-import DatePicker from "primevue/datepicker";
 import { getClasses } from "@/utils/classes";
 import { postsRef } from "@/server/firebase.config";
 import {
@@ -396,11 +586,15 @@ import {
   endBefore,
 } from "firebase/firestore";
 import { FilterMatchMode, FilterService } from "@primevue/core/api";
-import debounce from "lodash.debounce";
 import { readToDB } from "@/server/posts";
 import { onToBack, uppercaseFirst } from "@/utils/index";
 import { onBeforeRouteLeave } from "vue-router";
-import TablerHome from '~icons/tabler/home';
+import { useAbility } from "@casl/vue";
+import { useUiStore } from "../stores/ui";
+import Panel from "primevue/panel";
+
+const { can } = useAbility();
+const uiStore = useUiStore();
 
 const dt = ref();
 const post = ref({});
@@ -409,6 +603,30 @@ const deletePostDialog = ref(false);
 const deletePostsDialog = ref(false);
 const postDialog = ref(false);
 const rowsPerPage = ref(5);
+const expandedRows = ref({});
+
+// при большом разрешении скрывать пост и переставить столбцы
+watch(
+  () => uiStore.mdSmaller,
+  (newValue) => {
+    if (newValue === false) {
+      hideExpandedPost();
+      dt.value && (dt.value.d_columnOrder = null);
+    } else {
+      dt.value && (dt.value.d_columnOrder = ["checkbox", "image", "name"]);
+    }
+  }
+);
+
+// изменение порядка столбцов
+watch(
+  () => dt.value,
+  () => {
+    if (uiStore.mdSmaller && dt.value) {
+      dt.value.d_columnOrder = ["checkbox", "image", "name"];
+    }
+  }
+);
 
 // breadcrumb
 const breadCrumbItems = [
@@ -424,8 +642,6 @@ const loadingPosts = ref(false);
 
 // filters / sorting / pagination
 const categories = ref(["weather", "nature", "animals", "auto", "science"]);
-const minDate = ref(new Date());
-const maxDate = ref(new Date());
 const currentSortOrder = ref({ sortField: "date", sortOrder: -1 });
 let lastVisible;
 const cursorNextPage = ref(null);
@@ -460,7 +676,7 @@ const initFilters = () => {
     name: { value: "", matchMode: FilterMatchMode.STARTS_WITH },
     category: { value: [...categories.value], matchMode: FilterMatchMode.IN },
     tags: { value: [], matchMode: "ARRAY_CONTAINS_ANY" },
-    date: { value: [], matchMode: "DATE_BETWEEN" },
+    date: { value: "", matchMode: "DATE_BETWEEN" },
   };
 };
 initFilters();
@@ -468,8 +684,11 @@ initFilters();
 const clearFilters = () => {
   initFilters();
   dateSelect();
-
   moveFirstPage();
+
+  if (uiStore.mdSmaller) {
+    hideExpandedPost();
+  }
 };
 
 const disableClearBtn = computed(
@@ -518,8 +737,6 @@ const postsQuery = computed(() => {
     sortDirection = "desc";
   } else if (currentSortOrder.value.sortOrder === 1) {
     sortDirection = "asc";
-  } else if (currentSortOrder.value.sortOrder === null) {
-    sortDirection = "desc";
   }
 
   return query(
@@ -658,11 +875,23 @@ const getColorLabel = (time) => {
   }
 };
 const colorsTags = {
-  weather: { color: "#77c9f1", colorBack: "#162e3c" },
-  nature: { color: "#77b56f", colorBack: "#16352c" },
-  animals: { color: "#77a4c9", colorBack: "#163547" },
-  auto: { color: "#778ac9", colorBack: "#16274e" },
-  science: { color: "#77c981", colorBack: "#16392c" },
+  weather: { color: "var(--weather-color)", colorBack: "var(--weather-back)" },
+  nature: { color: "var(--nature-color)", colorBack: "var(--nature-back)" },
+  animals: { color: "var(--animals-color)", colorBack: "var(--animals-back)" },
+  auto: { color: "var(--auto-color)", colorBack: "var(--auto-back)" },
+  science: { color: "var(--science-color)", colorBack: "var(--science-back)" },
+};
+const getColorRating = (value) => {
+  switch (true) {
+    case value < 0:
+      return "danger";
+    case value > 0:
+      return "success";
+    case value === 0:
+      return "secondary";
+    default:
+      return "secondary";
+  }
 };
 
 // export
@@ -724,36 +953,13 @@ const formattedDate = (timestamp) => {
   return dateFormat;
 };
 
-// datepicker
-const setMinMaxDate = () => {
-  const today = new Date();
-  const month = today.getMonth();
-  const year = today.getFullYear();
-  const startMonth = month;
-  const startYear = year - 1;
-  const endMonth = month;
-  const endYear = year;
-
-  minDate.value.setMonth(startMonth);
-  minDate.value.setFullYear(startYear);
-  maxDate.value.setMonth(endMonth);
-  maxDate.value.setFullYear(endYear);
-};
-setMinMaxDate();
-
 // sorting
 const sortingPosts = (value) => {
   currentSortOrder.value = {
-    sortField: value.sortField ? value.sortField : "date",
+    sortField: value.sortField,
     sortOrder: value.sortOrder,
   };
 };
-
-// поиск
-const searchByName = debounce((filterCallback) => {
-  filterCallback();
-  moveFirstPage();
-}, 500);
 
 // при выборе даты возврат на первую страницу
 const dateSelect = () => {
@@ -785,16 +991,23 @@ onBeforeRouteLeave((to, from) => {
     if (!answer) return false;
   }
 });
+
+// скрывать развернутый пост
+const hideExpandedPost = () => {
+  expandedRows.value = {};
+};
 </script>
 
 <style lang="scss" scoped>
+@include Dashboard();
 .dashboard {
   width: 100%;
-  color: #e2e2e2;
   display: flex;
   flex-direction: column;
+  color: #e2e2e2;
 }
 .dashboard-title {
+  color: var(--grey-50);
   font-size: 32px;
   margin-bottom: 10px;
 }
@@ -815,6 +1028,7 @@ onBeforeRouteLeave((to, from) => {
   }
   &-img {
     height: 70px;
+    width: 80px;
     // border-radius: 5px;
     // overflow: hidden;
   }
@@ -831,9 +1045,379 @@ onBeforeRouteLeave((to, from) => {
     }
   }
 }
+
+// expansion
+.expansion-table {
+  overflow: hidden;
+  width: 100%;
+  border-spacing: 0;
+  border-radius: 10px;
+  border: 1px solid var(--grey-780);
+}
+.expansion-tbody {
+}
+.expansion-body-cell {
+  padding: 10px;
+}
+.expansion-row {
+  & + & {
+    .expansion-body-cell:not(.expansion-text) {
+      border-top: 1px solid var(--grey-780);
+    }
+    .expansion-body-cell.expansion-text {
+      border-top: 1px solid var(--grey-310);
+    }
+  }
+}
+.expansion-text {
+  font-size: 15px;
+  font-weight: 500;
+  border-right: 1px solid var(--grey-780);
+  background-color: var(--blue-900);
+  color: var(--grey-30);
+  width: 200px;
+}
+.expansion-content {
+  padding-left: 20px;
+  font-size: 14px;
+  color: var(--white);
+  background-color: var(--transparent-1);
+
+  .picture__container {
+    height: 70px;
+  }
+}
+
+:deep() {
+  // datatable
+  .dashboard {
+    &-datatable {
+      border-radius: 10px;
+      overflow: hidden;
+
+      &-mask {
+        background-color: var(--black-5);
+      }
+
+      &-table-container {
+        @include Scroll(10px, 10px, var(--grey-910), var(--grey-360));
+        overflow-y: scroll;
+      }
+
+      &-thead {
+      }
+
+      &-body-row {
+        background-color: var(--grey-1000);
+        color: var(--white);
+      }
+
+      &-header {
+        padding: 10px;
+        background-color: var(--grey-1100);
+      }
+      &-virtualscroller-spacer {
+        height: 1px;
+      }
+      &-footer {
+        display: flex;
+        justify-content: flex-end;
+        background-color: var(--grey-1100);
+        border-color: var(--grey-750);
+      }
+      &-header {
+        display: flex;
+        justify-content: space-between;
+        border: 1px solid var(--grey-750);
+        border-radius: 10px 10px 0 0;
+        &-left,
+        &-right {
+          display: flex;
+          gap: 10px;
+        }
+      }
+
+      &-empty {
+        &-cell {
+          height: 260px;
+        }
+        &-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 20px;
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+        &-img {
+          height: 200px;
+          width: min-content;
+          opacity: var(--opacity-empty);
+          filter: brightness(var(--brightness-empty));
+        }
+        &-text {
+          font-size: 22px;
+          line-height: 1;
+          color: var(--white-3);
+        }
+      }
+    }
+  }
+  .p-datatable-empty-message{
+    background-color: var(--grey-1000);
+  }
+
+  // column
+  .dashboard {
+    &-datatable {
+      &-header {
+        &-cell {
+          background-color: var(--blue-900);
+          padding: 0;
+          border-color: transparent;
+          color: var(--white);
+
+          &:focus-visible {
+            outline: none;
+          }
+          &.p-datatable-column-sorted {
+            .dashboard-datatable-column-header-content {
+              background-color: var(--blue-650);
+              color: var(--white);
+              border-radius: 10px;
+            }
+
+            .dashboard-datatable-sort svg {
+              color: #fff;
+            }
+          }
+          &:not(:has(.dashboard-datatable-column-header-content)) {
+            padding: 10px 15px;
+          }
+        }
+      }
+      &-column {
+        &-header-content {
+          padding: 10px 15px;
+          align-items: center;
+          gap: 15px;
+
+          // sorting component
+          .sort {
+            order: 1;
+          }
+        }
+        &-resizer {
+        }
+        &-title {
+          order: 0;
+        }
+      }
+
+      &-sort {
+        display: flex;
+        justify-content: center;
+        width: 35px;
+        height: 35px;
+        background-color: var(--grey-980);
+        border-radius: 50%;
+        svg {
+          color: var(--grey-40);
+        }
+      }
+      &-filter {
+        max-height: 35px;
+        height: 35px;
+      }
+      &-filter-element-container {
+        height: 100%;
+      }
+      &-body-cell {
+        padding: 10px 15px;
+        font-size: 14px;
+        border-color: var(--grey-940);
+      }
+
+      &-name {
+        min-width: 15rem;
+      }
+      &-image {
+        min-width: 8rem;
+      }
+    }
+  }
+
+  // expansion
+  .dashboard-datatable-row-expansion{
+    background-color: var(--grey-1000);
+  }
+  .dashboard-datatable-row-expansion-cell {
+    border-top: none;
+    padding: 5px 16px 12px;
+    border-color: var(--grey-940);
+  }
+  .dashboard-datatable-body-row:has(+ .dashboard-datatable-row-expansion) {
+    .dashboard-datatable-body-cell {
+      border: none;
+    }
+  }
+  .dashboard-datatable-row-toggle-button{
+    background: var(--grey-920);
+    border-color: var(--grey-920);
+    color: var(--grey-40);
+  }
+
+  // toolbar
+  .filters-toolbar {
+    flex-direction: column;
+    .dashboard-toolbar-end {
+      margin-top: 10px;
+    }
+  }
+
+  // panel
+  .dashboard {
+    &-panel {
+      margin-bottom: 10px;
+      background-color: var(--grey-1000);
+      &-header {
+        padding: 10px 10px;
+        background-color: var(--grey-1100);
+        border-radius: 5px;
+      }
+      &-title {
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+      }
+      &-header-actions {
+      }
+      &-toggle-button {
+      }
+      &-content-container {
+      }
+      &-content {
+        padding: 10px;
+      }
+      &-footer {
+      }
+
+      &-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 15px;
+        row-gap: 10px;
+      }
+
+      &-item {
+        border-radius: 10px;
+        &-title {
+          font-size: 12px;
+          margin-bottom: 5px;
+          color: var(--white);
+          line-height: 1;
+        }
+      }
+
+      .p-panel-toggle-button {
+        width: 35px;
+        height: 35px;
+        background-color: var(--grey-930);
+        box-shadow: 0 0 5px #000;
+        transition: filter 0.3s;
+        color: var(--grey-40);
+
+        &:hover {
+          filter: brightness(1.3);
+        }
+
+        svg {
+          height: 16px;
+        }
+      }
+
+      .datefilter,
+      .namefilter,
+      .tagsfilter,
+      .categoryfilter {
+        height: 35px;
+      }
+
+      .category-multiselect {
+        width: 100%;
+      }
+      .category-multiselect-tags {
+        width: 100px;
+      }
+      .dashboard-datepicker-inputtext {
+        background-color: var(--black-3);
+      }
+      .dashboard-search-iconfield {
+        background-color: var(--black-3);
+      }
+      .dashboard-filter-tags .tags__wrapper {
+        background-color: var(--black-3);
+      }
+      .dashboard-filter-tags .tags__content {
+        overflow: visible;
+        width: 100px;
+      }
+      .dashboard-filter-tags .tags__container {
+        width: 100%;
+      }
+      .dashboard-search-inputtext {
+        width: 100%;
+      }
+      .category-multiselect {
+        background-color: var(--black-3);
+      }
+    }
+  }
+
+  // checkbox
+  .dashboard {
+    &-checkbox {
+      &-input {
+        &:checked {
+          & + .dashboard-checkbox-box {
+            background: var(--blue-160);
+            border-color: var(--blue-160);
+            svg {
+              color: var(--black);
+            }
+          }
+        }
+      }
+      &:not(.p-disabled):has(.dashboard-checkbox-input:focus-visible)
+        .dashboard-checkbox-box {
+        outline: transparent;
+        outline-offset: 0;
+      }
+      &.p-disabled {
+        .dashboard-checkbox-box {
+          border-color: #5d5d5d;
+        }
+      }
+      &-box {
+        background-color: var(--grey-960);
+      }
+      &-icon {
+        stroke: #000;
+        display: none;
+        path {
+          stroke-width: 1px;
+        }
+      }
+    }
+  }
+}
 </style>
 
 <style lang="scss">
+@include Dashboard();
+@include Dialog();
+
 // btns
 .new,
 .delete,
@@ -849,16 +1433,16 @@ onBeforeRouteLeave((to, from) => {
     padding: 0 10px;
     color: #000;
     font-weight: 500;
-    transition: background-color 0.3s, color 0.3s;
+    transition: background-color 0.3s, color 0.3s, filter 0.3s;
     height: 35px;
   }
 }
 .new-btn,
 .export-btn,
 .yes-btn {
-  background-color: #7b9dcf;
+  background-color: var(--blue-350);
   &:not(:disabled):hover {
-    background-color: #a9caff;
+    filter: brightness(1.1);
   }
   &:disabled {
     opacity: 0.7;
@@ -868,9 +1452,9 @@ onBeforeRouteLeave((to, from) => {
 
 .delete-btn {
   color: #fff;
-  border: 2px solid #7b9dcf;
+  border: 2px solid var(--blue-350);
   &:not(:disabled):hover {
-    background-color: #7b9dcf;
+    background-color: var(--blue-350);
     color: #000;
   }
   &:disabled {
@@ -881,7 +1465,9 @@ onBeforeRouteLeave((to, from) => {
 
 .edit {
   &-btn {
-    border: 1px solid #3d404e;
+    border: 1px solid var(--border-edit);
+    background-color: var(--transparent-1);
+    box-shadow: 0 0 5px var(--transparent-2);
     width: 37px;
     height: 37px;
     border-radius: 50%;
@@ -891,17 +1477,19 @@ onBeforeRouteLeave((to, from) => {
     transition: background-color 0.3s;
     svg {
       font-size: 14px;
-      color: #c8c8c8;
+      color: var(--grey-200);
     }
     &:hover {
-      background-color: #3d404e66;
+      background-color: var(--hover-edit);
     }
   }
 }
 
 .remove {
   &-btn {
-    border: 1px solid #af1313;
+    border: 1px solid var(--border-remove);
+    background-color: var(--transparent-1);
+    box-shadow: 0 0 5px var(--transparent-2);
     width: 37px;
     height: 37px;
     border-radius: 50%;
@@ -912,10 +1500,10 @@ onBeforeRouteLeave((to, from) => {
 
     svg {
       font-size: 16px;
-      color: #ff7e7e;
+      color: var(--red-100);
     }
     &:hover {
-      background-color: #4d262673;
+      background-color: var(--hover-remove);
     }
   }
 }
@@ -938,7 +1526,7 @@ onBeforeRouteLeave((to, from) => {
     display: flex;
     justify-content: space-between;
     padding: 10px;
-    background-color: $grey;
+    background-color: var(--grey);
     border-radius: 10px;
     border: 1px solid #3b3b3b;
     &-start {
@@ -949,298 +1537,6 @@ onBeforeRouteLeave((to, from) => {
     &-end {
       display: flex;
       gap: 10px;
-    }
-  }
-}
-
-// search
-.dashboard-search {
-  &-iconfield {
-    display: flex;
-    align-items: center;
-    background-color: #18181b;
-    border-radius: 6px;
-    gap: 10px;
-    padding: 0 10px;
-    height: 100%;
-    border: 1px solid #52525b;
-  }
-  &-inputicon {
-    font-size: 14px;
-    line-height: 1;
-  }
-  &-inputtext {
-    line-height: 1;
-    color: #fff;
-    font-size: 14px;
-    &::placeholder {
-      color: #959595;
-    }
-  }
-}
-
-// datatable
-.dashboard {
-  &-datatable {
-    border-radius: 10px;
-    overflow: hidden;
-
-    &-table-container {
-      @include Scroll(10px, 10px, #333333, #7d7d7d);
-      overflow-y: scroll;
-    }
-
-    &-mask {
-    }
-    &-loading-icon {
-    }
-    &-header {
-      padding: 10px;
-      &-row {
-      }
-    }
-    &-paginator {
-    }
-    &-virtualscroller {
-    }
-    &-virtualscroller-spacer {
-      height: 1px;
-    }
-    &-footer {
-      display: flex;
-      justify-content: flex-end;
-    }
-    &-thead {
-    }
-    &-tbody {
-    }
-    &-row-group-header {
-    }
-    &-row-group-header-cell {
-    }
-
-    &-body {
-      &-row {
-      }
-    }
-    &-row-expansion {
-    }
-    &-row-expansion-cell {
-    }
-    &-row-group-footer {
-    }
-    &-row-group-footer-cell {
-    }
-    &-empty {
-      &-cell {
-        height: 260px;
-      }
-      &-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-      }
-      &-img {
-        height: 200px;
-        width: min-content;
-      }
-      &-text {
-        font-size: 22px;
-        line-height: 1;
-      }
-    }
-    &-empty-message-cell {
-    }
-    &-tfoot {
-    }
-    &-footer-row {
-    }
-    &-column-resize-indicator {
-    }
-    &-row-reorder-indicator-up {
-    }
-    &-row-reorder-indicator-down {
-    }
-    &-column-group {
-    }
-    &-row {
-    }
-    &-column {
-    }
-  }
-}
-
-// column
-.dashboard {
-  &-datatable {
-    &-header {
-      &-cell {
-        background-color: #323e52;
-        padding: 0;
-        border-color: transparent;
-
-        &:focus-visible {
-          outline: none;
-        }
-        &.p-datatable-column-sorted {
-          .dashboard-datatable-column-header-content {
-            background-color: $main;
-            color: $white;
-            border-radius: 10px;
-          }
-
-          .dashboard-datatable-sort svg {
-            color: #fff;
-          }
-        }
-        &:not(:has(.dashboard-datatable-column-header-content)) {
-          padding: 10px 15px;
-        }
-      }
-    }
-    &-column {
-      &-header-content {
-        padding: 10px 15px;
-        align-items: center;
-        gap: 15px;
-
-        // sorting component
-        .sort {
-          order: 1;
-        }
-      }
-      &-resizer {
-      }
-      &-title {
-        order: 0;
-      }
-    }
-
-    &-sort {
-      display: flex;
-      justify-content: center;
-      width: 35px;
-      height: 35px;
-      background-color: #27272a;
-      border-radius: 50%;
-      svg {
-        color: #b0b0b0;
-      }
-      &-icon {
-      }
-      &-badge {
-      }
-    }
-    &-filter {
-      max-height: 35px;
-      height: 35px;
-    }
-    &-filter-element-container {
-      height: 100%;
-    }
-    &-column-filter-button {
-    }
-    &-filter-menu-icon {
-    }
-    &-column-filter-clear-button {
-    }
-    &-filter-clear-icon {
-    }
-    &-filter-overlay {
-    }
-    &-filter-constraint-list {
-    }
-    &-filter-constraint {
-    }
-    &-filter-constraint-separator {
-    }
-    &-filter-operator {
-    }
-    &-filter-operator-dropdown {
-    }
-    &-filter-rule-list {
-    }
-    &-filter-rule {
-    }
-    &-filter-constraint-dropdown {
-    }
-    &-filter-remove {
-    }
-    &-filter-remove-rule-button {
-    }
-    &-filter-add-button-container {
-    }
-    &-filter-add-rule-button {
-    }
-    &-filter-buttonbar {
-    }
-    &-filter-clear-button {
-    }
-    &-filter-apply-button {
-    }
-    &-row-toggle-button {
-    }
-    &-row-toggle-icon {
-    }
-    &-body-cell {
-      padding: 10px 15px;
-      font-size: 14px;
-
-      &-content {
-      }
-    }
-    &-reorderable-row-handle {
-    }
-    &-row-radiobutton {
-    }
-    &-row-checkbox {
-    }
-    &-row-editor-init {
-    }
-    &-row-editor-save {
-    }
-    &-row-editor-cancel {
-    }
-    &-footer-cell {
-    }
-    &-column-footer {
-    }
-  }
-}
-
-// checkbox
-.dashboard {
-  &-checkbox {
-    &-input {
-      &:checked {
-        & + .dashboard-checkbox-box {
-          background: #6b99c6;
-          border-color: #6b99c6;
-        }
-      }
-    }
-    &:not(.p-disabled):has(.dashboard-checkbox-input:focus-visible)
-      .dashboard-checkbox-box {
-      outline: transparent;
-      outline-offset: 0;
-    }
-    &.p-disabled {
-      .dashboard-checkbox-box {
-        border-color: #5d5d5d;
-      }
-    }
-    &-box {
-    }
-    &-icon {
-      stroke: #000;
-      display: none;
-      path {
-        stroke-width: 1px;
-      }
     }
   }
 }
@@ -1342,7 +1638,7 @@ onBeforeRouteLeave((to, from) => {
   padding: 0 15px;
   justify-content: space-between;
   align-items: center;
-  background: $grey;
+  background: var(--grey);
   border-radius: 5px;
   margin-left: 10px;
   height: 100%;
@@ -1367,7 +1663,7 @@ onBeforeRouteLeave((to, from) => {
     }
   }
   &-overlay {
-    background-color: $grey;
+    background-color: var(--grey);
     border-radius: 5px;
     padding: 5px;
   }
@@ -1416,7 +1712,7 @@ onBeforeRouteLeave((to, from) => {
     }
     &:hover:not(:has(input:checked)) {
       .post-dialog-radiobutton-box {
-        border-color: #8b8b8b;
+        border-color: var(--grey-370);
       }
     }
     &-input {
@@ -1427,16 +1723,16 @@ onBeforeRouteLeave((to, from) => {
       z-index: 1;
       &:checked {
         & + .post-dialog-radiobutton-box {
-          border-color: $blue;
+          border-color: var(--blue-2);
           .post-dialog-radiobutton-icon {
-            background-color: $blue;
+            background-color: var(--blue-2);
             transform: translateZ(0) scale(1);
           }
         }
       }
     }
     &-box {
-      border: 2px solid #52525b;
+      border: 2px solid var(--grey-730);
       border-radius: 50%;
       width: 100%;
       height: 100%;
@@ -1444,7 +1740,7 @@ onBeforeRouteLeave((to, from) => {
       align-items: center;
       justify-content: center;
       transition: border-color 0.3s;
-      background-color: #000;
+      background-color: var(--black-3);
     }
     &-icon {
       width: 10px;
@@ -1463,12 +1759,12 @@ onBeforeRouteLeave((to, from) => {
 // result dialog
 .dashboard {
   &-dialog {
-    background-color: $grey;
+    background-color: var(--grey-990);
     border-radius: 10px;
     border: 1px solid #525252;
     overflow-y: auto;
     overflow-x: hidden;
-    @include Scroll(10px, 10px, #333333, #7d7d7d);
+    @include Scroll(10px, 10px, var(--grey-910), var(--grey-360));
 
     &-container {
       padding: 20px;
@@ -1477,6 +1773,7 @@ onBeforeRouteLeave((to, from) => {
       display: flex;
       justify-content: space-between;
       margin-bottom: 15px;
+      color: var(--white);
     }
     &-title {
       font-size: 20px;
@@ -1500,7 +1797,7 @@ onBeforeRouteLeave((to, from) => {
           align-items: center;
         }
         &:hover {
-          background-color: #444444;
+          background-color: var(--action-hover);
         }
       }
     }
@@ -1512,334 +1809,7 @@ onBeforeRouteLeave((to, from) => {
     }
     &-mask {
       background-color: #00000071;
-    }
-  }
-}
-
-// multiselect
-.category {
-  &-multiselect {
-    width: 180px;
-    height: 100%;
-    background-color: #18181b;
-    border-color: #52525b;
-    &:not(:disabled):focus-within {
-      border-color: #3f3f46;
-      box-shadow: none;
-      outline: none;
-    }
-    &.p-multiselect-open {
-      .category-multiselect-dropdown-icon {
-        transform: rotate(180deg);
-      }
-    }
-    &-placeholder {
-      padding: 0 5px;
-    }
-    &-label-container {
-    }
-    &-label {
-      padding: 5px;
-      font-size: 14px;
-      height: 100%;
-      overflow: hidden;
-    }
-    &-dropdown {
-      width: 30px;
-    }
-    &-loading-icon {
-    }
-    &-dropdown-icon {
-      width: 10px;
-      transition: transform 0.3s;
-    }
-    &-overlay {
-    }
-    &-header {
-    }
-    &-header-checkbox {
-    }
-    &-filter-container {
-    }
-    &-filter {
-    }
-    &-filter-icon-container {
-    }
-    &-filter-icon {
-    }
-    &-list-container {
-    }
-    &-virtualscroller {
-    }
-    &-list {
-    }
-    &-option-group {
-    }
-    &-option {
-      padding: 8px;
-      gap: 10px;
-    }
-    &-option-label {
-      font-size: 14px;
-    }
-    &-option-checkbox {
-    }
-    &-empty-message {
-    }
-    &-hidden-input-container {
-    }
-    &-hidden-input {
-    }
-    &-hidden-first-focusable-el {
-    }
-    &-hidden-filter-result {
-    }
-    &-hidden-selected-message {
-    }
-    &-hidden-last-focusable-el {
-    }
-    &-tags {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-    }
-    &-tag {
-      height: 100%;
-      font-size: 14px;
-      font-weight: 600;
-      padding: 5px 10px;
-      line-height: 1;
-    }
-  }
-}
-
-// tags select
-.dashboard-filter {
-  &.select-wrapper {
-    z-index: 999;
-  }
-  .tags-header {
-    flex-direction: column;
-    padding: 7px 7px 10px;
-    gap: 5px;
-  }
-  .tags-iconfield {
-    padding: 0 8px;
-    height: 35px;
-    font-size: 14px;
-    border-radius: 5px;
-  }
-  .tags-inputtext {
-    width: 100%;
-  }
-  .tags-inputicon {
-    padding: 0 0 0 7px;
-  }
-  .tags-header-btn {
-    height: 30px;
-    border-radius: 5px;
-    font-weight: 600;
-    font-size: 14px;
-  }
-  .tags-body {
-    @include Scroll(7px, 7px, #333333, #7d7d7d);
-  }
-  .tags__list-group-label {
-    font-size: 15px;
-  }
-  .tags__list-item-text {
-    font-size: 13px;
-    @include TextOverflow(2);
-  }
-  .tags__footer {
-    padding: 5px 10px;
-  }
-  .tags-empty {
-    padding: 5px 10px;
-    font-size: 14px;
-  }
-  .tags-input-wrapper {
-    flex-direction: column;
-    gap: 5px;
-  }
-  .error {
-    position: static;
-    font-size: 11px;
-  }
-}
-
-// tags container
-.dashboard-filter-tags {
-  height: 100%;
-  .tags__wrapper {
-    min-height: auto;
-    height: 100%;
-    background-color: #18181b;
-    color: #a1a1aa;
-    padding: 5px 0 5px 5px;
-  }
-  .tags-placeholder {
-    font-size: 14px;
-    padding-left: 5px;
-  }
-  .tags-arrow {
-    width: 30px;
-    padding: 0 10px;
-  }
-  .tags__content {
-    gap: 5px;
-    flex-wrap: nowrap;
-    overflow: hidden;
-  }
-  .chip {
-    gap: 6px;
-    border-radius: 5px;
-    padding: 0 5px 0 8px;
-    height: 100%;
-    svg {
-      font-size: 12px;
-    }
-  }
-  .chip-label {
-    font-size: 14px;
-  }
-}
-
-// datepicker
-.dashboard {
-  &-datepicker {
-    height: 100%;
-    &-inputtext {
-      border-color: #52525b;
-      background-color: #18181b;
-      font-size: 13px;
-      overflow: visible;
-      padding: 10px;
-      &::placeholder {
-        color: #a1a1aa;
-        font-size: 14px;
-      }
-    }
-    &-dropdown {
-      border-color: #52525b;
-    }
-    &-dropdown-icon {
-    }
-    &-input-icon-container {
-    }
-    &-input-icon {
-    }
-    &-panel {
-    }
-    &-calendar-container {
-    }
-    &-calendar {
-    }
-    &-header {
-    }
-    &-prev-button {
-    }
-    &-title {
-    }
-    &-select-month {
-    }
-    &-select-year {
-    }
-    &-decade {
-    }
-    &-day-view {
-    }
-    &-next-button {
-    }
-    &-container {
-    }
-    &-table {
-    }
-    &-tableheader {
-    }
-    &-tableheader-row {
-    }
-    &-weekheader {
-    }
-    &-weekheader-label {
-    }
-    &-tableheader-cell {
-    }
-    &-weekday-cell {
-    }
-    &-weekday {
-    }
-    &-table-body {
-    }
-    &-table-body-row {
-    }
-    &-weeknumber {
-    }
-    &-weeklabel-container {
-    }
-    &-day-cell {
-    }
-    &-day {
-      &.p-datepicker-day-selected {
-        background-color: $blue;
-      }
-      &.p-datepicker-day-selected-range {
-        background: $blue;
-        filter: brightness(0.5);
-        color: $black;
-      }
-    }
-    &-month-view {
-    }
-    &-month {
-      &.p-datepicker-month-selected {
-        background: $blue;
-      }
-    }
-    &-year-view {
-    }
-    &-year {
-      &.p-datepicker-year-selected {
-        background: $blue;
-      }
-    }
-    &-time-picker {
-    }
-    &-hour-picker {
-    }
-    &-hour {
-    }
-    &-separator-container {
-    }
-    &-separator {
-    }
-    &-minute-picker {
-    }
-    &-minute {
-    }
-    &-second-picker {
-    }
-    &-second {
-    }
-    &-ampm-picker {
-    }
-    &-ampm {
-    }
-    &-buttonbar {
-    }
-    &-increment-button {
-    }
-    &-decrement-button {
-    }
-    &-today-button {
-    }
-    &-clear-button {
-    }
-    &-hidden-selectedday {
-    }
-    &-hidden-month {
-    }
-    &-hidden-year {
+      z-index: 1500 !important;
     }
   }
 }

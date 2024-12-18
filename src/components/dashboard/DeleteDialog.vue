@@ -1,9 +1,9 @@
 <template>
   <Dialog
     v-model:visible="visible"
-    :style="{ width: '450px' }"
     modal
     :pt="getClasses('dashboard').dialog"
+    class="delete-dialog"
     unstyled
   >
     <template #container="{ closeCallback }">
@@ -14,7 +14,7 @@
         <div class="dashboard-dialog-header">
           <span class="dashboard-dialog-title">Confirm</span>
           <div class="dashboard-dialog-header-actions">
-            <button @click="closeCallback">
+            <button v-if="!uiStore.xs2Smaller" @click="closeCallback">
               <i-ic:round-close />
             </button>
           </div>
@@ -34,7 +34,7 @@
             unstyled
             ><i-iconoir:cancel />No</Button
           >
-          <Button @click="deletePost" :pt="getClasses('yes').button" unstyled
+          <Button @click="onCheckRole" :pt="getClasses('yes').button" unstyled
             ><i-ic:round-check />Yes</Button
           >
         </div>
@@ -46,7 +46,7 @@
     <transition>
       <Spinner
         v-if="loading"
-        style="border-radius: 0; position: fixed"
+        style="border-radius: 0; position: fixed; z-index: 1600"
         size="50"
       />
     </transition>
@@ -62,9 +62,12 @@ import { deleteImage } from "@/server/storage";
 import { deleteFromDB } from "@/server/posts";
 import { uppercaseFirst } from "@/utils/index";
 import { useServerStore } from "@/stores/server";
+import { ability } from "@/services/ability";
+import { useUiStore } from "@/stores/ui";
 
 const serverStore = useServerStore();
 const toast = useToast();
+const uiStore = useUiStore();
 
 const loading = ref(false);
 const visible = defineModel("visible");
@@ -72,7 +75,13 @@ const props = defineProps({
   post: Object,
 });
 
-const emits = defineEmits(['delete'])
+const emits = defineEmits(["delete"]);
+
+const onCheckRole = () => {
+  if (ability.can("delete", "Post")) {
+    deletePost();
+  }
+};
 
 const deletePost = async () => {
   loading.value = true;
@@ -84,7 +93,7 @@ const deletePost = async () => {
     // Удалить запись из массива urls для удаленного поста
     serverStore.deleteUrl(props.post.id);
 
-    await deleteImage(props.post.image);
+    await deleteImage(props.post.image, "images/posts/");
   } catch (error) {
     const stringToObject = JSON.parse(error.message);
     toast.add({
@@ -95,7 +104,7 @@ const deletePost = async () => {
     });
   } finally {
     if (success) {
-      emits('delete', props.post.id)
+      emits("delete", props.post.id);
 
       toast.add({
         severity: "success",
@@ -111,12 +120,13 @@ const deletePost = async () => {
 </script>
 
 <style lang="scss" scoped>
+@include DeleteDialog();
 .delete-dialog {
   &__content {
     display: flex;
     gap: 10px;
     svg {
-      color: #d6b026;
+      color: var(--yellow-5);
       display: block;
       min-width: 40px;
       height: min-content;
@@ -128,12 +138,59 @@ const deletePost = async () => {
     display: flex;
     flex-direction: column;
     p {
-      color: #6b99c6;
+      color: var(--blue-4);
       font-size: 15px;
       margin-top: 5px;
     }
   }
 }
+
+// btns
+.no,
+.yes {
+  &-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1;
+    border-radius: 7px;
+    padding: 0 10px;
+    font-weight: 500;
+    transition: background-color 0.3s, color 0.3s, filter 0.3s;
+    height: 35px;
+  }
+}
+.yes-btn {
+  color: var(--black-3);
+  background-color: var(--blue-360);
+  transition: filter 0.3s;
+  &:not(:disabled):hover {
+    filter: brightness(1.3);
+  }
+  &:disabled {
+    opacity: 0.7;
+    cursor: default;
+  }
+}
+
+.no-btn {
+  color: var(--grey-50);
+  background-color: var(--grey-900);
+  transition: background-color 0.3s;
+  &:not(:disabled):hover {
+    background-color: var(--cancel-hover);
+  }
+  &:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+}
 </style>
 
-<style lang="scss"></style>
+<style lang="scss">
+@include DeleteDialog();
+.delete-dialog.dashboard-dialog {
+  width: 450px;
+  background-color: var(--grey-1170);
+}
+</style>

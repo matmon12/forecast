@@ -21,7 +21,7 @@ const onToBack = () => {
 
 <style lang="scss" scoped>
 .error-page {
-  background-color: $grey;
+  background-color: var(--grey);
   border-radius: 20px;
   display: flex;
   align-items: center;
@@ -33,7 +33,7 @@ const onToBack = () => {
   }
 }
 .error-page-text {
-  color: $white;
+  color: var(--white);
   font-size: 20px;
 }
 .error-page__btns {
@@ -41,16 +41,16 @@ const onToBack = () => {
   gap: 15px;
 }
 .error-page-btn {
-  color: $white;
+  color: var(--white);
   padding: 10px 40px;
   border-radius: 8px;
   margin-top: 40px;
   font-size: 16px;
   &:nth-child(1) {
-    border: 1px solid $main;
+    border: 1px solid var(--main);
   }
   &:nth-child(2) {
-    background-color: $main;
+    background-color: var(--main);
   }
 }
 </style>

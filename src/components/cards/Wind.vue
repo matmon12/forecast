@@ -78,6 +78,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@include Wind();
 .wind {
   @include Card();
   display: flex;
@@ -96,12 +97,12 @@ onMounted(() => {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    border: 1px solid #fff;
+    border: 1px solid var(--white);
     position: relative;
     margin: 0 auto;
     svg {
       font-size: 28px;
-      color: #61a8ef;
+      color: var(--focus);
     }
     &-box {
       width: 100%;
@@ -152,13 +153,13 @@ onMounted(() => {
   font-size: 18px;
   line-height: 1;
   span {
-    color: #acacac;
+    color: var(--grey-300);
     font-size: 14px;
   }
 }
 .wind-right {
   font-size: 25px;
-  color: #87e8fa;
+  color: var(--cyanogen);
   position: absolute;
   line-height: 1;
   right: 0;

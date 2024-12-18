@@ -17,7 +17,8 @@
             }"
           >
             <span>{{
-              setPlus(props.forecastDay.day.mintemp_c) + Math.round(props.forecastDay?.day?.mintemp_c)
+              setPlus(props.forecastDay.day.mintemp_c) +
+              Math.round(props.forecastDay?.day?.mintemp_c)
             }}</span>
           </div>
           <div
@@ -30,7 +31,8 @@
             }"
           >
             <span>{{
-              setPlus(props.forecastDay.day.mintemp_c) + Math.round(props.forecastDay?.day?.maxtemp_c)
+              setPlus(props.forecastDay.day.mintemp_c) +
+              Math.round(props.forecastDay?.day?.maxtemp_c)
             }}</span>
           </div>
         </div>
@@ -138,6 +140,7 @@ const getDate = () => {
 </script>
 
 <style lang="scss" scoped>
+@include TomorrowDay();
 .tomorrow-day {
   border-radius: 20px;
   padding: 15px 20px;
@@ -162,7 +165,7 @@ const getDate = () => {
   margin-bottom: 3px;
 }
 .tomorrow-day-subtitle {
-  color: #b0b0b0;
+  color: var(--grey-300);
   font-size: 14px;
   line-height: 1.1;
 }
@@ -198,6 +201,21 @@ const getDate = () => {
 .tomorrow-day-imgwrapper {
   height: 70px;
   max-width: 70px;
+  position: relative;
+  z-index: 0;
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: -1;
+    width: 30%;
+    height: 30%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    box-shadow: 0 0 20px 20px var(--shadow-img-1);
+    background-color: var(--shadow-img-2);
+  }
 }
 .tomorrow-day-img {
   width: 100%;
@@ -209,7 +227,7 @@ const getDate = () => {
   font-size: 16px;
   //   font-weight: 500;
   line-height: 1;
-  color: #90d3ff;
+  color: var(--blue-300);
   margin-top: 5px;
 }
 </style>

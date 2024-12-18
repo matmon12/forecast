@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useStaticStore } from "@/stores/static";
 import { useAuthStore } from "@/stores/auth";
-import { getAuth } from "firebase/auth";
+import { ability } from "../services/ability";
 
 const Home = () => import("@/pages/Home.vue");
 const Error = () => import("@/pages/Error.vue");
@@ -14,6 +14,7 @@ const Post = () => import("@/pages/Post.vue");
 const NotFound = () => import("@/pages/NotFound.vue");
 const SignUp = () => import("@/pages/authentication/SignUp.vue");
 const SignIn = () => import("@/pages/authentication/SignIn.vue");
+const ProfileUser = () => import("@/pages/ProfileUser.vue");
 
 const routes = [
   {
@@ -41,7 +42,8 @@ const routes = [
     name: "Dashboard",
     component: Dashboard,
     meta: {
-      requiresAuth: true,
+      resource: "Dashboard",
+      redirect: "/forecast/",
     },
   },
   {
@@ -82,7 +84,8 @@ const routes = [
     name: "SignUp",
     component: SignUp,
     meta: {
-      requiresAuth: false,
+      resource: "SignUp",
+      redirect: "/forecast/",
     },
   },
   {
@@ -90,7 +93,17 @@ const routes = [
     name: "SignIn",
     component: SignIn,
     meta: {
-      requiresAuth: false,
+      resource: "SignIn",
+      redirect: "/forecast/",
+    },
+  },
+  {
+    path: "/forecast/profile",
+    name: "ProfileUser",
+    component: ProfileUser,
+    meta: {
+      resource: "Profile",
+      redirect: "/forecast/signin",
     },
   },
   {
@@ -113,13 +126,24 @@ const router = createRouter({
   },
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
 
-  if (to.meta.requiresAuth && !authStore.user) {
-    next({ name: "SignIn" });
-  } else if (to.meta.requiresAuth === false && authStore.user) {
-    next({path: "/forecast/"})
+  // получение данных пользователя
+  if (authStore.uid && !authStore.user) {
+    await authStore.getUserInfo();
+  }
+
+  const canNavigate = () => {
+    if (to.meta.resource) {
+      return ability.can("visit", to.meta.resource);
+    } else {
+      return true;
+    }
+  };
+
+  if (!canNavigate()) {
+    next({ path: to.meta.redirect });
   } else {
     next();
   }

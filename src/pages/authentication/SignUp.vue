@@ -6,13 +6,12 @@
         <Message
           v-if="error"
           severity="warn"
-          closable
+          :closable="!uiStore.xs2Smaller"
           :pt="getClasses('auth').message"
         >
           <i-ion:warning-outline />
           <span>{{ error }}</span>
-        </Message
-        >
+        </Message>
         <label class="auth__input-label">
           <InputGroup class="auth__inputgroup">
             <InputGroupAddon class="auth__input-icon">
@@ -162,8 +161,11 @@ import Password from "primevue/password";
 import { getClasses } from "@/utils/classes";
 import { useForm } from "vee-validate";
 import { useRulesStore } from "@/stores/rules";
+import { useAuthStore } from "@/stores/auth";
 import { signUp } from "@/server/auth";
+import { writeToDB } from "@/server/users";
 import { useToast } from "primevue/usetoast";
+import { useUiStore } from "../../stores/ui";
 import router from "@/router/router";
 
 const error = ref();
@@ -174,13 +176,36 @@ const mediumRegex = ref(
 const strongRegex = ref("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{6,})");
 
 const rulesStore = useRulesStore();
+const authStore = useAuthStore();
 const toast = useToast();
+const uiStore = useUiStore();
 
 const signupUser = async () => {
   error.value = "";
   loading.value = true;
   try {
     const user = await signUp(values.email, values.password);
+
+    const userInfo = {
+      email: user.email,
+      role: "USER",
+      createdAt: new Date().getTime(),
+    };
+
+    await writeToDB(user.uid, userInfo);
+
+    // обновление роли
+    authStore.defineRole("USER");
+
+    // локальные данные
+    authStore.uid = user.uid;
+    authStore.user = userInfo;
+    localStorage.setItem(
+      "auth",
+      JSON.stringify({
+        uid: user.uid,
+      })
+    );
 
     // успех
     toast.add({
@@ -231,10 +256,15 @@ const onSubmit = handleSubmit((value) => {
 <style lang="scss">
 .auth-password-overlay {
   font-size: 14px;
+  background-color: var(--modal);
+  color: var(--white);
+}
+.auth-password-meter{
+  background-color: var(--grey-790);
 }
 // regex password color
 .p-password-meter-weak {
-  background-color: #aacdff;
+  background-color: var(--blue-170);
 }
 .p-password-meter-medium {
   background: #68a7ff;

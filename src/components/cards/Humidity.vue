@@ -11,7 +11,9 @@
       <p class="humidity-left">{{ props.humidity }}<span>%</span></p>
       <div class="humidity-right">
         <p class="humidity-status-text">Status</p>
-        <p class="humidity-status-value">{{ getTextDesc(props.humidity) }}</p>
+        <p class="humidity-status-value">
+          {{ getTextDesc(props.humidity, uiStore.xs2Smaller) }}
+        </p>
       </div>
     </div>
   </div>
@@ -19,6 +21,9 @@
 
 <script setup>
 import { ref, defineProps } from "vue";
+import { useUiStore } from "@/stores/ui";
+
+const uiStore = useUiStore();
 
 const props = defineProps({
   humidity: {
@@ -28,22 +33,37 @@ const props = defineProps({
   },
 });
 
-const getTextDesc = (value) => {
-  if (value < 30) {
-    return "Very Low";
-  } else if (value >= 30 && value < 50) {
-    return "Satisfactory";
-  } else if (value >= 50 && value < 70) {
-    return "Good Quality";
-  } else if (value >= 70 && value < 90) {
-    return "High Humidity";
+const getTextDesc = (value, responsive) => {
+  if (responsive) {
+    if (value < 30) {
+      return "Low";
+    } else if (value >= 30 && value < 50) {
+      return "Normal";
+    } else if (value >= 50 && value < 70) {
+      return "Good";
+    } else if (value >= 70 && value < 90) {
+      return "High";
+    } else {
+      return "Overly";
+    }
   } else {
-    return "Excessively ";
+    if (value < 30) {
+      return "Very Low";
+    } else if (value >= 30 && value < 50) {
+      return "Satisfactory";
+    } else if (value >= 50 && value < 70) {
+      return "Good Quality";
+    } else if (value >= 70 && value < 90) {
+      return "High Humidity";
+    } else {
+      return "Excessively";
+    }
   }
 };
 </script>
 
 <style lang="scss" scoped>
+@include Humidity();
 .humidity {
   @include Card();
 }
@@ -59,6 +79,21 @@ const getTextDesc = (value) => {
   height: 80px;
   width: min-content;
   margin: 0 auto;
+  position: relative;
+  z-index: 0;
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: -1;
+    width: 50%;
+    height: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    box-shadow: 0 0 30px 20px var(--shadow-img-1);
+    background-color: var(--shadow-img-2);
+  }
 }
 .humidity-img {
   // width: 100%;
@@ -75,7 +110,7 @@ const getTextDesc = (value) => {
   font-size: 18px;
   line-height: 1;
   span {
-    color: #acacac;
+    color: var(--grey-300);
     font-size: 14px;
     margin-left: 3px;
   }
@@ -87,7 +122,7 @@ const getTextDesc = (value) => {
   line-height: 1;
   margin-bottom: 2px;
   font-weight: 500;
-  color: #87e8fa;
+  color: var(--cyanogen);
 }
 .humidity-status-value {
   font-size: 10px;
