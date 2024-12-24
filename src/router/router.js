@@ -1,7 +1,8 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory, RouterView } from "vue-router";
 import { useStaticStore } from "@/stores/static";
 import { useAuthStore } from "@/stores/auth";
 import { ability } from "../services/ability";
+import Tr from "@/i18n/translation";
 
 const Home = () => import("@/pages/Home.vue");
 const Error = () => import("@/pages/Error.vue");
@@ -18,98 +19,105 @@ const ProfileUser = () => import("@/pages/ProfileUser.vue");
 
 const routes = [
   {
-    path: "/",
-    redirect: { name: "Home" },
-  },
-  {
-    path: "/forecast/",
-    name: "Home",
-    component: Home,
-  },
-  { path: "/forecast/error", name: "Error", component: Error },
-  {
-    path: "/forecast/tomorrow",
-    name: "Tomorrow",
-    component: Tomorrow,
-  },
-  {
-    path: "/forecast/history",
-    name: "History",
-    component: History,
-  },
-  {
-    path: "/forecast/dashboard",
-    name: "Dashboard",
-    component: Dashboard,
-    meta: {
-      resource: "Dashboard",
-      redirect: "/forecast/",
-    },
-  },
-  {
-    path: "/forecast/news",
-    name: "News",
-    component: News,
-    beforeEnter: (to, from) => {
-      const staticStore = useStaticStore();
-      if (
-        to.params.category &&
-        !staticStore.categories.includes(to.params.category)
-      ) {
-        return {
-          name: "NotFound",
-          params: {
-            pathMatch: to.path.split("/").slice(1),
-          },
-          query: to.query,
-          hash: to.hash,
-        };
-      }
-    },
+    path: "/:locale?",
+    component: RouterView,
+    beforeEnter: Tr.routeMiddleware,
     children: [
       {
-        path: ":category?",
-        name: "CategoryNews",
-        component: CategoryNews,
+        path: "",
+        redirect: { name: "Home" },
       },
       {
-        path: ":category/:name",
-        name: "Post",
-        component: Post,
+        path: "forecast/",
+        name: "Home",
+        component: Home,
+      },
+      { path: "forecast/error", name: "Error", component: Error },
+      {
+        path: "forecast/tomorrow",
+        name: "Tomorrow",
+        component: Tomorrow,
+      },
+      {
+        path: "forecast/history",
+        name: "History",
+        component: History,
+      },
+      {
+        path: "forecast/dashboard",
+        name: "Dashboard",
+        component: Dashboard,
+        meta: {
+          resource: "Dashboard",
+          redirect: "Home",
+        },
+      },
+      {
+        path: "forecast/news",
+        name: "News",
+        component: News,
+        beforeEnter: (to, from) => {
+          const staticStore = useStaticStore();
+          if (
+            to.params.category &&
+            !staticStore.categories.includes(to.params.category)
+          ) {
+            return {
+              name: "NotFound",
+              params: {
+                pathMatch: to.path.split("/").slice(1),
+              },
+              query: to.query,
+              hash: to.hash,
+            };
+          }
+        },
+        children: [
+          {
+            path: ":category?",
+            name: "CategoryNews",
+            component: CategoryNews,
+          },
+          {
+            path: ":category/:name",
+            name: "Post",
+            component: Post,
+          },
+        ],
+      },
+      {
+        path: "forecast/signup",
+        name: "SignUp",
+        component: SignUp,
+        meta: {
+          resource: "SignUp",
+          redirect: "Home",
+        },
+      },
+      {
+        path: "forecast/signin",
+        name: "SignIn",
+        component: SignIn,
+        meta: {
+          resource: "SignIn",
+          redirect: "Home",
+        },
+      },
+      {
+        path: "forecast/profile",
+        name: "ProfileUser",
+        component: ProfileUser,
+        meta: {
+          resource: "Profile",
+          redirect: "SignIn",
+        },
+      },
+      {
+        path: ":pathMatch(.*)*",
+        name: "NotFound",
+        component: NotFound,
       },
     ],
-  },
-  {
-    path: "/forecast/signup",
-    name: "SignUp",
-    component: SignUp,
-    meta: {
-      resource: "SignUp",
-      redirect: "/forecast/",
-    },
-  },
-  {
-    path: "/forecast/signin",
-    name: "SignIn",
-    component: SignIn,
-    meta: {
-      resource: "SignIn",
-      redirect: "/forecast/",
-    },
-  },
-  {
-    path: "/forecast/profile",
-    name: "ProfileUser",
-    component: ProfileUser,
-    meta: {
-      resource: "Profile",
-      redirect: "/forecast/signin",
-    },
-  },
-  {
-    path: "/:pathMatch(.*)*",
-    name: "NotFound",
-    component: NotFound,
   },
 ];
 
@@ -143,7 +151,7 @@ router.beforeEach(async (to, from, next) => {
   };
 
   if (!canNavigate()) {
-    next({ path: to.meta.redirect });
+    next({ name: to.meta.redirect, params: { locale: to.params.locale } });
   } else {
     next();
   }

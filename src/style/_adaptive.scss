@@ -1308,7 +1308,7 @@
         .post__category-error-text {
             font-size: 14px;
         }
-        .post__header-item{
+        .post__header-item {
             gap: 5px;
         }
     }
@@ -1773,6 +1773,55 @@
             gap: 8px;
             padding: 3px 8px 3px 8px;
             height: 28px;
+        }
+    }
+}
+@mixin LanguageSwitcher() {
+    .sm,
+    .xs,
+    .xs2,
+    .xs3,
+    .xs4 {
+        .lang {
+            height: 40px;
+        }
+        .lang-select {
+            border-radius: 15px;
+        }
+        .lang {
+            :deep() {
+                .lang-select-label {
+                    padding: 0.5rem;
+                }
+                .lang-select-dropdown {
+                    padding-right: 0.4rem;
+                }
+                .normal-flag {
+                    margin: -0.6em -0.9em -0.6em -0.7em;
+                }
+            }
+        }
+    }
+    .xs3,
+    .xs4 {
+        .lang {
+            height: 35px;
+        }
+        .lang-select {
+            border-radius: 10px;
+        }
+        .lang {
+            :deep() {
+                .lang-select-label {
+                    padding: 0.4rem;
+                }
+                .lang-select-dropdown {
+                    padding-right: 0.3rem;
+                }
+                .normal-flag {
+                    margin: -0.5em -0.9em -0.6em -0.7em;
+                }
+            }
         }
     }
 }

@@ -1,5 +1,4 @@
-
-body{
+body {
   background-color: var(--black);
   color: var(--white);
   font-family: "Montserrat", sans-serif;
@@ -9,7 +8,7 @@ body{
   position: relative;
 }
 
-.container{
+.container {
   max-width: 1200px;
   width: 100%;
   // min-height: 100vh;
@@ -39,21 +38,32 @@ body{
 }
 
 .v-enter-active,
-.v-leave-active{
+.v-leave-active {
   transition: opacity 0.3s ease;
 }
 
 .v-enter-from,
-.v-leave-to{
+.v-leave-to {
   opacity: 0;
 }
 
 .tabs-enter-active,
-.tabs-leave-active{
+.tabs-leave-active {
   transition: opacity 0.3s ease;
 }
 
 .tabs-enter-from,
-.tabs-leave-to{
+.tabs-leave-to {
   opacity: 0.5;
+}
+
+.panel-enter-active,
+.panel-leave-active {
+  transition: all 0.3s ease;
+}
+
+.panel-enter-from,
+.panel-leave-to {
+  opacity: 0;
+  transform: scaleY(90%);
 }

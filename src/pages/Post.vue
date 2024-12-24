@@ -272,10 +272,13 @@ const getPost = async () => {
     if (post.value) {
       post.value.description = convertDeltaToHtml(post.value.description);
     } else {
+      const pathMatch = route.path
+        .split("/")
+        .filter((item) => item !== route.params.locale && item !== "");
       router.push({
         name: "NotFound",
         params: {
-          pathMatch: route.path.split("/").slice(1),
+          pathMatch,
         },
         query: route.query,
         hash: route.hash,

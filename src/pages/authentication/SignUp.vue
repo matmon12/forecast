@@ -145,7 +145,7 @@
       >
       <div class="auth__redirect">
         <span class="auth__redirect-text">Are you already registered?</span>
-        <router-link to="/forecast/signin" class="auth__redirect-link"
+        <router-link :to="{ name: 'SignIn' }" class="auth__redirect-link"
           >Sign in</router-link
         >
       </div>
@@ -215,7 +215,7 @@ const signupUser = async () => {
       life: 3000,
     });
 
-    router.push({ path: "/forecast/" });
+    router.push({ name: "Home" });
   } catch (e) {
     error.value = e.message;
   } finally {
@@ -259,7 +259,7 @@ const onSubmit = handleSubmit((value) => {
   background-color: var(--modal);
   color: var(--white);
 }
-.auth-password-meter{
+.auth-password-meter {
   background-color: var(--grey-790);
 }
 // regex password color

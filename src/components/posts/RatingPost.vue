@@ -83,7 +83,7 @@ const onShowConfirm = (event) => {
     icon: IcOutlinePerson,
     colorIcon: "#85c2ff",
     accept: () => {
-      router.push({ path: "/forecast/signin" });
+      router.push({ name: "SignIn" });
     },
   });
   confirm.require(confirmInfo);

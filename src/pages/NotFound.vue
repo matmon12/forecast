@@ -4,8 +4,18 @@
       <i-tabler:error-404 class="notfound-img" />
       <h1 class="notfound-title">Not Found</h1>
       <div class="notfound__btns">
-        <Button @click="$router.push('/forecast/')" class="notfound-btn notfound-btn-home" unstyled >Home</Button>
-        <Button @click="$router.go(-1)" class="notfound-btn notfound-btn-back" unstyled >Back</Button>
+        <Button
+          @click="$router.push({ name: 'Home' })"
+          class="notfound-btn notfound-btn-home"
+          unstyled
+          >Home</Button
+        >
+        <Button
+          @click="$router.go(-1)"
+          class="notfound-btn notfound-btn-back"
+          unstyled
+          >Back</Button
+        >
       </div>
     </div>
   </div>
@@ -61,7 +71,7 @@
     color: #000;
     font-weight: 500;
     background-color: var(--blue-380);
-    transition: filter .3s;
+    transition: filter 0.3s;
     &:not(:disabled):hover {
       filter: brightness(var(--brightness-rating));
     }
@@ -71,7 +81,7 @@
     color: #fff;
     border: 2px solid var(--blue-370);
     background-color: var(--transparent-5);
-    transition: filter .3s, background-color .3s;
+    transition: filter 0.3s, background-color 0.3s;
     &:not(:disabled):hover {
       background-color: var(--blue-370);
       filter: brightness(var(--brightness-moon));

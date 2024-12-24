@@ -106,7 +106,7 @@
   </Drawer>
   <router-link
     v-if="can('visit', 'SignIn')"
-    :to="{ path: '/forecast/signin' }"
+    :to="{ name: 'SignIn' }"
     class="panel"
   >
     <p class="panel-avatar">
@@ -149,7 +149,7 @@ const menu = shallowRef([
     label: "Profile",
     icon: TeenyiconsUserCircleSolid,
     action: () => {
-      router.push({ path: "/forecast/profile" });
+      router.push({ name: "ProfileUser" });
     },
   },
 ]);

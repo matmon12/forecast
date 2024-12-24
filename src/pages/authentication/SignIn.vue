@@ -89,7 +89,7 @@
       >
       <div class="auth__redirect">
         <span class="auth__redirect-text">Don't have an account?</span>
-        <router-link to="/forecast/signup" class="auth__redirect-link"
+        <router-link :to="{ name: 'SignUp' }" class="auth__redirect-link"
           >Sign up</router-link
         >
       </div>
@@ -140,7 +140,7 @@ const signinUser = async () => {
       })
     );
 
-    router.push({ path: "/forecast/" });
+    router.push({ name: "Home" });
   } catch (e) {
     error.value = e.message;
   } finally {

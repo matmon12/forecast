@@ -1,13 +1,13 @@
 <template>
   <div class="header">
     <div class="header__inner">
-      <Search v-if="!uiStore.xs2Smaller" />
+      <Search v-if="uiStore.xsAndLarger" />
       <SearchMini v-else />
-
-      <Panel v-if="uiStore.sm2AndLarger" />
 
       <div class="header__right">
         <ThemeSwitch v-if="!uiStore.xsAndLarger" class="header__right-theme" />
+        <LanguageSwitcher />
+        <Panel v-if="uiStore.sm2AndLarger" />
         <PanelMini v-if="!uiStore.sm2AndLarger" />
       </div>
     </div>
@@ -17,6 +17,7 @@
 <script setup>
 import PanelMini from "./PanelMini.vue";
 import { useUiStore } from "../stores/ui";
+import LanguageSwitcher from "./UI/LanguageSwitcher.vue";
 
 const uiStore = useUiStore();
 </script>

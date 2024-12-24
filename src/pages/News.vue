@@ -11,7 +11,10 @@
         :color-text="'var(--grey-200)'"
         @toggle-select="
           (menuItem) => {
-            $router.push(`/forecast/news/${menuItem}`);
+            $router.push({
+              name: 'CategoryNews',
+              params: { category: menuItem },
+            });
           }
         "
       />
@@ -38,12 +41,14 @@ const optionsMenu = ref([
 
 const breadCrumbItems = computed(() => {
   return [
-    { label: "News", route: route.params.category ? "/forecast/news" : "" },
+    { label: "News", route: { name: route.params.category ? "CategoryNews" : "" } },
     {
       label: optionsMenu.value.find(
-        (item) => item.value === route.params.category
+        (item) => item.value === (route.params.category || "")
       )?.name,
-      route: route.params.name ? `/forecast/news/${route.params.category}` : "",
+      route: route.params.name
+        ? { name: "CategoryNews", params: { category: route.params.category } }
+        : "",
     },
     ...(route.params.name
       ? [

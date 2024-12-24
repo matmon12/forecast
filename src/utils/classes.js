@@ -151,7 +151,7 @@ export const getClasses = (mainClass) => {
       root: `${mainClass}-checkbox`,
       input: `${mainClass}-checkbox-input`,
       box: `${mainClass}-checkbox-box`,
-      },
+    },
     avatar: {
       root: `${mainClass}-avatar`,
       label: `${mainClass}-avatar-label`,
@@ -282,7 +282,7 @@ export const getClasses = (mainClass) => {
       overlay: `${mainClass}-multiselect-overlay`,
       header: `${mainClass}-multiselect-header`,
       pcHeaderCheckbox: `${mainClass}-multiselect-header-checkbox`,
-      pcFilterContainer: `${mainClass}-multiselect-filter-container`, 
+      pcFilterContainer: `${mainClass}-multiselect-filter-container`,
       pcFilter: `${mainClass}-multiselect-filter`,
       pcFilterIconContainer: `${mainClass}-multiselect-filter-icon-container`,
       filterIcon: `${mainClass}-multiselect-filter-icon`,
@@ -366,8 +366,8 @@ export const getClasses = (mainClass) => {
       overlay: `${mainClass}-password-overlay`,
       content: `${mainClass}-password-content`,
       meter: `${mainClass}-password-meter`,
-      meterLabel: `${mainClass}-password-meter-label`,	
-      meterText: `${mainClass}-password-meter-text`, 
+      meterLabel: `${mainClass}-password-meter-label`,
+      meterText: `${mainClass}-password-meter-text`,
     },
     toast: {
       root: `${mainClass}-toast`,
@@ -385,7 +385,7 @@ export const getClasses = (mainClass) => {
       root: `${mainClass}-drawer`,
       header: `${mainClass}-drawer-header`,
       title: `${mainClass}-drawer-title`,
-      pcCloseButton: `${mainClass}-drawer-close-button`,	
+      pcCloseButton: `${mainClass}-drawer-close-button`,
       content: `${mainClass}-drawer-content`,
       footer: `${mainClass}-drawer-footer`,
       mask: `${mainClass}-drawer-mask`,
@@ -399,6 +399,19 @@ export const getClasses = (mainClass) => {
       contentContainer: `${mainClass}-panel-content-container`,
       content: `${mainClass}-panel-content`,
       footer: `${mainClass}-panel-footer`,
-    }
+    },
+    menu: {
+      root: `${mainClass}-menu`,
+      list: `${mainClass}-menu-list`,
+      submenuLabel: `${mainClass}-menu-submenu-item`,
+      item: `${mainClass}-menu-item`,
+      itemContent: `${mainClass}-menu-item-content`,
+      itemLink: `${mainClass}-menu-item-link`,
+      itemIcon: `${mainClass}-menu-item-icon`,
+      itemLabel: `${mainClass}-menu-item-label`,
+      separator: `${mainClass}-menu-separator`,
+      start: `${mainClass}-menu-start`,
+      end: `${mainClass}-menu-end`,
+    },
   };
 };

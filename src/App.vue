@@ -5,11 +5,13 @@
       <div class="wrapper">
         <Header :class="{ 'is--active': isHeaderActive }" />
         <div class="content">
-          <router-view v-slot="{ Component }">
-            <Spinner v-if="authStore.loading" :size="50" />
-            <keep-alive :include="['Dashboard']">
-              <component :is="Component" />
-            </keep-alive>
+          <router-view>
+            <router-view v-slot="{ Component }">
+              <Spinner v-if="authStore.loading" :size="50" />
+              <keep-alive :include="['Dashboard']">
+                <component :is="Component" />
+              </keep-alive>
+            </router-view>
           </router-view>
         </div>
       </div>
@@ -47,7 +49,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from "vue";
+import { computed, ref, onMounted, onUnmounted, watch } from "vue";
 import { useSearchStore } from "@/stores/search";
 import Toast from "primevue/toast";
 import ConfirmPopup from "primevue/confirmpopup";
@@ -59,6 +61,7 @@ import { useUiStore } from "@/stores/ui";
 const auth = getAuth();
 const authStore = useAuthStore();
 const uiStore = useUiStore();
+
 const isHeaderActive = ref(false);
 
 // адаптив
@@ -148,7 +151,7 @@ main {
       color: var(--white);
       svg {
         font-size: 20px;
-        path{
+        path {
         }
       }
     }
@@ -220,7 +223,7 @@ main {
 .reject-btn {
   color: var(--grey-50);
   background-color: var(--grey-900);
-  transition: filter .3s;
+  transition: filter 0.3s;
   &:not(:disabled):hover {
     filter: brightness(var(--brightness-rating));
   }
@@ -232,7 +235,7 @@ main {
 .accept-btn {
   color: var(--black-3);
   background-color: var(--blue-360);
-  transition: filter .3s;
+  transition: filter 0.3s;
   &:not(:disabled):hover {
     filter: brightness(1.3);
   }

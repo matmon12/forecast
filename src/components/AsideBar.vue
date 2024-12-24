@@ -7,15 +7,14 @@
             'aside-btn-wrap',
             {
               'is--active':
-                (/^\/forecast\/?$/.test($route.path) && item.router === '') ||
-                ($route.path.startsWith(`/forecast/${item.router}`) &&
-                  item.router !== ''),
+                ($route.name === 'Home' && item.name === 'home') ||
+                $route.path.split('/').includes(item.name),
             },
           ]"
           v-for="item in menuPages"
           :key="item.id"
         >
-          <router-link :to="`/forecast/${item.router}`" class="aside-btn">
+          <router-link :to="{ name: item.router }" class="aside-btn">
             <component :is="item.icon"></component>
           </router-link>
         </div>
@@ -28,7 +27,7 @@
         >
           <i-streamline:interface-logout-arrow-exit-frame-leave-logout-rectangle-right />
         </button>
-        <ThemeSwitch/>
+        <ThemeSwitch />
       </div>
     </div>
   </div>
@@ -52,17 +51,21 @@ const { can } = useAbility();
 
 const menuPages = computed(() => {
   const menu = [
-    { id: 1, icon: PhSquaresFour, router: "" },
-    { id: 2, icon: CarbonLocation, router: "tomorrow" },
-    { id: 3, icon: QuillCalendar, router: "history" },
-    { id: 4, icon: FluentNews20Regular, router: "news" },
+    { id: 1, icon: PhSquaresFour, router: "Home", name: "home" },
+    { id: 2, icon: CarbonLocation, router: "Tomorrow", name: "tomorrow" },
+    { id: 3, icon: QuillCalendar, router: "History", name: "history" },
+    { id: 4, icon: FluentNews20Regular, router: "CategoryNews", name: "news" },
   ];
   if (ability.can("visit", "Dashboard")) {
-    menu.push({ id: 5, icon: EpSetting, router: "dashboard" });
+    menu.push({
+      id: 5,
+      icon: EpSetting,
+      router: "Dashboard",
+      name: "dashboard",
+    });
   }
   return menu;
 });
-
 </script>
 
 <style lang="scss" scoped>

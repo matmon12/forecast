@@ -1,12 +1,13 @@
 <template>
   <div
     v-if="can('read', 'User')"
-    ref="panel"
-    :class="['panel', { 'is--open': isOpen }]"
-    :style="{ height: isOpen ? `${panel?.scrollHeight}px` : undefined }"
+    class="panel"
     v-on-click-outside="hideDropdown"
   >
-    <div @click="isOpen = !isOpen" class="panel__top">
+    <div
+      @click="isOpen = !isOpen"
+      :class="['panel-top', { 'is--open': isOpen }]"
+    >
       <Avatar v-if="!authStore.user?.image" class="panel-avatar" shape="circle">
         <template #icon>
           <svg
@@ -43,71 +44,71 @@
         <i-iconamoon:arrow-down-2 />
       </div>
     </div>
-    <div class="panel__content">
-      <ul class="panel__list">
-        <li
-          class="panel__list-item"
-          v-for="item in menu"
-          :key="item"
-          @click.prevent="item.action ? item.action() : null, hideDropdown()"
-        >
-          <p class="panel__list-icon">
-            <component :is="item.icon" />
-          </p>
-          <p class="panel__list-text">{{ item.label }}</p>
-        </li>
-      </ul>
-    </div>
+    <transition name="panel">
+      <div v-if="isOpen" class="panel-content">
+        <ul class="panel__list">
+          <li
+            class="panel__list-item"
+            v-for="item of items"
+            :key="item.label"
+            @click.prevent="item.action ? item.action() : null, hideDropdown()"
+          >
+            <p class="panel__list-icon">
+              <component :is="item.icon" />
+            </p>
+            <p class="panel__list-text">{{ item.label }}</p>
+          </li>
+        </ul>
+      </div>
+    </transition>
   </div>
+
   <router-link
     v-if="can('visit', 'SignIn')"
-    :to="{ path: '/forecast/signin' }"
-    class="panel"
+    :to="{ name: 'SignIn' }"
+    class="panel-top panel__top-login"
   >
-    <div class="panel__top panel__top-login">
-      <p class="panel-avatar">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 16 16"
-        >
-          <g fill="currentColor">
-            <path d="M11 6a3 3 0 1 1-6 0a3 3 0 0 1 6 0" />
-            <path
-              fill-rule="evenodd"
-              d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"
-            />
-          </g>
-        </svg>
-      </p>
-      <p class="panel-name-login">Login</p>
-    </div>
+    <p class="panel-avatar">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+      >
+        <g fill="currentColor">
+          <path d="M11 6a3 3 0 1 1-6 0a3 3 0 0 1 6 0" />
+          <path
+            fill-rule="evenodd"
+            d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"
+          />
+        </g>
+      </svg>
+    </p>
+    <p class="panel-name-login">Login</p>
   </router-link>
 </template>
 
 <script setup>
-import { ref, shallowRef } from "vue";
+import { ref, markRaw, onMounted } from "vue";
 import TeenyiconsUserCircleSolid from "~icons/teenyicons/user-circle-solid";
 import BitcoinIconsExitFilled from "~icons/bitcoin-icons/exit-filled";
 import { getImageUrl, getUsername } from "@/utils/index";
 import { useAuthStore } from "@/stores/auth";
-import { vOnClickOutside } from "@vueuse/components";
 import router from "@/router/router";
 import { useAbility } from "@casl/vue";
+import { vOnClickOutside } from "@vueuse/components";
 
 const authStore = useAuthStore();
 const { can } = useAbility();
 
-const panel = ref();
 const isOpen = ref(false);
 
-const menu = shallowRef([
+const items = markRaw([
   {
     label: "Profile",
     icon: TeenyiconsUserCircleSolid,
     action: () => {
-      router.push({ path: "/forecast/profile" });
+      router.push({ name: "ProfileUser" });
     },
   },
   {
@@ -125,38 +126,44 @@ const hideDropdown = () => {
 <style lang="scss" scoped>
 @include Panel();
 .panel {
-  background-color: var(--grey);
-  border-radius: 20px;
-  height: 50px;
-  transition: height 0.3s;
-  overflow: hidden;
-  position: absolute;
-  right: 0;
   z-index: 100;
-  box-shadow: 0 0 10px #000;
+  position: relative;
 
-  &__top {
-    padding: 10px 25px 10px 10px;
+  &-top {
     display: flex;
     align-items: center;
-    height: 50px;
-    cursor: pointer;
+    background-color: var(--grey);
     transition: background-color 0.3s;
+    height: 50px;
+    padding: 10px 25px 10px 10px;
     border-radius: 20px;
-
+    overflow: hidden;
+    box-shadow: 0 0 10px #000;
+    cursor: pointer;
     &:hover {
-      background-color: #ffffff1c;
+      background-color: #ffffff25;
     }
   }
 
-  &__content {
+  &-content {
+    width: 100%;
     padding: 10px;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background-color: var(--grey);
+    border-radius: 10px;
+    box-shadow: 0 0 10px #000;
+    transform-origin: top center;
   }
 
   &__list {
     display: flex;
     flex-direction: column;
     gap: 5px;
+    &:focus {
+      outline: none;
+    }
   }
 
   &__list-item {
@@ -166,9 +173,6 @@ const hideDropdown = () => {
     border-radius: 10px;
     transition: background-color 0.3s;
     cursor: pointer;
-    &:hover {
-      background-color: #ffffff41;
-    }
     &:last-child {
       margin-top: 15px;
       position: relative;
@@ -182,6 +186,9 @@ const hideDropdown = () => {
         left: 50%;
         transform: translateX(-50%);
       }
+    }
+    &:hover {
+      background-color: #ffffff41;
     }
   }
 

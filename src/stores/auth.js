@@ -19,7 +19,7 @@ export const useAuthStore = defineStore("auth", () => {
         await logOut();
 
         // обновление роли
-        defineRole("GUEST")
+        defineRole("GUEST");
 
         // локальные данные
         uid.value = null;
@@ -33,7 +33,7 @@ export const useAuthStore = defineStore("auth", () => {
           life: 3000,
         });
 
-        router.push({ path: "/forecast/" });
+        router.push({ name: "Home" });
       } catch (e) {
         toast.add({
           severity: "error",

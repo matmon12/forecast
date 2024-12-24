@@ -17,6 +17,7 @@ import VueResize from "vue-resize";
 import { abilitiesPlugin } from "@casl/vue";
 import { ability } from "@/services/ability";
 import VueTelInput from "vue-tel-input";
+import i18n from "@/i18n";
 import "vue-tel-input/vue-tel-input.css";
 import "vue-resize/dist/vue-resize.css";
 import "./index.scss";
@@ -93,5 +94,6 @@ app
   .use(VueFire, {
     firebaseApp,
   })
+  .use(i18n)
   .use(abilitiesPlugin, ability)
   .mount("#app");

@@ -1,13 +1,17 @@
 <template>
   <div class="breadcrumb">
-    <Button v-if="!uiStore.smSmaller" severity="secondary" @click="$router.go(-1)" class="breadcrumb-back"
+    <Button
+      v-if="!uiStore.smSmaller"
+      severity="secondary"
+      @click="$router.go(-1)"
+      class="breadcrumb-back"
       ><i-ic:round-arrow-back-ios-new />
       Back
     </Button>
 
     <ul class="breadcrumb__list">
       <li class="breadcrumb__list-item">
-        <router-link :to="{ path: '/forecast/' }" class="breadcrumb__list-link">
+        <router-link :to="{ name: 'Home' }" class="breadcrumb__list-link">
           <component :is="TablerHome"></component>
         </router-link>
         <span class="breadcrumb__list-separator"><i-ep:arrow-right /></span>
@@ -15,7 +19,7 @@
 
       <li v-for="item of model" :key="item.label" class="breadcrumb__list-item">
         <router-link
-          v-if="item.route"
+          v-if="item.route?.name"
           :to="item.route"
           class="breadcrumb__list-link"
         >
@@ -35,7 +39,7 @@
 <script setup>
 import { ref, defineProps, onMounted } from "vue";
 import TablerHome from "~icons/tabler/home";
-import {useUiStore} from "../stores/ui"
+import { useUiStore } from "../stores/ui";
 
 const uiStore = useUiStore();
 
@@ -45,7 +49,7 @@ const props = defineProps({
 </script>
 
 <style lang="scss" scoped>
-@include Breadcrumb(); 
+@include Breadcrumb();
 
 .breadcrumb {
   display: flex;
