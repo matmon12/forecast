@@ -133,15 +133,16 @@ const hideDropdown = () => {
     display: flex;
     align-items: center;
     background-color: var(--grey);
-    transition: background-color 0.3s;
     height: 50px;
     padding: 10px 25px 10px 10px;
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 0 10px #000;
     cursor: pointer;
+    transition: filter 0.3s;
+
     &:hover {
-      background-color: #ffffff25;
+      filter: brightness(var(--brightness-rating));
     }
   }
 

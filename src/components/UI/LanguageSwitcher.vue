@@ -66,10 +66,10 @@ const switchLanguage = async (newLocale) => {
     outline: none;
     box-shadow: 0 0 10px #000;
     height: 100%;
-    transition: background-color 0.3s;
+    transition: filter 0.3s;
 
     &:hover {
-      background-color: #ffffff25;
+      filter: brightness(var(--brightness-rating));
     }
 
     &-label {
