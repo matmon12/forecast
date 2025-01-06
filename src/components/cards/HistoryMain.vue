@@ -2,8 +2,8 @@
   <div class="history-main">
     <div class="history__header">
       <div class="history__header-left">
-        <p class="history-subtitle">Today</p>
-        <h1 class="history-title">Weather data by hour</h1>
+        <p class="history-subtitle">{{ $t("history-main.subtitle") }}</p>
+        <h1 class="history-title">{{ $t("history-main.title") }}</h1>
       </div>
       <div class="history__header-right">
         <SelectButton
@@ -28,13 +28,14 @@
 </template>
 
 <script setup>
-import { ref, defineProps, watch, computed, onMounted } from "vue";
+import { ref, defineProps, watch, computed, onMounted, inject } from "vue";
 import { Line } from "vue-chartjs";
 import { useHistoryStore } from "@/stores/history";
 import { useUiStore } from "@/stores/ui";
 
 const historyStore = useHistoryStore();
 const uiStore = useUiStore();
+const t = inject("t");
 
 const todayData = ref([]);
 const min = ref(0);
@@ -42,10 +43,22 @@ const max = ref(50);
 const stepSize = ref(5);
 
 const valueHour = ref("temp_c");
-const optionsHour = ref([
-  { name: "Temperature", value: "temp_c", measurement: "°С" },
-  { name: "Humidity", value: "humidity", measurement: "%" },
-  { name: "Precip", value: "precip_mm", measurement: "mm" },
+const optionsHour = computed(() => [
+  {
+    name: t("history-main.options.temp.name"),
+    value: "temp_c",
+    measurement: "°С",
+  },
+  {
+    name: t("history-main.options.humidity.name"),
+    value: "humidity",
+    measurement: "%",
+  },
+  {
+    name: t("history-main.options.precip.name"),
+    value: "precip_mm",
+    measurement: t("history-main.options.precip.measurement"),
+  },
 ]);
 
 // ui настройки графика

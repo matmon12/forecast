@@ -2,19 +2,19 @@
   <div class="notfound">
     <div class="notfound__content">
       <i-tabler:error-404 class="notfound-img" />
-      <h1 class="notfound-title">Not Found</h1>
+      <h1 class="notfound-title">{{ $t("not_found.title") }}</h1>
       <div class="notfound__btns">
         <Button
           @click="$router.push({ name: 'Home' })"
           class="notfound-btn notfound-btn-home"
           unstyled
-          >Home</Button
+          >{{ $t("buttons.home") }}</Button
         >
         <Button
           @click="$router.go(-1)"
           class="notfound-btn notfound-btn-back"
           unstyled
-          >Back</Button
+          >{{ $t("buttons.back") }}</Button
         >
       </div>
     </div>

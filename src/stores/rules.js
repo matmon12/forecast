@@ -1,27 +1,50 @@
 import { defineStore } from "pinia";
-import { object, string, ref, boolean, array, number } from "yup";
+import { object, string, ref, boolean, array, number, setLocale } from "yup";
 
 const stringRules = /^[a-zA-Zа-яА-Я\s]+$/;
 const symbolsRules = /^[^<>*\\/|"]+$/;
 const emailRules = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
 
-const getTextError = (message) => {
-  return `The password must contain at least 1 ${message} character!`;
+const characters = {
+  "/[0-9]/": "numerical",
+  "/[a-z]/": "lowercase",
+  "/[A-Z]/": "capital",
 };
+
+setLocale({
+  mixed: {
+    required: "required",
+    oneOf: "oneof",
+  },
+  number: {
+    min: ({ min }) => ({ key: "min", values: { min } }),
+    max: ({ max }) => ({ key: "max", values: { max } }),
+  },
+  string: {
+    min: ({ min }) => ({ key: "min", values: { min } }),
+    matches: ({ regex, path }) => ({
+      key: `matches.${characters[regex]}`,
+    }),
+  },
+  array: {
+    min: ({ min }) => ({ key: "array.min", values: { min } }),
+    max: ({ max }) => ({ key: "array.max", values: { max } }),
+  },
+});
 
 export const useRulesStore = defineStore("rules", () => {
   const schemaSearch = object({
     search: string()
-      .required("The field must not be empty!")
-      .min(3, "The name must contain at least 3 characters!")
+      .required()
+      .min(3)
       .label("City")
       .test({
-        name: "test",
+        name: "only-literal",
         skipAbsent: true,
         test(value, ctx) {
           if (!stringRules.test(value)) {
             return ctx.createError({
-              message: "Name must include only literal values!",
+              message: "only_literal",
             });
           }
           return true;
@@ -30,79 +53,73 @@ export const useRulesStore = defineStore("rules", () => {
   });
 
   const schemaSearchDashboard = object({
-    searchDashboard: string().required("The field must not be empty!"),
+    searchDashboard: string().required(),
   });
 
   const schemaPostDialog = object({
-    image: string().required("Upload an image!"),
+    image: string().required("image.required"),
     name: string()
-      .required("The field must not be empty!")
-      .min(5, "The name must contain at least 5 characters!")
+      .required()
+      .min(5)
       .test({
-        name: "symbols",
+        name: "not-prohibited",
         skipAbsent: true,
         test(value, ctx) {
           if (!symbolsRules.test(value)) {
             return ctx.createError({
-              message: "The name must not contain prohibited characters!",
+              message: "not_prohibited",
             });
           }
           return true;
         },
       }),
-    lengthDescription: number()
-      .min(100, "The description must contain at least 100 characters!")
-      .max(
-        20000,
-        "The description must contain no more than 20000 characters!"
-      ),
-    category: string().required("Select a category!"),
-    tags: array()
-      .ensure()
-      .min(1, "Select at least 1 tag!")
-      .max(5, "There should be no more than 5 tags!"),
-    summary: string().required("The field must not be empty!"),
+    lengthDescription: number().min(100).max(20000),
+    category: string().required("category.required"),
+    tags: array().ensure().min(1).max(5),
+    summary: string().required(),
   });
 
   const schemaSignUp = object({
     password: string()
-      .required("Enter your password!")
-      .min(6, "The password must contain at least 6 characters!")
-      .matches(/[0-9]/, getTextError("numerical"))
-      .matches(/[a-z]/, getTextError("lowercase"))
-      .matches(/[A-Z]/, getTextError("capital")),
+      .required()
+      .min(6)
+      .label("password")
+      .matches(/[0-9]/)
+      .matches(/[a-z]/)
+      .matches(/[A-Z]/),
     email: string()
-      .required("Enter your email!")
+      .required()
       .test({
-        name: "test",
+        name: "email",
         skipAbsent: true,
         test(value, ctx) {
           if (!emailRules.test(value)) {
-            return ctx.createError({ message: "Email is not valid!" });
+            return ctx.createError({ message: "email" });
           }
           return true;
         },
       }),
     confirmPassword: string()
-      .required("Enter your password again!")
-      .oneOf([ref("password"), null], "Passwords do not match!"),
+      .required()
+      .oneOf([ref("password"), null]),
   });
 
   const schemaSignIn = object({
     password: string()
-      .required("Enter your password!")
-      .min(6, "The password must contain at least 6 characters!")
-      .matches(/[0-9]/, getTextError("numerical"))
-      .matches(/[a-z]/, getTextError("lowercase"))
-      .matches(/[A-Z]/, getTextError("capital")),
+      .required()
+      .min(6)
+      .label("password")
+      .matches(/[0-9]/)
+      .matches(/[a-z]/)
+      .matches(/[A-Z]/),
     email: string()
-      .required("Enter your email!")
+      .required()
       .test({
-        name: "test",
+        name: "email",
         skipAbsent: true,
         test(value, ctx) {
           if (!emailRules.test(value)) {
-            return ctx.createError({ message: "Email is not valid!" });
+            return ctx.createError({ message: "email" });
           }
           return true;
         },
@@ -111,30 +128,30 @@ export const useRulesStore = defineStore("rules", () => {
 
   const schemaProfileSetting = object({
     name: string()
-      .required("The field must not be empty!")
-      .min(3, "Minimum 3 characters!")
+      .required()
+      .min(3)
       .test({
         name: "symbols",
         skipAbsent: true,
         test(value, ctx) {
           if (!symbolsRules.test(value)) {
             return ctx.createError({
-              message: "Invalid characters",
+              message: "symbols",
             });
           }
           return true;
         },
       }),
     lastname: string()
-      .required("The field must not be empty!")
-      .min(3, "Minimum 3 characters!")
+      .required()
+      .min(3)
       .test({
         name: "symbols",
         skipAbsent: true,
         test(value, ctx) {
           if (!symbolsRules.test(value)) {
             return ctx.createError({
-              message: "Invalid characters!",
+              message: "symbols",
             });
           }
           return true;

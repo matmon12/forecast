@@ -1,6 +1,6 @@
 <template>
   <div class="setting">
-    <h1 class="setting-title">Edit Profile</h1>
+    <h1 class="setting-title">{{ $t("profile.title") }}</h1>
 
     <Message
       v-if="saveError"
@@ -14,14 +14,13 @@
           {{
             saveError?.operation === "upload" ||
             saveError?.operation === "update"
-              ? "Info not edited!"
-              : "Image not deleted!"
+              ? $t("errors.info.edit")
+              : $t("errors.image.delete")
           }}
         </h6>
         <p class="setting-message-description">
-          {{ saveError?.process }} {{ saveError?.description }}
-          We have blocked all requests from this device due to unusual activity.
-          Try again later.
+          {{ $t(`errors.process.${saveError?.process}`) }}
+          {{ $t(`error_codes.${saveError?.description}`) }}
         </p>
       </div>
     </Message>
@@ -35,8 +34,10 @@
     >
       <i-mingcute:check-line />
       <div class="setting-message-info">
-        <h6 class="setting-message-title">Successfully</h6>
-        <p class="setting-message-description">Profile edited successfully!</p>
+        <h6 class="setting-message-title">{{ $t("success.profile.title") }}</h6>
+        <p class="setting-message-description">
+          {{ $t("success.profile.description") }}
+        </p>
       </div>
     </Message>
 
@@ -48,15 +49,15 @@
     />
     <form class="setting__form">
       <div class="setting__form-item">
-        <label class="setting__form-label field-required" for="name"
-          >Name</label
-        >
+        <label class="setting__form-label field-required" for="name">{{
+          $t("profile.labels.name")
+        }}</label>
         <IconField class="setting-iconfield">
           <InputText
             v-model.trim="name"
             id="name"
             autofocus
-            placeholder="Enter your name..."
+            :placeholder="$t('placeholders.profile-name')"
             :invalid="errors.name ? true : false"
             :pt="getClasses('setting').inputtext"
           />
@@ -69,19 +70,23 @@
             <i-majesticons:close />
           </InputIcon>
           <transition name="fade">
-            <small v-if="errors.name" class="error">{{ errors.name }}</small>
+            <small v-if="errors.name" class="error">{{
+              $t(`validation.${errors.name?.key || errors.name}`, {
+                ...errors.name?.values,
+              })
+            }}</small>
           </transition>
         </IconField>
       </div>
       <div class="setting__form-item">
-        <label class="setting__form-label field-required" for="lastname"
-          >Lastname</label
-        >
+        <label class="setting__form-label field-required" for="lastname">{{
+          $t("profile.labels.lastname")
+        }}</label>
         <IconField class="setting-iconfield">
           <InputText
             v-model.trim="lastname"
             id="lastname"
-            placeholder="Enter your lastname..."
+            :placeholder="$t('placeholders.profile-lastname')"
             :invalid="errors.lastname ? true : false"
             :pt="getClasses('setting').inputtext"
           />
@@ -95,21 +100,26 @@
           </InputIcon>
           <transition name="fade">
             <small v-if="errors.lastname" class="error">{{
-              errors.lastname
+              $t(`validation.${errors.lastname?.key || errors.lastname}`, {
+                ...errors.lastname?.values,
+              })
             }}</small>
           </transition>
         </IconField>
       </div>
       <div class="setting__form-item">
-        <label class="setting__form-label">Country</label>
+        <label class="setting__form-label">{{
+          $t("profile.labels.country")
+        }}</label>
         <Select
           ref="select"
           v-model="country"
-          :options="countries"
+          :options="countriesList"
           optionLabel="name"
-          placeholder="Select a Country"
+          optionValue="flag"
+          :placeholder="$t('placeholders.country')"
           filter
-          filterPlaceholder="Enter country"
+          :filterPlaceholder="$t('placeholders.country-filter')"
           filterMatchMode="startsWith"
           showClear
           autoFilterFocus
@@ -128,11 +138,13 @@
           <template #value="{ value, placeholder }">
             <div v-if="value" class="setting-select-labelwrap">
               <country-flag
-                :country="value.flag"
+                :country="value"
                 rounded
                 class="setting-select-optionicon"
               />
-              <span class="setting-select-optionlabel">{{ value.name }}</span>
+              <span class="setting-select-optionlabel">{{
+                countries.getName(value, locale)
+              }}</span>
             </div>
             <span v-else>
               {{ placeholder }}
@@ -149,7 +161,9 @@
         </Select>
       </div>
       <div class="setting__form-item">
-        <label class="setting__form-label">Mobile Number</label>
+        <label class="setting__form-label">{{
+          $t("profile.labels.phone")
+        }}</label>
         <div class="setting__form-tel">
           <vue-tel-input
             v-model="phone.number"
@@ -179,19 +193,19 @@
             <i-majesticons:close />
           </button>
           <transition name="fade">
-            <small v-if="phoneValid === false" class="error"
-              >The number is invalid!</small
-            >
+            <small v-if="phoneValid === false" class="error">{{
+              $t("valid.phone")
+            }}</small>
           </transition>
         </div>
       </div>
     </form>
     <div class="setting__btns">
       <Button @click="resetData" :pt="getClasses('no').button" unstyled
-        ><i-iconoir:cancel />Cancel</Button
+        ><i-iconoir:cancel />{{ $t("buttons.cancel") }}</Button
       >
       <Button @click="onSubmit" :pt="getClasses('yes').button" unstyled
-        ><i-ic:round-check /> Save</Button
+        ><i-ic:round-check /> {{ $t("buttons.save") }}</Button
       >
     </div>
 
@@ -202,7 +216,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, inject, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { uploadImage, deleteImage } from "@/server/storage";
 import { updateToDB } from "@/server/users";
@@ -214,15 +228,21 @@ import InputIcon from "primevue/inputicon";
 import IconField from "primevue/iconfield";
 import Select from "primevue/select";
 import CountryFlag from "vue-country-flag-next";
-import { countries } from "@/utils/countries";
 import { deleteField } from "firebase/firestore";
 import { ability } from "@/services/ability";
-import { useUiStore } from "../../stores/ui";
+import { useUiStore } from "@/stores/ui";
+import Tr from "@/i18n/translation";
+import { useI18n } from "vue-i18n";
+import allCountries from "@/utils/all-countries";
 
 const authStore = useAuthStore();
 const rulesStore = useRulesStore();
 const serverStore = useServerStore();
 const uiStore = useUiStore();
+const t = inject("t");
+const countries = inject("countries");
+const countriesList = ref();
+const { locale } = useI18n();
 
 const file = ref();
 const image = ref();
@@ -238,19 +258,21 @@ const openDropdownTel = ref(false);
 const saveError = ref();
 const saveLoading = ref(false);
 const saveSuccess = ref(false);
-const telProps = ref({
+const countriesPhone = ref();
+const telProps = computed(() => ({
+  allCountries: countriesPhone.value,
   preferredCountries: ["US", "RU"],
   mode: "auto",
   inputOptions: {
     showDialCode: true,
-    placeholder: "Enter a phone number",
+    placeholder: t("placeholders.phone"),
   },
   disabledFormatting: false,
   defaultCountry: authStore.user?.phone?.country
     ? authStore.user.phone.country
     : "RU",
   wrapperClasses: "setting",
-});
+}));
 
 // validate
 const {
@@ -296,11 +318,8 @@ const saveInfoUser = async () => {
       lastname: values.lastname,
     }),
     ...(country.value &&
-      authStore.user?.country?.name !== country.value.name && {
-        country: {
-          name: country.value.name,
-          flag: country.value.flag,
-        },
+      authStore.user?.country !== country.value && {
+        country: country.value,
       }),
     ...(phoneValid.value === true &&
       authStore.user?.phone?.number !== phone.value.number && {
@@ -394,6 +413,36 @@ const initValues = () => {
   setFieldValue("name", authStore.user?.name, false);
   setFieldValue("lastname", authStore.user?.lastname, false);
 };
+
+// load locales counties
+const switchLanguageCountries = async (locale) => {
+  await Tr.loadLocaleCountries(locale);
+
+  const countriesName = countries.getNames(locale, { select: "official" });
+  const keys = Object.keys(countriesName);
+  const values = Object.values(countriesName);
+  countriesList.value = keys.map((item, index) => ({
+    flag: item,
+    name: values[index],
+  }));
+
+  // для телефона
+  countriesPhone.value = allCountries.map(([iso2, dialCode]) => ({
+    name: countries.getName(iso2, locale),
+    iso2: iso2.toUpperCase(),
+    dialCode,
+  }));
+};
+
+watch(
+  () => locale.value,
+  (newLocale) => {
+    switchLanguageCountries(newLocale);
+  },
+  {
+    immediate: true,
+  }
+);
 
 // reset
 const resetData = () => {

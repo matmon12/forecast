@@ -3,7 +3,7 @@
     <div class="sun-content">
       <p class="sun-title">
         <i-ph:sun-horizon />
-        Sunset / sunrise
+        {{ $t("sunset.title") }}
       </p>
       <div class="sun-graphik-wrap">
         <div class="sun-graphik">
@@ -20,7 +20,7 @@
             :icon="PhSunFill"
           />
           <div class="sun-currenttime-wrap">
-            <h6 class="sun-currenttime-title">Current time</h6>
+            <h6 class="sun-currenttime-title">{{$t("sunset.current_time")}}</h6>
             <div class="sun-currenttime">
               {{ currentTimeHour[0] }} <span>{{ currentTimeHour[1] }}</span>
             </div>
@@ -30,19 +30,19 @@
     </div>
     <div class="sun__aside">
       <div class="sun__aside-item">
-        <h6 class="sun__aside-title">Sunrise</h6>
+        <h6 class="sun__aside-title">{{ $t("sunset.sunrise") }}</h6>
         <p class="sun__aside-text">
           {{ sunrise[0] }}<span>{{ sunrise[1] }}</span>
         </p>
       </div>
       <div class="sun__aside-item">
-        <h6 class="sun__aside-title">Sunset</h6>
+        <h6 class="sun__aside-title">{{ $t("sunset.sunset") }}</h6>
         <p class="sun__aside-text">
           {{ sunset[0] }}<span>{{ sunset[1] }}</span>
         </p>
       </div>
       <div class="sun__aside-item sun-length">
-        <h6 class="sun__aside-title">Length of day</h6>
+        <h6 class="sun__aside-title">{{ $t("sunset.length") }}</h6>
         <p class="sun__aside-text">{{ lengthDay }}</p>
       </div>
     </div>

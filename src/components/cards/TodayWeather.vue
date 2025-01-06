@@ -15,16 +15,21 @@
     <div class="summary__content">
       <div class="summary__left">
         <div class="summary__date-wrap">
-          <p class="summary-week">{{ curDayWeek }}</p>
-          <p class="summary-date">{{ currentDate }}</p>
+          <p class="summary-week">{{ getCurDate.curDayWeek }}</p>
+          <p class="summary-date">{{ getCurDate.currentDate }}</p>
         </div>
         <div class="summary__temp">
           <div class="summary__temp-value">
             {{ curTemp }}
           </div>
           <div class="summary__temp-text">
-            <span>High: {{ Math.round(searchStore.maxTemp) }}°</span
-            ><span>Low: {{ Math.round(searchStore.minTemp) }}°</span>
+            <span
+              >{{ $t("today.high") }}:
+              {{ Math.round(searchStore.maxTemp) }}°</span
+            ><span
+              >{{ $t("today.low") }}:
+              {{ Math.round(searchStore.minTemp) }}°</span
+            >
           </div>
         </div>
       </div>
@@ -46,7 +51,8 @@
             {{ curWeather?.current?.condition?.text }}
           </p>
           <p class="summary__right-feels">
-            Feels like {{ Math.round(curWeather?.current?.feelslike_c) }}°
+            {{ $t("today.feels") }}
+            {{ Math.round(curWeather?.current?.feelslike_c) }}°
           </p>
         </div>
       </div>
@@ -55,16 +61,17 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch, defineProps } from "vue";
+import { onMounted, ref, watch, defineProps, inject, computed } from "vue";
 import { getFarTemp, getImageUrl, formatPath } from "@/utils/index";
 import { useSearchStore } from "@/stores/search";
+import { useI18n } from "vue-i18n";
 
 const valueSwitch = true;
-const currentDate = ref();
-const curDayWeek = ref();
 const curTemp = ref();
 const path = ref();
 const searchStore = useSearchStore();
+const { locale } = useI18n();
+const t = inject("t");
 
 const props = defineProps({
   curWeather: {
@@ -91,8 +98,6 @@ const init = () => {
   curTemp.value = valueSwitch
     ? `${Math.round(props.curWeather.current.temp_c)}°C`
     : `${Math.round(getFarTemp(props.curWeather.current.temp_c))}°F`;
-
-  getCurDate(props.curWeather.location.tz_id);
 };
 
 const onChangeDegree = (value) => {
@@ -105,26 +110,28 @@ const onChangeDegree = (value) => {
   }
 };
 
-const getCurDate = (tz) => {
+const getCurDate = computed(() => {
   const date = new Date();
-  currentDate.value = date.toLocaleDateString("en-GB", {
-    timeZone: tz,
+  const currentDate = date.toLocaleDateString(locale.value, {
+    timeZone: props.curWeather?.location.tz_id,
     day: "numeric",
     month: "short",
     year: "numeric",
   });
 
   var days = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
+    t("weekdays.sunday"),
+    t("weekdays.monday"),
+    t("weekdays.tuesday"),
+    t("weekdays.wednesday"),
+    t("weekdays.thursday"),
+    t("weekdays.friday"),
+    t("weekdays.saturday"),
   ];
-  curDayWeek.value = days[date.getDay()];
-};
+  const curDayWeek = days[date.getDay()];
+
+  return { currentDate, curDayWeek };
+});
 </script>
 
 <style lang="scss" scoped>
@@ -225,6 +232,7 @@ const getCurDate = (tz) => {
   &__right-weather {
     font-size: 27px;
     line-height: 1.2;
+    word-break: break-word;
   }
 
   &__right-feels {

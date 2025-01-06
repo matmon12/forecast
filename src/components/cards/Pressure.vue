@@ -2,7 +2,7 @@
   <div class="pressure">
     <p class="pressure-title">
       <i-mdi:speedometer-slow />
-      Pressure
+      {{ $t("pressure.title") }}
     </p>
     <Knob
       class="pressure-knob"
@@ -18,7 +18,7 @@
     />
     <div class="pressure__footer">
       <div class="pressure__left">
-        {{ mmHgPressure }}<span v-if="!uiStore.xs2Smaller">mmHg</span>
+        {{ mmHgPressure }}<span v-if="!uiStore.xs2Smaller">{{ $t("pressure.measurement") }}</span>
       </div>
       <div class="pressure-right">{{ getTextDesc(mmHgPressure) }}</div>
     </div>
@@ -33,6 +33,7 @@ import { useUiStore } from "../../stores/ui";
 
 const uiStore = useUiStore();
 const { anime } = inject("plugins");
+const t = inject("t");
 
 const props = defineProps({
   pressure: {
@@ -68,13 +69,13 @@ onMounted(() => {
 
 const getTextDesc = (value) => {
   if (value < 740) {
-    return "Low";
+    return t("pressure.status.low");
   } else if (value >= 740 && value < 760) {
-    return "Normal";
+    return t("pressure.status.normal");
   } else if (value >= 760 && value < 780) {
-    return "High";
+    return t("pressure.status.high");
   } else {
-    return "Very High";
+    return t("pressure.status.very_high");
   }
 };
 </script>

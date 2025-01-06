@@ -2,7 +2,7 @@
   <Spinner v-if="forecastStore.loadingForecast" :size="50" />
   <Error
     v-else-if="searchStore.error === 1006"
-    message="Oooops! Nothing found"
+    :message="$t('errors.nothing_found')"
     @to-back="onToBack"
     class="error-wrapper"
   />
@@ -38,25 +38,33 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, inject } from "vue";
 import { FORECAST_URL } from "@/constants/index";
 import { axiosApiInstance } from "@/server/api";
 import { useSearchStore } from "@/stores/search";
 import { useForecastStore } from "@/stores/forecast";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
+const t = inject("t");
+const { locale } = useI18n();
 const tabActive = ref(0);
 const searchStore = useSearchStore();
 const forecastStore = useForecastStore();
 const test = [{ test: 0 }, { test: 1 }, { test: 2 }];
 
-const dataDay = ref([{ day: "Today" }, { day: "Tomorrow" }, { day: "" }]);
+const dataDay = computed(() => [
+  { day: t("tomorrow.today") },
+  { day: t("tomorrow.tomorrow") },
+  { day: "" },
+]);
 
 // breadcrumb
-const breadCrumbItems = [
+const breadCrumbItems = computed(() => [
   {
-    label: "Forecast",
+    label: t("breadcrumb.forecast"),
   },
-];
+]);
 
 watch(
   () => searchStore.search,
@@ -67,10 +75,18 @@ watch(
   }
 );
 
+// при изменении локали получить описание на этом языке
+watch(
+  () => locale.value,
+  (newValue) => {
+    fetchForecastDay();
+  }
+);
+
 const fetchForecastDay = async () => {
   forecastStore.loadingForecast = true;
   await axiosApiInstance
-    .get(`${FORECAST_URL}?q=${searchStore.search}&days=3`)
+    .get(`${FORECAST_URL}?q=${searchStore.search}&days=3&lang=${locale.value}`)
     .then((res) => {
       forecastStore.forecastData = res.data;
       searchStore.searchSuccess = res.data.location.name;

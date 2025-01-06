@@ -5,10 +5,11 @@
   />
   <Error
     v-else-if="searchStore.error === 1006"
-    message="Oooops! Nothing found"
+    :message="$t('errors.nothing_found')"
     @to-back="onToBack"
     class="error-wrapper"
   />
+  
   <div v-else class="history">
     <Breadcrumb :model="breadCrumbItems" />
     <div class="history__content">
@@ -28,22 +29,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { computed, ref, onMounted, watch, inject } from "vue";
 import { HISTORY_URL, FORECAST_URL } from "@/constants/index";
 import { useHistoryStore } from "@/stores/history";
 import { useSearchStore } from "@/stores/search";
-import {axiosApiInstance} from "@/server/api";
+import { axiosApiInstance } from "@/server/api";
 import Breadcrumb from "../components/Breadcrumb.vue";
 
 const historyStore = useHistoryStore();
 const searchStore = useSearchStore();
+const t = inject("t");
 
 // breadcrumb
-const breadCrumbItems = [
+const breadCrumbItems = computed(() => [
   {
-    label: "History",
+    label: t("breadcrumb.history"),
   },
-];
+]);
 
 watch(
   () => searchStore.search,
@@ -136,9 +138,8 @@ const onToBack = () => {
   position: relative;
   height: fit-content;
   width: 100%;
-
 }
-.history__content{
+.history__content {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;

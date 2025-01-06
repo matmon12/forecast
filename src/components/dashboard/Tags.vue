@@ -9,7 +9,9 @@
           <Chip
             v-for="tag of selectedTags"
             :key="tag"
-            :label="tag"
+            :label="
+              $t(`tags.items.${tag.toLocaleLowerCase().split(' ').join('_')}`)
+            "
             @remove="(e) => remove(e, tag)"
           />
         </div>
@@ -48,7 +50,7 @@
               >
                 <InputText
                   v-model="searchTags"
-                  :placeholder="'Enter tags...'"
+                  :placeholder="$t('placeholders.tags-input')"
                   :pt="getClasses('tags').inputtext"
                   unstyled
                   @update:modelValue="search"
@@ -70,7 +72,7 @@
               @click="handleClick"
               class="tags-header-btn"
               :disabled="error.length || selectedTags?.length >= limitTags"
-              >Add tag</Button
+              >{{ $t("buttons.add-tag") }}</Button
             >
           </div>
         </template>
@@ -85,7 +87,16 @@
               >
                 <div class="tags__list-group-header">
                   <component :is="item.icon"></component>
-                  <p class="tags__list-group-label">{{ item.label }}</p>
+                  <p class="tags__list-group-label">
+                    {{
+                      $t(
+                        `tags.items.${item.label
+                          .toLocaleLowerCase()
+                          .split(" ")
+                          .join("_")}`
+                      )
+                    }}
+                  </p>
                 </div>
                 <label
                   v-for="tag of item.items"
@@ -107,14 +118,21 @@
                     </template>
                   </Checkbox>
                   <p class="tags__list-item-text">
-                    {{ tag.value }}
+                    {{
+                      $t(
+                        `tags.items.${tag.value
+                          .toLocaleLowerCase()
+                          .split(" ")
+                          .join("_")}`
+                      )
+                    }}
                   </p>
                 </label>
               </li>
             </ul>
 
             <p v-if="filteredTags.length === 0" class="tags-empty">
-              No results found
+              {{ $t("tags.no_results") }}
             </p>
           </div>
         </template>
@@ -122,9 +140,9 @@
         <template #footer>
           <div class="tags__footer">
             <p v-if="selectedTags && selectedTags.length" class="tags-count">
-              {{ selectedTags.length }} tags selected
+              {{ $t("tags.selected", { count: selectedTags.length }) }}
             </p>
-            <p v-else class="tags-noselected">No selected item</p>
+            <p v-else class="tags-noselected">{{ $t("tags.no_selected") }}</p>
           </div>
         </template>
       </Select>
@@ -141,6 +159,7 @@ import {
   onMounted,
   defineModel,
   defineEmits,
+  inject,
 } from "vue";
 import debounce from "lodash.debounce";
 import { FilterMatchMode, FilterService } from "@primevue/core/api";
@@ -155,6 +174,7 @@ import TeenyiconsPawSolid from "~icons/teenyicons/paw-solid";
 import F7CarFill from "~icons/f7/car-fill";
 import EosIconsScience from "~icons/eos-icons/science";
 
+const t = inject("t");
 const tags = ref();
 const showSelect = ref(false);
 const sizeTags = ref({ width: 0, height: 0 });
@@ -290,10 +310,10 @@ const handleClick = () => {
     addItem(formattedInput);
   }
   if (!formattedInput) {
-    error.value.push("The field must not be empty!");
+    error.value.push(t("errors.tags.empty"));
   }
   if (sameTags) {
-    error.value.push("This tag has already been added!");
+    error.value.push(t("errors.tags.duplicate"));
   }
 };
 
@@ -322,7 +342,7 @@ const isDisabled = (tag) => {
   }
 }
 
-.select-wrapper{
+.select-wrapper {
   background-color: var(--modal);
   box-shadow: 0 0 5px #474747;
 }
@@ -370,7 +390,7 @@ const isDisabled = (tag) => {
   display: flex;
   padding: 10px 15px 15px;
   gap: 10px;
-  
+
   &-btn {
     background-color: var(--blue-100);
     border-color: var(--blue-100);
@@ -490,7 +510,6 @@ const isDisabled = (tag) => {
         }
       }
 
-      
       &.p-disabled .tags-checkbox-box {
         background: var(--grey-760);
         border-color: var(--grey-760);

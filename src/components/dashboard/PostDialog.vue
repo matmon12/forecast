@@ -19,7 +19,9 @@
     <template #container="{ closeCallback, maximizeCallback }">
       <div class="dashboard-dialog-container">
         <div class="dashboard-dialog-header">
-          <span class="dashboard-dialog-title">Confirm</span>
+          <span class="dashboard-dialog-title">{{
+            $t("post-dialog.title")
+          }}</span>
           <div class="dashboard-dialog-header-actions">
             <button v-if="uiStore.xsAndLarger" @click="maximizeCallback">
               <i-tabler:window-maximize v-if="!dialogPost?.maximized" />
@@ -32,7 +34,9 @@
         </div>
         <div class="post-dialog__content">
           <div class="post-dialog__block">
-            <p class="post-dialog-label">Upload image</p>
+            <p class="post-dialog-label">
+              {{ $t("post-dialog.labels.image") }}
+            </p>
             <ImageUpload
               v-model:image="image"
               v-model:file="file"
@@ -42,13 +46,17 @@
             />
             <transition name="fade">
               <small v-if="errors.image" class="error">{{
-                errors.image
+                $t(`validation.${errors.image?.key || errors.image}`, {
+                  ...errors.image?.values,
+                })
               }}</small>
             </transition>
           </div>
 
           <div class="post-dialog__block">
-            <label class="post-dialog-label" for="name">Name</label>
+            <label class="post-dialog-label" for="name">{{
+              $t("post-dialog.labels.name")
+            }}</label>
             <IconField :pt="getClasses('post-dialog').iconfield" unstyled>
               <InputText
                 id="name"
@@ -57,7 +65,7 @@
                 autofocus
                 :invalid="errors.name ? true : false"
                 :pt="getClasses('post-dialog').inputtext"
-                placeholder="Enter name"
+                :placeholder="$t('placeholders.post-name')"
                 @paste="(event) => replaceSpaces(event, 'name')"
               />
               <InputIcon
@@ -69,16 +77,18 @@
               /></InputIcon>
               <transition name="fade">
                 <small v-if="errors.name" class="error">{{
-                  errors.name
+                  $t(`validation.${errors.name?.key || errors.name}`, {
+                    ...errors.name?.values,
+                  })
                 }}</small>
               </transition>
             </IconField>
           </div>
 
           <div class="post-dialog__block">
-            <label for="description" class="post-dialog-label"
-              >Description</label
-            >
+            <label for="description" class="post-dialog-label">{{
+              $t("post-dialog.labels.description")
+            }}</label>
 
             <Description
               v-model:description="description"
@@ -87,13 +97,22 @@
             />
             <transition name="fade">
               <small v-if="errors.lengthDescription" class="error">{{
-                errors.lengthDescription
+                $t(
+                  `validation.${
+                    errors.lengthDescription?.key || errors.lengthDescription
+                  }`,
+                  {
+                    ...errors.lengthDescription?.values,
+                  }
+                )
               }}</small>
             </transition>
           </div>
 
           <div class="post-dialog__block">
-            <label class="post-dialog-label" for="summary">Summary</label>
+            <label class="post-dialog-label" for="summary">{{
+              $t("post-dialog.labels.summary")
+            }}</label>
             <IconField :pt="getClasses('post-dialog').iconfield" unstyled>
               <InputText
                 id="summary"
@@ -101,7 +120,7 @@
                 required="true"
                 :invalid="errors.summary ? true : false"
                 :pt="getClasses('post-dialog').inputtext"
-                placeholder="Enter summary..."
+                :placeholder="$t('placeholders.summary')"
                 @paste="(event) => replaceSpaces(event, 'summary')"
               />
               <InputIcon
@@ -113,14 +132,18 @@
               /></InputIcon>
               <transition name="fade">
                 <small v-if="errors.summary" class="error">{{
-                  errors.summary
+                  $t(`validation.${errors.summary?.key || errors.summary}`, {
+                    ...errors.summary?.values,
+                  })
                 }}</small>
               </transition>
             </IconField>
           </div>
 
           <div class="post-dialog__block">
-            <span class="post-dialog-label">Category</span>
+            <span class="post-dialog-label">{{
+              $t("post-dialog.labels.category")
+            }}</span>
             <div class="post-dialog__radios">
               <div
                 v-for="(item, index) of staticStore.categories"
@@ -139,48 +162,58 @@
                 <label
                   class="post-dialog__radios-text"
                   :for="`category${index}`"
-                  >{{ uppercaseFirst(item) }}</label
+                  >{{ uppercaseFirst($t(`categores.options.${item}`)) }}</label
                 >
               </div>
             </div>
             <transition>
               <p class="error" v-if="errors.category">
-                {{ errors.category }}
+                {{
+                  $t(`validation.${errors.category?.key || errors.category}`, {
+                    ...errors.category?.values,
+                  })
+                }}
               </p>
             </transition>
           </div>
 
           <div class="post-dialog__block">
-            <label for="price" class="post-dialog-label">Tags</label>
+            <label for="price" class="post-dialog-label">{{
+              $t("post-dialog.labels.tags")
+            }}</label>
             <Tags
               v-model="tags"
               :limit-tags="5"
-              placeholder="Select a tag..."
+              :placeholder="$t('placeholders.tags')"
               classSelect="post-dialog-tags"
               :class="{ 'is-invalid': errors.tags }"
             />
             <transition name="fade">
               <small v-if="errors.tags" class="error">
-                {{ errors.tags }}
+                {{
+                  $t(`validation.${errors.tags?.key || errors.tags}`, {
+                    ...errors.tags?.values,
+                  })
+                }}
               </small>
             </transition>
           </div>
         </div>
-        
+
         <div class="dashboard-dialog-footer">
           <Button
             text
             @click="requireConfirmation($event)"
             :pt="getClasses('no').button"
             unstyled
-            ><i-iconoir:cancel />Cancel</Button
+            ><i-iconoir:cancel />{{ $t("buttons.cancel") }}</Button
           >
           <Button
             @click="onSubmit"
             :pt="getClasses('yes').button"
             :disabled="loading"
             unstyled
-            ><i-ic:round-check />Save</Button
+            ><i-ic:round-check />{{ $t("buttons.save") }}</Button
           >
         </div>
       </div>
@@ -191,7 +224,7 @@
     <transition>
       <Spinner
         v-if="loading"
-        style="border-radius: 0; position: fixed; z-index: 1600;"
+        style="border-radius: 0; position: fixed; z-index: 1600"
         size="50"
       />
     </transition>
@@ -199,7 +232,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineModel, watch, markRaw } from "vue";
+import { ref, defineProps, defineModel, watch, markRaw, inject } from "vue";
 import { getClasses } from "@/utils/classes";
 import { areArraysEqual, uppercaseFirst, translitForUrl } from "@/utils/index";
 import { deleteImage, uploadImage } from "@/server/storage";
@@ -224,6 +257,7 @@ const uiStore = useUiStore();
 const toast = useToast();
 const confirm = useConfirm();
 
+const t = inject("t");
 const visible = defineModel("visible");
 const props = defineProps({
   post: Object,
@@ -318,12 +352,12 @@ const saveEditedPost = async () => {
   loading.value = true;
   let success = false;
   let updatedPost = {};
-  
+
   if (props.post.name !== values.name) {
     updatedPost.name = values.name;
     updatedPost.slug = translitForUrl(values.name);
   }
-  const objectToString = JSON.stringify(description.value)
+  const objectToString = JSON.stringify(description.value);
   if (props.post.description !== objectToString) {
     updatedPost.description = objectToString;
   }
@@ -364,15 +398,19 @@ const saveEditedPost = async () => {
     ) {
       toast.add({
         severity: "error",
-        summary: "Post not edited!",
-        detail: `${stringToObject.process} ${stringToObject.description}`,
+        summary: t("errors.post.edit"),
+        detail: `${t(`errors.process.${stringToObject.process}`)} ${t(
+          `error_codes.${stringToObject.description}`
+        )}`,
         life: 5000,
       });
     } else {
       toast.add({
         severity: "error",
-        summary: "Image not deleted!",
-        detail: `${stringToObject.process} ${stringToObject.description}`,
+        summary: t("errors.image.delete"),
+        detail: `${t(`errors.process.${stringToObject.process}`)} ${t(
+          `error_codes.${stringToObject.description}`
+        )}`,
         life: 5000,
       });
     }
@@ -386,8 +424,8 @@ const saveEditedPost = async () => {
 
       toast.add({
         severity: "success",
-        summary: "Successfully",
-        detail: "Post edited successfully!",
+        summary: t("success.post.summary"),
+        detail: t("success.post.edit"),
         life: 5000,
       });
       visible.value = false;
@@ -398,7 +436,7 @@ const saveEditedPost = async () => {
 
 const saveNewPost = async () => {
   const id = uuidv4();
-  const objectToString = JSON.stringify(description.value)
+  const objectToString = JSON.stringify(description.value);
 
   const newPost = {
     id: id,
@@ -423,8 +461,8 @@ const saveNewPost = async () => {
 
     toast.add({
       severity: "success",
-      summary: "Successfully",
-      detail: "Post created successfully!",
+      summary: t("success.post.summary"),
+      detail: t("success.post.create"),
       life: 5000,
     });
     visible.value = false;
@@ -432,8 +470,10 @@ const saveNewPost = async () => {
     const stringToObject = JSON.parse(error.message);
     toast.add({
       severity: "error",
-      summary: "Post not created!",
-      detail: `${stringToObject.process} ${stringToObject.description}`,
+      summary: t("errors.post.create"),
+      detail: `${t(`errors.process.${stringToObject.process}`)} ${t(
+        `error_codes.${stringToObject.description}`
+      )}`,
       life: 5000,
     });
   } finally {
@@ -445,9 +485,9 @@ const requireConfirmation = (event) => {
   const confirmInfo = markRaw({
     target: event.currentTarget,
     group: "headless",
-    message: "Data will not be saved. Continue?",
-    rejectLabel: "Cancel",
-    acceptLabel: "OK",
+    message: t("confirm.message"),
+    rejectLabel: t("buttons.cancel"),
+    acceptLabel: t("buttons.ok"),
     icon: IonWarningOutline,
     colorIcon: "var(--yellow-2)",
     accept: () => {

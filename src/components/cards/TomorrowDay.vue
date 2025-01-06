@@ -2,7 +2,7 @@
   <div class="tomorrow-day">
     <div class="tomorrow-day-left">
       <div class="tomorrow-day-top">
-        <div class="tomorrow-day-title">{{ dateDay }}</div>
+        <div class="tomorrow-day-title">{{ getDate }}</div>
         <div class="tomorrow-day-subtitle">{{ dataDay.day }}</div>
       </div>
       <div class="tomorrow-day-footer">
@@ -54,20 +54,24 @@
 </template>
 
 <script setup>
-import { onMounted, ref, defineProps, computed, watch } from "vue";
+import { onMounted, ref, defineProps, computed, watch, inject } from "vue";
 import { getImageUrl, formatPath, setPlus } from "@/utils/index";
+import { useI18n } from "vue-i18n";
 
 const props = defineProps({
   forecastDay: Object,
   dataDay: Object,
 });
 
+const t = inject("t");
+const { locale } = useI18n();
 const path = ref();
-const dateDay = ref();
 const totalPrecip = computed(() =>
   props.forecastDay?.day?.totalprecip_mm.toFixed(1) == 0.0
     ? ""
-    : `${props.forecastDay?.day?.totalprecip_mm.toFixed(1)} mm`
+    : `${props.forecastDay?.day?.totalprecip_mm.toFixed(1)} ${t(
+        "measurement.precip"
+      )}`
 );
 
 const getColor = (value) => {
@@ -109,12 +113,6 @@ const getColor = (value) => {
   return { colorBack, colorBorder };
 };
 
-onMounted(() => {
-  if (props.forecastDay) {
-    init();
-  }
-});
-
 watch(
   () => props.forecastDay,
   (newValue) => {
@@ -124,19 +122,16 @@ watch(
   }
 );
 
-const init = () => {
-  getDate();
-};
-
-const getDate = () => {
+const getDate = computed(() => {
   const originDate = props.forecastDay.date;
   const date = new Date(originDate);
-  dateDay.value = date.toLocaleDateString("en-GB", {
+  const dateDay = date.toLocaleDateString(locale.value, {
     weekday: "short",
     day: "numeric",
     month: "short",
   });
-};
+  return dateDay;
+});
 </script>
 
 <style lang="scss" scoped>

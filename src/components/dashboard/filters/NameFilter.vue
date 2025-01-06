@@ -7,7 +7,7 @@
       <InputText
         v-model="nameFilter"
         type="text"
-        placeholder="Search..."
+        :placeholder="$t('placeholders.name')"
         @input="searchByName()"
         :pt="getClasses('dashboard-search').inputtext"
         unstyled

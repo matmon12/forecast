@@ -3,7 +3,11 @@
     <Tag
       v-for="(item, index) in tags.slice(0, limitTags)"
       :key="index"
-      :value="item"
+      :value="
+        $te(`tags.items.${getKeyTag(item)}`)
+          ? $t(`tags.items.${getKeyTag(item)}`)
+          : item
+      "
       severity="secondary"
       :pt="getClasses('dashboard').tag"
     ></Tag>
@@ -21,6 +25,7 @@
 <script setup>
 import { ref, defineProps, watch } from "vue";
 import { getClasses } from "@/utils/classes";
+import { getKeyTag } from "@/utils/index";
 
 const defaultLimitTags = ref(3);
 const limitTags = ref(3);

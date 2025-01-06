@@ -10,11 +10,8 @@ import {
 } from "firebase/firestore";
 
 const getError = (code) => {
-  const errorMessage = {
-    description: errorCodes.database[code]
-  }
-  const objectToString = JSON.stringify(errorMessage);
-  return new Error(objectToString);
+  const errorMessage = `database.${code}`;
+  return new Error(errorMessage);
 };
 
 export const readToDB = async (query) => {

@@ -2,7 +2,7 @@
   <div class="humidity">
     <p class="humidity-title">
       <i-carbon:humidity />
-      Humidity
+      {{ $t("humidity.title") }}
     </p>
     <div class="humidity-wrap">
       <img class="humidity-img" src="@/img/Humidity.png" alt="picture" />
@@ -10,7 +10,7 @@
     <div class="humidity-footer">
       <p class="humidity-left">{{ props.humidity }}<span>%</span></p>
       <div class="humidity-right">
-        <p class="humidity-status-text">Status</p>
+        <p class="humidity-status-text">{{ $t("humidity.subtitle") }}</p>
         <p class="humidity-status-value">
           {{ getTextDesc(props.humidity, uiStore.xs2Smaller) }}
         </p>
@@ -20,10 +20,11 @@
 </template>
 
 <script setup>
-import { ref, defineProps } from "vue";
+import { ref, defineProps, inject } from "vue";
 import { useUiStore } from "@/stores/ui";
 
 const uiStore = useUiStore();
+const t = inject("t");
 
 const props = defineProps({
   humidity: {
@@ -36,27 +37,27 @@ const props = defineProps({
 const getTextDesc = (value, responsive) => {
   if (responsive) {
     if (value < 30) {
-      return "Low";
+      return t("humidity.status.short.low");
     } else if (value >= 30 && value < 50) {
-      return "Normal";
+      return t("humidity.status.short.normal");
     } else if (value >= 50 && value < 70) {
-      return "Good";
+      return t("humidity.status.short.good");
     } else if (value >= 70 && value < 90) {
-      return "High";
+      return t("humidity.status.short.high");
     } else {
-      return "Overly";
+      return t("humidity.status.short.overly");
     }
   } else {
     if (value < 30) {
-      return "Very Low";
+      return t("humidity.status.long.low");
     } else if (value >= 30 && value < 50) {
-      return "Satisfactory";
+      return t("humidity.status.long.normal");
     } else if (value >= 50 && value < 70) {
-      return "Good Quality";
+      return t("humidity.status.long.good");
     } else if (value >= 70 && value < 90) {
-      return "High Humidity";
+      return t("humidity.status.long.high");
     } else {
-      return "Excessively";
+      return t("humidity.status.long.overly");
     }
   }
 };
@@ -66,6 +67,9 @@ const getTextDesc = (value, responsive) => {
 @include Humidity();
 .humidity {
   @include Card();
+  display: flex;
+  flex-direction: column;
+
 }
 .humidity-title {
   margin-bottom: 15px;
@@ -81,6 +85,7 @@ const getTextDesc = (value, responsive) => {
   margin: 0 auto;
   position: relative;
   z-index: 0;
+  flex-grow: 1;
   &::after {
     content: "";
     position: absolute;

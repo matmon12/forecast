@@ -1,8 +1,8 @@
 <template>
   <div class="polar-area">
     <div class="polar-area__header">
-      <p class="polar-area-subtitle">Last week</p>
-      <h1 class="polar-area-title">Temperature</h1>
+      <p class="polar-area-subtitle">{{ $t("history-polar.subtitle") }}</p>
+      <h1 class="polar-area-title">{{ $t("history-polar.title") }}</h1>
     </div>
     <div class="polar-area-graph">
       <PolarArea :data="dataPolarArea" :options="optionsPolarArea" />
@@ -10,22 +10,23 @@
     <div class="polar-area__footer">
       <div class="footer-item">
         <p class="footer-point" style="background-color: #3d93f5e9"></p>
-        <p class="footer-text">Min (°С)</p>
+        <p class="footer-text">{{ $t("history-polar.labels.min") }} (°С)</p>
       </div>
       <div class="footer-item">
         <p class="footer-point" style="background-color: #963df5"></p>
-        <p class="footer-text">Max (°С)</p>
+        <p class="footer-text">{{ $t("history-polar.labels.max") }} (°С)</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, defineProps, computed, watch, onMounted } from "vue";
+import { ref, defineProps, computed, watch, onMounted, inject } from "vue";
 import { PolarArea } from "vue-chartjs";
 import { useUiStore } from "@/stores/ui";
 
 const uiStore = useUiStore();
+const t = inject("t");
 
 const props = defineProps({
   history: Array,
@@ -72,7 +73,7 @@ const dataPolarArea = computed(() => {
     labels: dataDays.value,
     datasets: [
       {
-        label: "Min",
+        label: t("history-polar.labels.min"),
         data: min.value,
         backgroundColor: `${colorBackMin}4d`,
         borderColor: "#000",
@@ -80,7 +81,7 @@ const dataPolarArea = computed(() => {
         hoverBackgroundColor: `${colorBackMin}b2`,
       },
       {
-        label: "Max",
+        label: t("history-polar.labels.max"),
         data: max.value,
         backgroundColor: `${colorBackMax}71`,
         borderColor: "#000",
@@ -142,7 +143,7 @@ const optionsPolarArea = computed(() => {
           useBorderRadius: true,
           borderRadius: 5,
           pointStyleColor: "#fff",
-          text: ["Min", "Max"],
+          text: [t("history-polar.labels.min"), t("history-polar.labels.max")],
         },
         title: {
           display: false,

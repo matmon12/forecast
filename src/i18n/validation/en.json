@@ -1,0 +1,27 @@
+{
+    "validation": {
+        "required": "The field must not be empty!",
+        "min": "The field must contain at least {min} characters!",
+        "max": "The field must contain no more than {max} characters!",
+        "oneof": "Passwords do not match!",
+        "only_literal": "Name must include only literal values!",
+        "not_prohibited": "The name must not contain prohibited characters!",
+        "email": "Email is not valid!",
+        "symbols": "Invalid characters",
+        "image": {
+            "required": "Upload an image!"
+        },
+        "category": {
+            "required": "Select a category!"
+        },
+        "array": {
+            "min": "Select at least {min} value!",
+            "max": "There should be no more than {max} values!"
+        },
+        "matches": {
+            "numerical": "The password must contain at least 1 numerical character!",
+            "lowercase": "The password must contain at least 1 lowercase character!",
+            "capital": "The password must contain at least 1 capital character!"
+        }
+    }
+}

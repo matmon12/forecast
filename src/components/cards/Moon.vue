@@ -3,7 +3,7 @@
     <div class="moon__left">
       <p class="moon-title">
         <i-solar:moon-stars-outline />
-        Lunar phase
+        {{ $t("moon.title") }}
       </p>
       <div class="moon__content">
         <div class="moon-picture">
@@ -17,30 +17,40 @@
         </div>
         <div class="moon__info">
           <div class="moon__info-top">
-            <p class="moon__info-phase">{{ phase }}</p>
+            <p class="moon__info-phase">
+              {{
+                phase &&
+                $t(`moon.phases.${phase.toLowerCase().split(" ").join("_")}`)
+              }}
+            </p>
           </div>
           <div class="moon__info-bottom">
-            Full Moon - {{ moonFullDate[1] }} {{ moonFullDate[0].getDate() }}, in
-            {{ timeLeft }} days
+            {{
+              $t("moon.moon_full", {
+                month: moonFullDate[1],
+                day: moonFullDate[0].getDate(),
+                time: timeLeft,
+              })
+            }}
           </div>
         </div>
       </div>
     </div>
     <div class="moon__aside">
       <div class="moon__aside-item">
-        <h6 class="moon__aside-title">Moonrise</h6>
+        <h6 class="moon__aside-title">{{ $t("moon.moonrise") }}</h6>
         <p class="moon__aside-text">
           {{ moonrise[0] }}<span>{{ moonrise[1] }}</span>
         </p>
       </div>
       <div class="moon__aside-item">
-        <h6 class="moon__aside-title">Moonset</h6>
+        <h6 class="moon__aside-title">{{ $t("moon.moonset") }}</h6>
         <p class="moon__aside-text">
           {{ moonset[0] }}<span>{{ moonset[1] }}</span>
         </p>
       </div>
       <div class="moon__aside-item">
-        <h6 class="moon__aside-title">Light</h6>
+        <h6 class="moon__aside-title">{{ $t("moon.light") }}</h6>
         <p class="moon__aside-text">{{ illumPercent }}%</p>
       </div>
     </div>
@@ -53,31 +63,33 @@ import { formattedTime } from "@/utils/index";
 import { moonposition, moon, base, moonphase } from "astronomia";
 
 const { anime } = inject("plugins");
+const t = inject("t");
 
 const illumination = ref(0);
 const illumPercent = ref(0);
 const phase = ref();
 const moonrise = ref([]);
 const moonset = ref([]);
-const moonFullDate = ref([]);
 
 const currentDate = new Date();
-const months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+const months = computed(() => [
+  t("months.january"),
+  t("months.february"),
+  t("months.march"),
+  t("months.april"),
+  t("months.may"),
+  t("months.june"),
+  t("months.july"),
+  t("months.august"),
+  t("months.september"),
+  t("months.october"),
+  t("months.november"),
+  t("months.december"),
+]);
 
-const timeLeft = computed(() => new Date(moonFullDate.value[0] - currentDate).getDate());
+const timeLeft = computed(() =>
+  new Date(moonFullDate.value[0] - currentDate).getDate()
+);
 
 function convertToDecimalDate(date = new Date()) {
   const year = date.getFullYear();
@@ -126,7 +138,7 @@ function convertJDEToNextFullMoon(jde) {
 const decimalDate = convertToDecimalDate(currentDate);
 const jde = moonphase.full(decimalDate);
 const date = convertJDEToNextFullMoon(jde);
-moonFullDate.value = [date, months[date.getMonth()]];
+const moonFullDate = computed(() => [date, months.value[date.getMonth()]]);
 
 const props = defineProps({
   astroInfo: Object,

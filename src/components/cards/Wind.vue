@@ -2,7 +2,7 @@
   <div class="wind">
     <p class="wind-title">
       <i-ph:wind />
-      Wind Status
+      {{ $t("wind.title") }}
     </p>
     <div class="wind-content">
       <div class="wind-compas">
@@ -12,19 +12,21 @@
           />
         </div>
         <div class="wind-compas-box">
-          <p class="wind-compas-text">N</p>
-          <p class="wind-compas-text">E</p>
-          <p class="wind-compas-text">S</p>
-          <p class="wind-compas-text">W</p>
+          <p class="wind-compas-text">{{ $t("wind.compas.n") }}</p>
+          <p class="wind-compas-text">{{ $t("wind.compas.e") }}</p>
+          <p class="wind-compas-text">{{ $t("wind.compas.s") }}</p>
+          <p class="wind-compas-text">{{ $t("wind.compas.w") }}</p>
         </div>
       </div>
     </div>
     <div class="wind__footer">
       <div class="wind-left">
         {{ kphToMph(props.speed) }}
-        <span>m/s</span>
+        <span>{{ $t("wind.measurement") }}</span>
       </div>
-      <div class="wind-right">{{ props.dir }}</div>
+      <div class="wind-right">
+        {{ convertDir }}
+      </div>
     </div>
   </div>
 </template>
@@ -32,8 +34,10 @@
 <script setup>
 import { ref, defineProps, watch, onMounted, inject } from "vue";
 import { kphToMph } from "@/utils/index";
+import { computed } from "vue";
 
-const { anime } = inject('plugins');
+const { anime } = inject("plugins");
+const t = inject("t");
 
 const props = defineProps({
   speed: {
@@ -74,6 +78,14 @@ onMounted(() => {
     easing: "spring(1, 80, 10, 0)",
     duration: 700,
   });
+});
+
+const convertDir = computed(() => {
+  return props.dir
+    .toLowerCase()
+    .split("")
+    .map((item) => t(`wind.compas.${item}`))
+    .join("");
 });
 </script>
 

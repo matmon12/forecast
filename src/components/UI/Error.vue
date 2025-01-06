@@ -2,9 +2,13 @@
   <div class="error-page">
     <i-bxs:error />
     <p class="error-page-text">{{ message }}</p>
-    <div class="error-page-btns" >
-      <button @click="$emit('toBack')" class="error-page-btn">Back</button>
-      <button v-if="retry" @click="$emit('retry')" class="error-page-btn">Retry</button>
+    <div class="error-page-btns">
+      <button @click="$emit('toBack')" class="error-page-btn">
+        {{ $t("buttons.back") }}
+      </button>
+      <button v-if="retry" @click="$emit('retry')" class="error-page-btn">
+        {{ $t("buttons.retry") }}
+      </button>
     </div>
   </div>
 </template>
@@ -16,8 +20,8 @@ const props = defineProps({
   message: String,
   retry: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 </script>
 
@@ -58,7 +62,7 @@ const props = defineProps({
   border-radius: 8px;
   margin-top: 40px;
   font-size: 16px;
-  transition: background-color 0.3s, filter .3s, font-weight .3s;
+  transition: background-color 0.3s, filter 0.3s, font-weight 0.3s;
   &:nth-child(1) {
     border: 1px solid var(--blue-630);
     background-color: var(--transparent-6);
@@ -75,7 +79,7 @@ const props = defineProps({
     font-weight: 500;
     color: var(--black-3);
     background-color: var(--blue-160);
-    &:hover{
+    &:hover {
       filter: brightness(1.2);
     }
   }

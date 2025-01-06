@@ -13,7 +13,7 @@
       selection-mode="range"
       @date-select="emits('dateSelect')"
       @clear-click="(date = ''), emits('clearClick')"
-      placeholder="Select date"
+      :placeholder="$t('placeholders.date')"
       :pt="{
         ...getClasses('dashboard').datepicker,
         pcInput: getClasses('dashboard-datepicker').inputtext,

@@ -14,21 +14,21 @@
       <span class="ql-formats dashboard-editor-formats">
         <button
           v-tooltip.bottom="{
-            value: 'Bold',
+            value: $t('description.tooltips.bold'),
             pt: getClasses('editor').tooltip,
           }"
           class="ql-bold dashboard-editor-bold ql-btn"
         ></button>
         <button
           v-tooltip.bottom="{
-            value: 'Italic',
+            value: $t('description.tooltips.italic'),
             pt: getClasses('editor').tooltip,
           }"
           class="ql-italic dashboard-editor-italic ql-btn"
         ></button>
         <button
           v-tooltip.bottom="{
-            value: 'Underline',
+            value: $t('description.tooltips.underline'),
             pt: getClasses('editor').tooltip,
           }"
           class="ql-underline dashboard-editor-underline ql-btn"
@@ -56,7 +56,7 @@
       <span class="ql-formats dashboard-editor-formats">
         <button
           v-tooltip.bottom="{
-            value: 'List',
+            value: $t('description.tooltips.list'),
             pt: getClasses('editor').tooltip,
           }"
           class="ql-list dashboard-editor-list ql-btn"
@@ -68,14 +68,14 @@
       <span class="ql-formats dashboard-editor-formats">
         <button
           v-tooltip.bottom="{
-            value: 'Link',
+            value: $t('description.tooltips.link'),
             pt: getClasses('editor').tooltip,
           }"
           class="ql-link dashboard-editor-link ql-btn"
         ></button>
         <button
           v-tooltip.bottom="{
-            value: 'Image',
+            value: $t('description.tooltips.image'),
             pt: getClasses('editor').tooltip,
           }"
           class="ql-image dashboard-editor-image ql-btn"
@@ -95,13 +95,17 @@
 </template>
 
 <script setup>
-import { ref, defineModel, computed, watch, onMounted } from "vue";
+import { ref, defineModel, computed, watch, onMounted, inject } from "vue";
 import { getClasses } from "@/utils/classes";
 import Pickr from "@simonwep/pickr";
 import debounce from "lodash.debounce";
 import "@simonwep/pickr/dist/themes/nano.min.css";
+import { useI18n } from "vue-i18n";
 import Quill from "quill";
+import { nextTick } from "vue";
 
+const t = inject("t");
+const { locale } = useI18n();
 const description = defineModel("description");
 const lengthDescription = defineModel("length");
 
@@ -118,7 +122,10 @@ const colorsText = ref([
   { name: "default", value: "red" },
   { name: "default", value: "green" },
   { name: "default", value: "yellow" },
-  { name: "color-picker", value: "color-picker" },
+  {
+    name: "color-picker",
+    value: "color-picker",
+  },
   { name: "new-color", value: "new-color" },
   { name: "new-color", value: "new-color" },
   { name: "new-color", value: "new-color" },
@@ -132,7 +139,10 @@ const colorsBack = ref([
   { name: "default", value: "#000000" },
   { name: "default", value: "#ffffff" },
   { name: "default", value: "#7b9dcf" },
-  { name: "color-picker", value: "color-picker" },
+  {
+    name: "color-picker",
+    value: "color-picker",
+  },
   { name: "new-color", value: "new-color" },
   { name: "new-color", value: "new-color" },
   { name: "new-color", value: "new-color" },
@@ -147,7 +157,7 @@ const initQuill = () => {
     modules: {
       toolbar: "#toolbar",
     },
-    placeholder: "Enter text of post here...",
+    placeholder: t("placeholders.description"),
     theme: "snow",
   };
 
@@ -167,7 +177,94 @@ const initQuill = () => {
   editor.on("text-change", () => {
     updateValue();
   });
+
+  // локализация / начальная установка
+  setLocaleText();
 };
+
+const setLocaleText = async () => {
+  const placeholder = document.querySelector(".ql-editor.ql-blank");
+  if (placeholder) {
+    placeholder.setAttribute("data-placeholder", t("placeholders.description"));
+  }
+
+  const tooltip = document.querySelector(".ql-tooltip");
+  const tooltipInput = document.querySelector(".ql-tooltip input");
+  const actionBtn = document.querySelector(".ql-action");
+  const removeBtn = document.querySelector(".ql-remove");
+  if (tooltip) {
+    tooltip.setAttribute("data-editing", t("description.tooltip.edit-text"));
+    tooltip.setAttribute("data-preview", t("description.tooltip.preview-text"));
+    tooltipInput.setAttribute("data-link", t("placeholders.tooltip"));
+    actionBtn.setAttribute("data-content", t("buttons.save"));
+    removeBtn.setAttribute("data-content", t("buttons.remove"));
+  }
+
+  const headerLabel = document.querySelector(
+    ".dashboard-editor-header .ql-picker-label"
+  );
+  const headerItems = document.querySelectorAll(
+    ".dashboard-editor-header .ql-picker-item"
+  );
+  if (headerLabel) {
+    const valueLabel = headerLabel.getAttribute("data-value");
+    if (!valueLabel) {
+      headerLabel.setAttribute("data-label", t("description.header.normal"));
+    } else {
+      headerLabel.setAttribute(
+        "data-label",
+        t("description.header.other", { n: valueLabel })
+      );
+    }
+
+    headerItems.forEach((item) => {
+      const valueItem = item.getAttribute("data-value");
+      if (!valueItem) {
+        item.setAttribute("data-label", t("description.header.normal"));
+      } else {
+        item.setAttribute(
+          "data-label",
+          t("description.header.other", { n: valueItem })
+        );
+      }
+    });
+  }
+
+  const pickrBtns = document.querySelectorAll(
+    ".ql-picker-item[data-value='color-picker']"
+  );
+  const resetBtns = document.querySelectorAll(
+    ".ql-picker-item[data-value='reset']"
+  );
+  if (pickrBtns.length > 0) {
+    pickrBtns.forEach((item) => {
+      item.setAttribute("data-label", t("description.content.pickr"));
+    });
+  }
+  if (resetBtns.length > 0) {
+    resetBtns.forEach((item) => {
+      item.setAttribute("data-label", t("description.content.reset"));
+    });
+  }
+
+  if (pickr) {
+    const pickrOld = document.querySelector(".pickr");
+    const pickrNew = document.createElement("div");
+    pickrNew.className = "picker";
+    pickrOld.parentNode.insertBefore(pickrNew, pickrOld);
+
+    pickr.destroyAndRemove();
+    initPickr();
+  }
+};
+
+// изменение текста при изменении локали
+watch(
+  () => locale.value,
+  () => {
+    setLocaleText();
+  }
+);
 
 onMounted(() => {
   initQuill();
@@ -233,6 +330,10 @@ const initPickr = () => {
         input: true,
         save: true,
       },
+    },
+
+    i18n: {
+      "btn:save": t("buttons.save"),
     },
   });
 };
@@ -700,7 +801,7 @@ const setPosDropdown = (button, options) => {
     font-weight: 600;
 
     &:before {
-      content: "Pick color...";
+      content: attr(data-label);
       font-size: 12px;
       line-height: 1;
     }
@@ -713,7 +814,7 @@ const setPosDropdown = (button, options) => {
     background-color: transparent;
 
     &:before {
-      content: "No color";
+      content: attr(data-label);
       line-height: 1;
       font-size: 12px;
     }
@@ -817,10 +918,22 @@ const setPosDropdown = (button, options) => {
   &:not(.ql-hidden) {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
+    column-gap: 10px;
+    row-gap: 7px;
+
   }
 
   &::before {
+    content: attr(data-preview);
     color: var(--white);
+    margin-right: 0;
+  }
+
+  &.ql-editing {
+    &::before {
+      content: attr(data-editing);
+    }
   }
 
   input[type="text"] {
@@ -834,10 +947,9 @@ const setPosDropdown = (button, options) => {
 
   .ql-action,
   .ql-remove {
-    height: 100%;
+    height: min-content;
     padding: 0 8px;
     border-radius: 5px;
-    margin-left: 10px;
     box-shadow: 0 0 5px #000;
     font-size: 13px;
   }
@@ -848,6 +960,7 @@ const setPosDropdown = (button, options) => {
     display: flex;
     align-items: center;
     &::after {
+      content: attr(data-content);
       margin-left: 0;
       padding-right: 0;
       border-right: none;
@@ -857,6 +970,7 @@ const setPosDropdown = (button, options) => {
     border: 1px solid var(--blue-4);
     color: var(--white);
     &::before {
+      content: attr(data-content);
       margin-left: 0;
     }
   }

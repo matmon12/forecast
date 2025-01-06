@@ -24,5 +24,6 @@ export const errorCodes = {
     "auth/wrong-password": "The password is invalid or the user does not have a password.",
     "auth/user-disabled": "The user account has been disabled by an administrator.",
     "auth/invalid-credential": "Invalid login credentials. Please check your email and password and try again."
-  }
+  },
+  unknown: "An unknown error has occurred. Please try again later. If the problem persists, contact support."
 };

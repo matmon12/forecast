@@ -144,3 +144,5 @@ export const getUsername = (email) => {
     return uppercaseFirst(email.split("@")[0]);
   }
 };
+
+export const getKeyTag = (tag) => tag && tag.toLowerCase().split(" ").join("_");

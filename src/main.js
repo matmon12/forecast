@@ -18,6 +18,8 @@ import { abilitiesPlugin } from "@casl/vue";
 import { ability } from "@/services/ability";
 import VueTelInput from "vue-tel-input";
 import i18n from "@/i18n";
+import en from "./i18n/primelocale/en.json";
+import countries from "i18n-iso-countries";
 import "vue-tel-input/vue-tel-input.css";
 import "vue-resize/dist/vue-resize.css";
 import "./index.scss";
@@ -68,6 +70,8 @@ app.directive("tooltip", Tooltip);
 app.directive("mask", VueMaskDirective);
 
 app.provide("plugins", { anime });
+app.provide("t", i18n.global.t);
+app.provide("countries", countries);
 
 app
   .use(autoAnimatePlugin)
@@ -76,6 +80,7 @@ app
   .use(ToastService)
   .use(ConfirmationService)
   .use(PrimeVue, {
+    locale: { ...en.en },
     theme: {
       preset: Aura,
       options: {

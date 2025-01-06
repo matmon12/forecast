@@ -5,12 +5,11 @@ import {
   deleteObject,
   getDownloadURL,
 } from "firebase/storage";
-import { errorCodes } from "@/utils/errors";
 
-const getError = (code, operation, process) => {
+const getError = (code, operation) => {
   const errorMessage = {
-    description: errorCodes.storage[code],
-    process: process,
+    description: `storage.${code}`,
+    process: operation,
     operation: operation,
     object: "image",
   };
@@ -25,7 +24,7 @@ export const loadImage = async (name, path) => {
     const urlImage = await getDownloadURL(pathReference);
     return urlImage;
   } catch (error) {
-    throw getError(error.code, "get", "Error loading image!");
+    throw getError(error.code, "get");
   }
 };
 
@@ -35,7 +34,7 @@ export const deleteImage = async (image, path) => {
   await deleteObject(deleteReference)
     .then(() => {})
     .catch((error) => {
-      throw getError(error.code, "delete", "Error when deleting image!");
+      throw getError(error.code, "delete");
     });
 };
 
@@ -45,6 +44,6 @@ export const uploadImage = async (image, file, path) => {
   await uploadBytesResumable(uploadRef, file)
     .then(() => {})
     .catch((error) => {
-      throw getError(error.code, "upload", "Error uploading image!");
+      throw getError(error.code, "upload");
     });
 };

@@ -1,8 +1,8 @@
 <template>
   <div class="pie">
     <div class="pie__header">
-      <p class="pie-subtitle">Today</p>
-      <h1 class="pie-title">Day length</h1>
+      <p class="pie-subtitle">{{ $t("history-pie.subtitle") }}</p>
+      <h1 class="pie-title">{{ $t("history-pie.title") }}</h1>
     </div>
     <div class="pie-graph">
       <Doughnut :data="dataPie" :options="optionsPie" />
@@ -11,11 +11,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, defineProps, watch, computed } from "vue";
+import { ref, onMounted, defineProps, watch, computed, inject } from "vue";
 import { Doughnut } from "vue-chartjs";
 import { useUiStore } from "@/stores/ui";
 
 const uiStore = useUiStore();
+const t = inject("t");
 
 const props = defineProps({
   weatherToday: Array,
@@ -62,13 +63,13 @@ const dataPie = computed(() => {
     hoverOffset.value = 20;
   }
 
-  if(!uiStore.theme){
-    colorBackDay = "#acd3ff"
+  if (!uiStore.theme) {
+    colorBackDay = "#acd3ff";
     colorBackNight = "#2b7be4e4";
   }
 
   return {
-    labels: ["Night", "Day"],
+    labels: [t("history-pie.labels.night"), t("history-pie.labels.day")],
     datasets: [
       {
         backgroundColor: [colorBackNight, colorBackDay],
@@ -121,7 +122,7 @@ const optionsPie = computed(() => {
         },
         title: {
           display: true,
-          text: "Hours",
+          text: t("history-pie.legend"),
           padding: {
             top: 15,
           },

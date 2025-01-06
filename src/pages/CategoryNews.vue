@@ -51,13 +51,13 @@
       :disabled="loadingPosts"
     >
       <i-svg-spinners:3-dots-fade v-if="loadingPosts && posts.length > 0" />
-      <span v-else>Show more...</span>
+      <span v-else>{{ $t("buttons.more") }}</span>
     </button>
   </div>
   <Error
     class="category-error"
     v-else
-    :message="errorPosts.description"
+    :message="$t(`error_codes.${errorPosts.description}`)"
     retry
     @to-back="onToBack"
     @retry="onErrorHandler"
@@ -108,7 +108,9 @@ const postQuery = computed(() => {
 });
 
 const categorySource = computed(() => {
-  moveToStart();
+  if (categorySource.value !== route.params.category) {
+    moveToStart();
+  }
 
   return route.params.category;
 });

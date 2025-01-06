@@ -1,5 +1,5 @@
 export default {
-  gbr: {
+  en: {
     currencyFormat: {
       style: "currency",
       currency: "USD",

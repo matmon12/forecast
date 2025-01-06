@@ -1,8 +1,8 @@
 <template>
   <div class="radar">
     <div class="radar__header">
-      <p class="radar-subtitle">Last week</p>
-      <h1 class="radar-title">Humidity / chance of rain</h1>
+      <p class="radar-subtitle">{{ $t("history-radar.subtitle") }}</p>
+      <h1 class="radar-title">{{ $t("history-radar.title") }}</h1>
     </div>
     <div class="radar-graph">
       <Radar :data="dataRadar" :options="optionsRadar" />
@@ -11,11 +11,12 @@
 </template>
 
 <script setup>
-import { ref, defineProps, watch, onMounted, computed } from "vue";
+import { ref, defineProps, watch, onMounted, computed, inject } from "vue";
 import { Radar } from "vue-chartjs";
 import { useUiStore } from "@/stores/ui";
 
 const uiStore = useUiStore();
+const t = inject("t");
 
 const props = defineProps({
   history: Array,
@@ -63,14 +64,14 @@ const dataRadar = computed(() => {
     colorBackH = "#085b3f";
     colorBackAlphaH = "#1f98705e";
     colorBackC = "#0a58a7";
-    colorBackAlphaC = "#156dbf7a"
+    colorBackAlphaC = "#156dbf7a";
   }
 
   return {
     labels: dataDays.value,
     datasets: [
       {
-        label: "Humidity",
+        label: t("history-radar.labels.humidity"),
         data: dataHumidity.value,
         backgroundColor: colorBackAlphaH,
         borderColor: colorBackH,
@@ -82,7 +83,7 @@ const dataRadar = computed(() => {
         pointHoverRadius: 5,
       },
       {
-        label: "Chance of rain",
+        label: t("history-radar.labels.chance_of_rain"),
         data: dataChance.value,
         backgroundColor: colorBackAlphaC,
         borderColor: colorBackC,

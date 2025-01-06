@@ -24,24 +24,28 @@
 </template>
 
 <script setup>
-import { ref, markRaw, computed } from "vue";
+import { ref, markRaw, computed, inject } from "vue";
 import TablerHome from "~icons/tabler/home";
 import { useRoute, onBeforeRouteUpdate } from "vue-router";
 
 const route = useRoute();
+const t = inject("t");
 
-const optionsMenu = ref([
-  { name: "All news", value: "" },
-  { name: "Weather", value: "weather" },
-  { name: "Nature", value: "nature" },
-  { name: "Animals", value: "animals" },
-  { name: "Auto", value: "auto" },
-  { name: "Science and space", value: "science" },
+const optionsMenu = computed(() => [
+  { name: t("news.options.all_news"), value: "" },
+  { name: t("news.options.weather"), value: "weather" },
+  { name: t("news.options.nature"), value: "nature" },
+  { name: t("news.options.animals"), value: "animals" },
+  { name: t("news.options.auto"), value: "auto" },
+  { name: t("news.options.science"), value: "science" },
 ]);
 
 const breadCrumbItems = computed(() => {
   return [
-    { label: "News", route: { name: route.params.category ? "CategoryNews" : "" } },
+    {
+      label: t("breadcrumb.news"),
+      route: { name: route.params.category ? "CategoryNews" : "" },
+    },
     {
       label: optionsMenu.value.find(
         (item) => item.value === (route.params.category || "")
@@ -53,7 +57,7 @@ const breadCrumbItems = computed(() => {
     ...(route.params.name
       ? [
           {
-            label: "Post",
+            label: t("breadcrumb.post"),
           },
         ]
       : []),

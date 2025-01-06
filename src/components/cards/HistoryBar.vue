@@ -2,8 +2,8 @@
   <div class="bar">
     <div class="bar__header">
       <div class="bar__header-left">
-        <p class="bar-subtitle">Last week</p>
-        <h1 class="bar-title">Weather data by day</h1>
+        <p class="bar-subtitle">{{ $t("history-bar.subtitle") }}</p>
+        <h1 class="bar-title">{{ $t("history-bar.title") }}</h1>
       </div>
       <div class="bar__header-right">
         <SelectButton
@@ -28,21 +28,34 @@
 </template>
 
 <script setup>
-import { defineProps, ref, watch, computed, onMounted } from "vue";
+import { defineProps, ref, watch, computed, onMounted, inject } from "vue";
 import { Bar } from "vue-chartjs";
 import { kphToMph } from "@/utils/index";
 import { useUiStore } from "@/stores/ui";
 
 const uiStore = useUiStore();
+const t = inject("t");
 
 const weekData = ref([]);
 const dataDays = ref([]);
 
 const valueDays = ref("avgtemp_c");
-const optionsDays = ref([
-  { name: "Avg temp", value: "avgtemp_c", measurement: "°С" },
-  { name: "Total precip", value: "totalprecip_mm", measurement: "mm" },
-  { name: "Max wind", value: "maxwind_kph", measurement: "m/s" },
+const optionsDays = computed(() => [
+  {
+    name: t("history-bar.options.temp.name"),
+    value: "avgtemp_c",
+    measurement: "°С",
+  },
+  {
+    name: t("history-bar.options.precip.name"),
+    value: "totalprecip_mm",
+    measurement: t("history-bar.options.precip.measurement"),
+  },
+  {
+    name: t("history-bar.options.wind.name"),
+    value: "maxwind_kph",
+    measurement: t("history-bar.options.wind.measurement"),
+  },
 ]);
 
 // ui настройки графика

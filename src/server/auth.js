@@ -1,4 +1,3 @@
-import { errorCodes } from "@/utils/errors";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -7,10 +6,8 @@ import {
 } from "firebase/auth";
 
 const getError = (error) => {
-  let errorMessage = errorCodes.auth[error.code];
-  if (!errorMessage)
-    errorMessage =
-      "An unknown error has occurred. Please try again later. If the problem persists, contact support.";
+  let errorMessage = `auth.${error.code}`;
+  if (!errorMessage) errorMessage = "unknown";
   return new Error(errorMessage);
 };
 

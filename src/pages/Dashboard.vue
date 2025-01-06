@@ -2,11 +2,11 @@
   <div v-if="!errorPosts" class="dashboard">
     <Breadcrumb :model="breadCrumbItems" />
 
-    <h1 class="dashboard-title">Post management</h1>
+    <h1 class="dashboard-title">{{ $t("dashboard.title") }}</h1>
 
     <Panel
       v-if="uiStore.mdSmaller"
-      header="Sorting"
+      :header="$t('dashboard.sorting')"
       toggleable
       collapsed
       :pt="getClasses('dashboard').panel"
@@ -25,14 +25,16 @@
 
     <Panel
       v-if="uiStore.mdSmaller"
-      header="Filters"
+      :header="$t('dashboard.filters')"
       toggleable
       collapsed
       :pt="getClasses('dashboard').panel"
     >
       <div class="dashboard-panel-list">
         <div class="dashboard-panel-item">
-          <h6 class="dashboard-panel-item-title">Date</h6>
+          <h6 class="dashboard-panel-item-title">
+            {{ $t("dashboard.fields.date") }}
+          </h6>
           <DateFilter
             v-model="filters.date.value"
             @date-select="hideExpandedPost(), moveFirstPage(), dateSelect()"
@@ -40,7 +42,9 @@
           />
         </div>
         <div class="dashboard-panel-item">
-          <h6 class="dashboard-panel-item-title">Title</h6>
+          <h6 class="dashboard-panel-item-title">
+            {{ $t("dashboard.fields.title") }}
+          </h6>
           <NameFilter
             :name="filters.name.value"
             @search="
@@ -53,7 +57,9 @@
           />
         </div>
         <div class="dashboard-panel-item">
-          <h6 class="dashboard-panel-item-title">Tags</h6>
+          <h6 class="dashboard-panel-item-title">
+            {{ $t("dashboard.fields.tags") }}
+          </h6>
           <TagsFilter
             :tags="filters.tags.value"
             @change="
@@ -66,7 +72,9 @@
           />
         </div>
         <div class="dashboard-panel-item">
-          <h6 class="dashboard-panel-item-title">Category</h6>
+          <h6 class="dashboard-panel-item-title">
+            {{ $t("dashboard.fields.category") }}
+          </h6>
           <CategoryFilter
             :category="filters.category.value"
             :categories="categories"
@@ -131,7 +139,7 @@
       <Column
         v-if="!uiStore.mdSmaller"
         field="date"
-        header="Date"
+        :header="$t('dashboard.fields.date')"
         sortable
         :showClearButton="false"
         :showFilterMenu="false"
@@ -158,7 +166,7 @@
       </Column>
       <Column
         field="name"
-        :header="uiStore.mdSmaller ? null : 'Title'"
+        :header="uiStore.mdSmaller ? null : $t('dashboard.fields.title')"
         :sortable="!uiStore.mdSmaller"
         :showClearButton="false"
         :showFilterMenu="false"
@@ -198,7 +206,7 @@
       </Column>
       <Column
         columnKey="image"
-        :header="uiStore.mdSmaller ? null : 'Image'"
+        :header="uiStore.mdSmaller ? null : $t('dashboard.fields.image')"
         :pt="{
           ...getClasses('dashboard').column,
           bodyCell: {
@@ -223,7 +231,7 @@
       <Column
         v-if="!uiStore.mdSmaller"
         field="tags"
-        header="Tags"
+        :header="$t('dashboard.fields.tags')"
         :showClearButton="false"
         :showFilterMenu="false"
         style="min-width: 12rem; max-width: 12rem"
@@ -247,7 +255,7 @@
       <Column
         v-if="!uiStore.mdSmaller"
         field="category"
-        header="Category"
+        :header="$t('dashboard.fields.category')"
         :showClearButton="false"
         :showFilterMenu="false"
         style="min-width: 8rem"
@@ -255,7 +263,7 @@
       >
         <template #body="{ data }">
           <Tag
-            :value="uppercaseFirst(data.category)"
+            :value="uppercaseFirst($t(`categores.options.${data.category}`))"
             :style="{
               backgroundColor:
                 colorsTags[data.category.toLowerCase()].colorBack,
@@ -279,7 +287,7 @@
       <Column
         v-if="!uiStore.mdSmaller"
         field="rating"
-        header="Rating"
+        :header="$t('dashboard.fields.rating')"
         sortable
         style="min-width: 9rem"
         :pt="getClasses('dashboard').column"
@@ -301,7 +309,7 @@
       <Column
         v-if="!uiStore.mdSmaller"
         field="time"
-        header="Time"
+        :header="$t('dashboard.fields.time')"
         sortable
         style="min-width: 7rem"
         :pt="getClasses('dashboard').column"
@@ -315,7 +323,7 @@
         </template>
         <template #body="{ data }">
           <Tag
-            :value="`${getTimeReading(data.time)} min`"
+            :value="`${getTimeReading(data.time)} ${$t('dashboard.min')}`"
             :severity="getColorLabel(data.time)"
           />
         </template>
@@ -384,7 +392,9 @@
               src="@/img/empty.svg"
               alt="empty"
             />
-            <span class="dashboard-datatable-empty-text">No posts found.</span>
+            <span class="dashboard-datatable-empty-text">{{
+              $t("dashboard.empty")
+            }}</span>
           </div>
         </div>
       </template>
@@ -397,7 +407,7 @@
             :pt="getClasses('new').button"
             unstyled
           >
-            <span class="new-btn-label">New</span>
+            <span class="new-btn-label">{{ $t("buttons.new") }}</span>
             <i-fluent:add-16-filled />
           </Button>
           <Button
@@ -407,9 +417,9 @@
             :pt="getClasses('delete').button"
             unstyled
           >
-            <span v-if="!uiStore.xs2Smaller" class="delete-btn-label"
-              >Delete</span
-            >
+            <span v-if="!uiStore.xs2Smaller" class="delete-btn-label">{{
+              $t("buttons.delete")
+            }}</span>
             <i-mi:delete />
           </Button>
         </div>
@@ -421,9 +431,9 @@
             :disabled="disableClearBtn"
           >
             <i-ci:filter-off />
-            <span v-if="!uiStore.xs2Smaller" class="delete-btn-label"
-              >Clear</span
-            >
+            <span v-if="!uiStore.xs2Smaller" class="delete-btn-label">{{
+              $t("buttons.clear")
+            }}</span>
           </Button>
           <Button
             v-if="!uiStore.mdSmaller"
@@ -431,7 +441,7 @@
             :pt="getClasses('export').button"
             unstyled
             ><i-ph:export-bold />
-            <span class="export-btn-label">Export</span>
+            <span class="export-btn-label">{{ $t("buttons.export") }}</span>
           </Button>
         </div>
       </template>
@@ -449,19 +459,25 @@
         <table class="expansion-table">
           <tbody class="expansion-tbody">
             <tr class="expansion-row">
-              <td class="expansion-body-cell expansion-text">Date</td>
+              <td class="expansion-body-cell expansion-text">
+                {{ $t("dashboard.fields.date") }}
+              </td>
               <td class="expansion-body-cell expansion-content">
                 {{ formattedDate(data.date) }}
               </td>
             </tr>
             <tr class="expansion-row">
-              <td class="expansion-body-cell expansion-text">Title</td>
+              <td class="expansion-body-cell expansion-text">
+                {{ $t("dashboard.fields.title") }}
+              </td>
               <td class="expansion-body-cell expansion-content">
                 {{ data.name }}
               </td>
             </tr>
             <tr class="expansion-row">
-              <td class="expansion-body-cell expansion-text">Image</td>
+              <td class="expansion-body-cell expansion-text">
+                {{ $t("dashboard.fields.image") }}
+              </td>
               <td class="expansion-body-cell expansion-content">
                 <Image
                   :id="data.id"
@@ -473,16 +489,22 @@
               </td>
             </tr>
             <tr class="expansion-row">
-              <td class="expansion-body-cell expansion-text">Tags</td>
+              <td class="expansion-body-cell expansion-text">
+                {{ $t("dashboard.fields.tags") }}
+              </td>
               <td class="expansion-body-cell expansion-content">
                 <TagsTable :tags="data.tags" />
               </td>
             </tr>
             <tr class="expansion-row">
-              <td class="expansion-body-cell expansion-text">Category</td>
+              <td class="expansion-body-cell expansion-text">
+                {{ $t("dashboard.fields.category") }}
+              </td>
               <td class="expansion-body-cell expansion-content">
                 <Tag
-                  :value="uppercaseFirst(data.category)"
+                  :value="
+                    uppercaseFirst($t(`categores.options.${data.category}`))
+                  "
                   :style="{
                     backgroundColor:
                       colorsTags[data.category.toLowerCase()].colorBack,
@@ -492,7 +514,9 @@
               </td>
             </tr>
             <tr class="expansion-row">
-              <td class="expansion-body-cell expansion-text">Rating</td>
+              <td class="expansion-body-cell expansion-text">
+                {{ $t("dashboard.fields.rating") }}
+              </td>
               <td class="expansion-body-cell expansion-content">
                 <Tag :severity="getColorRating(data.rating)">
                   <i-material-symbols:signal-cellular-alt-rounded />
@@ -501,16 +525,20 @@
               </td>
             </tr>
             <tr class="expansion-row">
-              <td class="expansion-body-cell expansion-text">Time</td>
+              <td class="expansion-body-cell expansion-text">
+                {{ $t("dashboard.fields.time") }}
+              </td>
               <td class="expansion-body-cell expansion-content">
                 <Tag
-                  :value="`${getTimeReading(data.time)} min`"
+                  :value="`${getTimeReading(data.time)} ${$t('dashboard.min')}`"
                   :severity="getColorLabel(data.time)"
                 />
               </td>
             </tr>
             <tr class="expansion-row">
-              <td class="expansion-body-cell expansion-text">Action</td>
+              <td class="expansion-body-cell expansion-text">
+                {{ $t("dashboard.fields.action") }}
+              </td>
               <td class="expansion-body-cell expansion-content">
                 <div class="dashboard-table-controls">
                   <Button
@@ -538,7 +566,7 @@
 
   <Error
     v-else
-    :message="errorPosts.description"
+    :message="$t(`error_codes.${errorPosts.description}`)"
     retry
     @to-back="onToBack"
     @retry="onErrorHandler"
@@ -573,6 +601,7 @@ import {
   onMounted,
   onActivated,
   onDeactivated,
+  inject,
 } from "vue";
 import { getClasses } from "@/utils/classes";
 import { postsRef } from "@/server/firebase.config";
@@ -595,6 +624,7 @@ import Panel from "primevue/panel";
 
 const { can } = useAbility();
 const uiStore = useUiStore();
+const t = inject("t");
 
 const dt = ref();
 const post = ref({});
@@ -629,11 +659,11 @@ watch(
 );
 
 // breadcrumb
-const breadCrumbItems = [
+const breadCrumbItems = computed(() => [
   {
-    label: "Dashboard",
+    label: t("breadcrumb.dashboard"),
   },
-];
+]);
 
 // posts
 const posts = ref([]);
@@ -984,9 +1014,7 @@ const moveToStartPosition = () => {
 // предупреждение о несохраненных изменениях
 onBeforeRouteLeave((to, from) => {
   if (postDialog.value) {
-    const answer = window.confirm(
-      "Do you really want to leave? you have unsaved changes!"
-    );
+    const answer = window.confirm(t("dashboard.confirm"));
 
     if (!answer) return false;
   }
@@ -1164,7 +1192,7 @@ const hideExpandedPost = () => {
       }
     }
   }
-  .p-datatable-empty-message{
+  .p-datatable-empty-message {
     background-color: var(--grey-1000);
   }
 
@@ -1249,7 +1277,7 @@ const hideExpandedPost = () => {
   }
 
   // expansion
-  .dashboard-datatable-row-expansion{
+  .dashboard-datatable-row-expansion {
     background-color: var(--grey-1000);
   }
   .dashboard-datatable-row-expansion-cell {
@@ -1262,7 +1290,7 @@ const hideExpandedPost = () => {
       border: none;
     }
   }
-  .dashboard-datatable-row-toggle-button{
+  .dashboard-datatable-row-toggle-button {
     background: var(--grey-920);
     border-color: var(--grey-920);
     color: var(--grey-40);

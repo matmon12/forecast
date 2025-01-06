@@ -13,8 +13,12 @@
             }"
             ><i-codicon:error />
             <div class="error-message-wrap">
-              <h6 class="error-message-title">{{ error?.process }}</h6>
-              <p class="error-message-desc">{{ error?.description }}</p>
+              <h6 class="error-message-title">
+                {{ $t(`errors.process.${error?.process}`) }}
+              </h6>
+              <p class="error-message-desc">
+                {{ $t(`error_codes.${error?.description}`) }}
+              </p>
             </div>
           </Message>
         </template>
@@ -65,7 +69,7 @@
               unstyled
               :disabled="fileupload?.files.length >= fileupload?.fileLimit"
               ><i-ph:images />
-              Choose
+              {{ $t("buttons.choose") }}
             </Button>
             <Button
               @click="clearCallback()"
@@ -73,7 +77,7 @@
               :pt="getClasses('no').button"
               unstyled
               ><i-ic:round-close />
-              Cancel
+              {{ $t("buttons.cancel") }}
             </Button>
           </div>
         </div>
@@ -120,7 +124,7 @@
             <span class="error-message-name"
               >{{ JSON.parse(item).name }}:
             </span>
-            {{ JSON.parse(item).text }}
+            {{ t(`errors.image-upload.${JSON.parse(item).text}`) }}
             {{ JSON.parse(item)?.size }}
           </p>
         </Message>
@@ -134,7 +138,7 @@
         >
           <i-ion:cloud-upload-outline />
           <p class="uploader__empty-text">
-            Drag and drop files to here to upload.
+            {{ $t("image-upload.empty") }}
           </p>
         </div>
       </template>
@@ -143,23 +147,25 @@
 </template>
 
 <script setup>
-import { ref, defineModel, watch } from "vue";
+import { ref, defineModel, watch, inject } from "vue";
 import { usePrimeVue } from "primevue/config";
 import { getClasses } from "@/utils/classes";
+import { computed } from "vue";
 
+const t = inject("t");
 const $primevue = usePrimeVue();
 const image = defineModel("image");
 const file = defineModel("file");
 const fileupload = ref();
-const invalidFileSizeMessage = {
+const invalidFileSizeMessage = computed(() => ({
   name: "{0}",
-  text: "file size should be smaller than",
+  text: "file-size",
   size: "{1}",
-};
-const invalidFileTypeMessage = {
+}));
+const invalidFileTypeMessage = computed(() => ({
   name: "{0}",
-  text: "Invalid file type",
-};
+  text: "file-type",
+}));
 
 const props = defineProps({
   id: String,
@@ -288,7 +294,6 @@ watch(
   }
 }
 
-
 // btns
 .no,
 .yes {
@@ -356,7 +361,7 @@ watch(
       flex-direction: column;
       gap: 10px;
       transition: border-color 0.3s;
-      background-color:var(--transparent-4);
+      background-color: var(--transparent-4);
 
       &.is-invalid {
         border-color: #ff8686;
@@ -439,7 +444,7 @@ watch(
     &-close-button {
       width: var(--p-message-close-button-width);
       height: var(--p-message-close-button-height);
-      &:hover{
+      &:hover {
         background-color: var(--white-1);
       }
     }

@@ -4,7 +4,7 @@
     @click="toggleSortOrder()"
     severity="secondary"
   >
-    <p class="sort-field">{{ uppercaseFirst(field) }}</p>
+    <p class="sort-field">{{ uppercaseFirst($t(`sort.${field}`)) }}</p>
     <div class="sort-icon">
       <i-fluent:arrow-sort-up-lines-20-filled
         v-if="currentOrder === sortOrders[0]"

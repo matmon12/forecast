@@ -5,7 +5,7 @@
       v-model="tagsFilter"
       class-select="dashboard-filter"
       :limit-tags="5"
-      placeholder="Select a tag..."
+      :placeholder="$t('placeholders.tags')"
       @change="emits('change', tagsFilter)"
     />
   </div>
@@ -31,7 +31,7 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-.tagsfilter{
+.tagsfilter {
   height: 100%;
 }
 :deep() {
@@ -59,7 +59,7 @@ watch(
       flex-wrap: nowrap;
       overflow: hidden;
     }
-    .tags__container{
+    .tags__container {
       overflow: hidden;
     }
     .chip {

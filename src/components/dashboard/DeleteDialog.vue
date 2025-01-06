@@ -12,7 +12,9 @@
         v-on-click-outside="closeCallback"
       >
         <div class="dashboard-dialog-header">
-          <span class="dashboard-dialog-title">Confirm</span>
+          <span class="dashboard-dialog-title">{{
+            $t("delete-dialog.title")
+          }}</span>
           <div class="dashboard-dialog-header-actions">
             <button v-if="!uiStore.xs2Smaller" @click="closeCallback">
               <i-ic:round-close />
@@ -22,7 +24,7 @@
         <div class="delete-dialog__content">
           <i-fluent:warning-28-regular />
           <div v-if="post" class="delete-dialog-text">
-            Are you sure you want to delete?
+            {{ $t("delete-dialog.confirm") }}
             <p>{{ post.name }}</p>
           </div>
         </div>
@@ -32,10 +34,10 @@
             @click="visible = false"
             :pt="getClasses('no').button"
             unstyled
-            ><i-iconoir:cancel />No</Button
+            ><i-iconoir:cancel />{{ $t("buttons.no") }}</Button
           >
           <Button @click="onCheckRole" :pt="getClasses('yes').button" unstyled
-            ><i-ic:round-check />Yes</Button
+            ><i-ic:round-check />{{ $t("buttons.yes") }}</Button
           >
         </div>
       </div>
@@ -54,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, defineModel, defineProps, defineEmits } from "vue";
+import { ref, defineModel, defineProps, defineEmits, inject } from "vue";
 import { getClasses } from "@/utils/classes.js";
 import { vOnClickOutside } from "@vueuse/components";
 import { useToast } from "primevue/usetoast";
@@ -69,6 +71,7 @@ const serverStore = useServerStore();
 const toast = useToast();
 const uiStore = useUiStore();
 
+const t = inject("t");
 const loading = ref(false);
 const visible = defineModel("visible");
 const props = defineProps({
@@ -98,8 +101,12 @@ const deletePost = async () => {
     const stringToObject = JSON.parse(error.message);
     toast.add({
       severity: "error",
-      summary: `${uppercaseFirst(stringToObject.object)} not deleted!`,
-      detail: `${stringToObject.process} ${stringToObject.description}`,
+      summary: `${uppercaseFirst(
+        t(`errors.objects.${stringToObject.object}`)
+      )} ${t("errors.delete-post.summary")}`,
+      detail: `${t(`errors.process.${stringToObject.process}`)} ${t(
+        `error_codes.${stringToObject.description}`
+      )}`,
       life: 5000,
     });
   } finally {
@@ -108,8 +115,8 @@ const deletePost = async () => {
 
       toast.add({
         severity: "success",
-        summary: "Successfully",
-        detail: "Post deleted successfully!",
+        summary: t("success.delete-post.summary"),
+        detail: t("success.delete-post.detail"),
         life: 3000,
       });
     }

@@ -1,0 +1,537 @@
+{
+    "placeholders": {
+        "search": "Search City",
+        "categories": "Not selected",
+        "date": "Select date",
+        "name": "Search...",
+        "tags": "Select a tag...",
+        "tags-input": "Enter tags...",
+        "description": "Enter text of post here...",
+        "tooltip": "Enter link...",
+        "post-name": "Enter name",
+        "summary": "Enter summary...",
+        "profile-name": "Enter your name...",
+        "profile-lastname": "Enter your lastname...",
+        "country": "Select a Country",
+        "country-filter": "Enter country",
+        "phone": "Enter a phone number",
+        "email": "Your Email",
+        "password": "Password",
+        "confirm": "Confirm password"
+    },
+    "search": {
+        "header": "Enter name city:"
+    },
+    "buttons": {
+        "login": "Login",
+        "logout": "Logout",
+        "back": "Back",
+        "add-tag": "Add tag",
+        "no": "No",
+        "yes": "Yes",
+        "close": "Close",
+        "save": "Save",
+        "remove": "Remove",
+        "choose": "Choose",
+        "cancel": "Cancel",
+        "ok": "OK",
+        "retry": "Retry",
+        "signin": "Sign In",
+        "signup": "Sign Up",
+        "google": "Sign in with Google",
+        "more": "Show more...",
+        "new": "New",
+        "delete": "Delete",
+        "clear": "Clear",
+        "export": "Export",
+        "home": "Home"
+    },
+    "panel": {
+        "profile": "Profile",
+        "exit": "Exit"
+    },
+    "breadcrumb": {
+        "news": "News",
+        "post": "Post",
+        "forecast": "Forecast",
+        "history": "History",
+        "dashboard": "Dashboard"
+    },
+    "history-bar": {
+        "subtitle": "Last week",
+        "title": "Weather data by day",
+        "options": {
+            "temp": {
+                "name": "Avg temp"
+            },
+            "precip": {
+                "name": "Total precip",
+                "measurement": "mm"
+            },
+            "wind": {
+                "name": "Max wind",
+                "measurement": "m/s"
+            }
+        }
+    },
+    "history-main": {
+        "subtitle": "Today",
+        "title": "Weather data by hour",
+        "options": {
+            "temp": {
+                "name": "Temperature"
+            },
+            "humidity": {
+                "name": "Humidity"
+            },
+            "precip": {
+                "name": "Precip",
+                "measurement": "mm"
+            }
+        }
+    },
+    "history-pie": {
+        "subtitle": "Today",
+        "title": "Day length",
+        "legend": "Hours",
+        "labels": {
+            "night": "Night",
+            "day": "Day"
+        }
+    },
+    "history-polar": {
+        "subtitle": "Last week",
+        "title": "Temperature",
+        "labels": {
+            "min": "Min",
+            "max": "Max"
+        }
+    },
+    "history-radar": {
+        "subtitle": "Last week",
+        "title": "Humidity / chance of rain",
+        "labels": {
+            "humidity": "Humidity",
+            "chance_of_rain": "Chance of rain"
+        }
+    },
+    "humidity": {
+        "title": "Humidity",
+        "subtitle": "Status",
+        "status": {
+            "short": {
+                "low": "Low",
+                "normal": "Normal",
+                "good": "Good",
+                "high": "High",
+                "overly": "Overly"
+            },
+            "long": {
+                "low": "Very Low",
+                "normal": "Satisfactory",
+                "good": "Good Quality",
+                "high": "High Humidity",
+                "overly": "Excessively"
+            },
+            "full": {
+                "low": "Very low humidity",
+                "normal": "Low humidity",
+                "good": "Comfortable humidity",
+                "high": "High humidity",
+                "overly": "Very high humidity"
+            }
+        }
+    },
+    "moon": {
+        "title": "Lunar phase",
+        "moon_full": "Full Moon - {month} {day}, in {time} days",
+        "moonrise": "Moonrise",
+        "moonset": "Moonset",
+        "light": "Light",
+        "phases": {
+            "first_quarter": "First Quarter",
+            "full_moon": "Full Moon",
+            "last_quarter": "Last Quarter",
+            "new": "New",
+            "waning_crescent": "Waning Crescent",
+            "waning_gibbous": "Waning Gibbous",
+            "waxing_crescent": "Waxing Crescent",
+            "waxing_gibbous": "Waxing Gibbous"
+        }
+    },
+    "months": {
+        "january": "January",
+        "february": "February",
+        "march": "March",
+        "april": "April",
+        "may": "May",
+        "june": "June",
+        "july": "July",
+        "august": "August",
+        "september": "September",
+        "october": "October",
+        "november": "November",
+        "december": "December"
+    },
+    "pressure": {
+        "title": "Pressure",
+        "measurement": "mmHg",
+        "status": {
+            "low": "Low",
+            "normal": "Normal",
+            "high": "High",
+            "very_high": "Very High"
+        }
+    },
+    "sunset": {
+        "title": "Sunset / sunrise",
+        "current_time": "Current time",
+        "sunrise": "Sunrise",
+        "sunset": "Sunset",
+        "length": "Length of day"
+    },
+    "today": {
+        "high": "High",
+        "low": "Low",
+        "feels": "Feels like"
+    },
+    "weekdays": {
+        "sunday": "Sunday",
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday"
+    },
+    "uv": {
+        "title": "UV Index",
+        "levels": {
+            "low": "Low",
+            "moderate": "Moderate",
+            "high": "High",
+            "very_high": "Very High",
+            "extreme": "Extreme"
+        }
+    },
+    "wind": {
+        "title": "Wind Status",
+        "measurement": "m/s",
+        "gusts": "gusts",
+        "compas": {
+            "n": "N",
+            "e": "E",
+            "s": "S",
+            "w": "W"
+        },
+        "direction": {
+            "n": "North",
+            "e": "East",
+            "s": "South",
+            "w": "West"
+        },
+        "status": {
+            "calm": "Calm",
+            "quiet_wind": "Quiet wind",
+            "light_breeze": "Light breeze",
+            "light_wind": "Light wind",
+            "moderate_wind": "Moderate wind",
+            "strong_wind": "Strong wind",
+            "squally_wind": "Squally wind"
+        }
+    },
+    "measurement": {
+        "precip": "mm",
+        "speed": "m/s",
+        "pressure": "mmHg"
+    },
+    "tomorrow": {
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "time": "Time",
+        "cloudiness": "Cloudiness",
+        "air_temperature": "Air temperature",
+        "feeling_temperature": "Feeling temperature",
+        "wind_speed": "Wind speed",
+        "gusts": "Gusts of wind",
+        "direction": "Direction of the wind",
+        "humidity": "Humidity",
+        "pressure": "Pressure",
+        "precipitation": "Precipitation",
+        "sun": "Sun: sunrise sunset",
+        "moon": "Moon: moonrise moonset",
+        "chance_rain": "Chance of rain",
+        "moon_tooltip": "lighting: {moon_illumination}%"
+    },
+    "temperature": {
+        "status": {
+            "high": "High temperature!",
+            "low": "Severe frost!"
+        }
+    },
+    "categores": {
+        "options": {
+            "weather": "weather",
+            "nature": "nature",
+            "animals": "animals",
+            "auto": "auto",
+            "science": "science"
+        }
+    },
+    "tags": {
+        "no_results": "No results found",
+        "selected": "{count} tags selected",
+        "no_selected": "No selected item",
+        "items": {
+            "weather": "Weather",
+            "forecast": "Forecast",
+            "meteorology": "Meteorology",
+            "records": "Records",
+            "current_weather": "Current weather",
+            "nature": "Nature",
+            "plants": "Plants",
+            "anomalies": "Anomalies",
+            "adviсe": "Adviсe",
+            "ecology": "Ecology",
+            "animals": "Animals",
+            "pets": "Pets",
+            "animals_and_people": "Animals and people",
+            "facts": "Facts",
+            "help": "Help",
+            "auto": "Auto",
+            "cars": "Cars",
+            "safety": "Safety",
+            "rules": "Rules",
+            "laws": "Laws",
+            "science_and_space": "Science and space",
+            "space": "Space",
+            "events": "Events",
+            "space_exploration": "Space exploration",
+            "inventions": "Inventions"
+        }
+    },
+    "errors": {
+        "summary": "Error",
+        "nothing_found": "Oooops! Nothing found",
+        "process": {
+            "get": "Error loading image!",
+            "upload": "Error uploading image!",
+            "delete_image": "Error when deleting image!",
+            "write": "Error saving data!",
+            "update": "Error updating data!",
+            "delete": "Error when deleting data!",
+            "read": "Error reading data!"
+        },
+        "operation": {
+            "get": "get",
+            "upload": "upload",
+            "delete_image": "delete",
+            "write": "write",
+            "update": "update",
+            "delete": "delete",
+            "read": "read"
+        },
+        "objects": {
+            "post": "post",
+            "image": "image",
+            "user": "user"
+        },
+        "tags": {
+            "empty": "The field must not be empty!",
+            "duplicate": "This tag has already been added!"
+        },
+        "delete-post": {
+            "summary": "{object} not deleted!"
+        },
+        "results-dialog": {
+            "title": "Errors"
+        },
+        "image-upload": {
+            "file-size": "file size should be smaller than",
+            "file-type": "Invalid file type"
+        },
+        "post": {
+            "edit": "Post not edited!",
+            "create": "Post not created!"
+        },
+        "image": {
+            "delete": "Image not deleted!"
+        },
+        "info": {
+            "edit": "Info not edited!"
+        }
+    },
+    "success": {
+        "successfully": "Successfully",
+        "delete-post": {
+            "summary": "Successfully",
+            "detail": "Post deleted successfully!"
+        },
+        "results-dialog": {
+            "title": "Success",
+            "text": "successfully"
+        },
+        "post": {
+            "summary": "Successfully",
+            "edit": "Post edited successfully!",
+            "create": "Post created successfully!"
+        },
+        "profile": {
+            "title": "Successfully",
+            "description": "Profile edited successfully!"
+        },
+        "signin": {
+            "description": "Signin successful!"
+        },
+        "signup": {
+            "description": "Signup successful!"
+        }
+    },
+    "valid": {
+        "phone": "The number is invalid!"
+    },
+    "delete-dialog": {
+        "title": "Confirm",
+        "confirm": "Are you sure you want to delete?"
+    },
+    "delete-posts": {
+        "title": "Confirm",
+        "confirm": "Are you sure you want to delete the selected posts?",
+        "warning": "Warning",
+        "warning-text": "Selected articles will be deleted permanently!"
+    },
+    "results-dialog": {
+        "title": "Results of the operation"
+    },
+    "pluralization": {
+        "post": "{n} post | {n} posts",
+        "deleted": "deleted",
+        "second": "1 second | {n} seconds",
+        "minute": "1 minute | {n} minutes",
+        "hour": "1 hour | {n} hours",
+        "day": "1 day | {n} days",
+        "month": "1 month | {n} months",
+        "year": "1 year | {n} years"
+    },
+    "description": {
+        "tooltips": {
+            "bold": "Bold",
+            "italic": "Italic",
+            "underline": "Underline",
+            "list": "List",
+            "link": "Link",
+            "image": "Image"
+        },
+        "content": {
+            "pickr": "Pick color...",
+            "reset": "No color"
+        },
+        "header": {
+            "other": "Heading-{n}",
+            "normal": "Normal"
+        },
+        "tooltip": {
+            "edit-text": "Enter link:",
+            "preview-text": "Visit URL:"
+        }
+    },
+    "image-upload": {
+        "empty": "Drag and drop files to here to upload."
+    },
+    "post-dialog": {
+        "title": "Confirm",
+        "labels": {
+            "image": "Upload image",
+            "name": "Name",
+            "description": "Description",
+            "summary": "Summary",
+            "category": "Category",
+            "tags": "Tags"
+        }
+    },
+    "confirm": {
+        "message": "Data will not be saved. Continue?"
+    },
+    "rating": {
+        "message": "Register to rate this post"
+    },
+    "sort": {
+        "date": "date",
+        "name": "name",
+        "rating": "rating",
+        "time": "time"
+    },
+    "news": {
+        "options": {
+            "all_news": "All news",
+            "weather": "Weather",
+            "nature": "Nature",
+            "animals": "Animals",
+            "auto": "Auto",
+            "science": "Science and space"
+        }
+    },
+    "profile": {
+        "title": "Edit Profile",
+        "labels": {
+            "name": "Name",
+            "lastname": "Lastname",
+            "country": "Country",
+            "phone": "Mobile Number"
+        }
+    },
+    "user": {
+        "empty": "Not specified",
+        "ago": "ago",
+        "labels": {
+            "email": "Email:",
+            "phone": "Phone:",
+            "country": "Country:",
+            "registration": "Registration:"
+        }
+    },
+    "auth": {
+        "forgot": "Forgot password?",
+        "or": "OR",
+        "signin": {
+            "title": "Sign In",
+            "redirect": "Don't have an account?"
+        },
+        "signup": {
+            "title": "Sign Up",
+            "redirect": "Are you already registered?"
+        }
+    },
+    "dashboard": {
+        "title": "Post management",
+        "sorting": "Sorting",
+        "filters": "Filters",
+        "min": "min",
+        "empty": "No posts found.",
+        "confirm": "Do you really want to leave? you have unsaved changes!",
+        "fields": {
+            "date": "Date",
+            "title": "Title",
+            "tags": "Tags",
+            "category": "Category",
+            "image": "Image",
+            "rating": "Rating",
+            "time": "Time",
+            "action": "Action"
+        }
+    },
+    "not_found": {
+        "title": "Not Found"
+    },
+    "post": {
+        "tags": "Tags",
+        "share": "Share the news",
+        "subscribe": "Subscribe to us",
+        "more": "Read also",
+        "less": "less",
+        "links": {
+            "zen": "Zen",
+            "telegram": "Telegram"
+        }
+    }
+}

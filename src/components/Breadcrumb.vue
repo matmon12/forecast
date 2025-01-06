@@ -6,7 +6,7 @@
       @click="$router.go(-1)"
       class="breadcrumb-back"
       ><i-ic:round-arrow-back-ios-new />
-      Back
+      {{ $t("buttons.back") }}
     </Button>
 
     <ul class="breadcrumb__list">

@@ -32,7 +32,7 @@
 </template>
 
 <script setup>
-import { markRaw, ref, defineProps, watch } from "vue";
+import { markRaw, ref, defineProps, watch, inject } from "vue";
 import { useConfirm } from "primevue/useconfirm";
 import router from "@/router/router";
 import IcOutlinePerson from "~icons/ic/outline-person";
@@ -57,6 +57,7 @@ const props = defineProps({
 const confirm = useConfirm();
 const authStore = useAuthStore();
 const toast = useToast();
+const t = inject("t");
 
 const ratingSummary = ref(props.rating);
 const existingRating = ref();
@@ -77,9 +78,9 @@ const onShowConfirm = (event) => {
   const confirmInfo = markRaw({
     target: event.currentTarget,
     group: "headless",
-    message: "Register to rate this post",
-    rejectLabel: "Cancel",
-    acceptLabel: "Login",
+    message: t("rating.message"),
+    rejectLabel: t("buttons.cancel"),
+    acceptLabel: t("buttons.login"),
     icon: IcOutlinePerson,
     colorIcon: "#85c2ff",
     accept: () => {
@@ -115,11 +116,10 @@ const addRating = async (rating) => {
       existingRating.value = newRating;
     }
   } catch (e) {
-    const stringToObject = JSON.parse(e.message);
     toast.add({
       severity: "error",
-      summary: "Error",
-      detail: stringToObject?.description,
+      summary: t("errors.summary"),
+      detail: t(`error_codes.${e.message}`),
       life: 5000,
     });
   } finally {
@@ -148,11 +148,10 @@ const checkRating = async () => {
     rating = querySnapshot?.docs[0]?.data();
     id = querySnapshot?.docs[0]?.id;
   } catch (e) {
-    const stringToObject = JSON.parse(e.message);
-    errorRating.value = stringToObject?.description;
+    errorRating.value = t(`error_codes.${e.message}`);
     toast.add({
       severity: "error",
-      summary: "Error",
+      summary: t("errors.summary"),
       detail: errorRating.value,
       life: 5000,
     });

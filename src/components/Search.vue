@@ -18,7 +18,7 @@
         class="search-input"
         type="text"
         v-model="search"
-        placeholder="Search City"
+        :placeholder="$t('placeholders.search')"
         unstyled
         autofocus
         @keyup.enter="!searchStore.loading ? onSubmit() : undefined"
@@ -45,7 +45,11 @@
     </InputGroup>
     <transition name="fade">
       <small class="error search-error" v-if="errors.search && focusInput">
-        {{ errors.search }}
+        {{
+          $t(`validation.${errors.search?.key || errors.search}`, {
+            ...errors.search?.values,
+          })
+        }}
       </small>
     </transition>
   </div>

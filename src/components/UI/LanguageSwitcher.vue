@@ -8,10 +8,10 @@
       :pt="getClasses('lang').select"
     >
       <template #option="{ option }">
-        <CountryFlag :country="option" rounded />
+        <CountryFlag :country="flagsLocales[option]" rounded />
       </template>
       <template #value="{ value }">
-        <CountryFlag :country="value" rounded />
+        <CountryFlag :country="flagsLocales[value]" rounded />
       </template>
       <template #dropdownicon><i-iconamoon:arrow-down-2 /></template>
     </Select>
@@ -26,15 +26,31 @@ import Select from "primevue/select";
 import { watch, ref } from "vue";
 import { getClasses } from "@/utils/classes";
 import CountryFlag from "vue-country-flag-next";
+import { usePrimeVue } from "primevue/config";
+import { useLocalesStore } from "@/stores/locales";
 
 const { t, locale } = useI18n({});
+const primevue = usePrimeVue();
+const localesStore = useLocalesStore();
 const supportedLocales = Tr.supportedLocales;
+const flagsLocales = Tr.flagsLocales;
 
 const selectedLocale = ref();
+
+const switchLanguagePrime = async (newLocale) => {
+  await Tr.loadLocaleMessagesPrime(newLocale);
+
+  primevue.config.locale = {
+    ...primevue.config.locale,
+    ...localesStore.locales[newLocale],
+  };
+};
+
 watch(
   () => locale.value,
-  () => {
+  (newLocale) => {
     selectedLocale.value = locale.value;
+    switchLanguagePrime(newLocale);
   },
   {
     immediate: true,
@@ -121,7 +137,7 @@ const switchLanguage = async (newLocale) => {
       justify-content: center;
       padding: var(--p-select-option-padding);
       border-radius: 8px;
-      transition: background-color .3s, filter .3s;
+      transition: background-color 0.3s, filter 0.3s;
       .normal-flag {
         margin: -0.6em -0.7em;
       }

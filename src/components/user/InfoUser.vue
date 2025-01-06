@@ -43,33 +43,34 @@
       <Divider class="user-divider" />
       <ul class="user__list">
         <li class="user__list-item">
-          <p class="user__list-left">Email:</p>
+          <p class="user__list-left">{{ $t("user.labels.email") }}</p>
           <p class="user__list-right">{{ authStore.user?.email }}</p>
         </li>
         <li class="user__list-item">
-          <p class="user__list-left">Phone:</p>
+          <p class="user__list-left">{{ $t("user.labels.phone") }}</p>
           <p class="user__list-right">
-            {{ authStore.user?.phone?.number || "Not specified" }}
+            {{ authStore.user?.phone?.number || $t("user.empty") }}
           </p>
         </li>
         <li class="user__list-item">
-          <p class="user__list-left">Country:</p>
+          <p class="user__list-left">{{ $t("user.labels.country") }}</p>
           <p class="user__list-right user__list-country">
             <span>
-              {{ authStore.user?.country?.name || "Not specified" }}
+              {{ authStore.user?.country ? country : $t("user.empty") }}
             </span>
             <country-flag
               v-if="authStore.user?.country"
-              :country="authStore.user?.country.flag"
+              :country="authStore.user?.country"
               rounded
               class="country-flag"
             />
           </p>
         </li>
         <li class="user__list-item">
-          <p class="user__list-left">Registration:</p>
+          <p class="user__list-left">{{ $t("user.labels.registration") }}</p>
           <p class="user__list-right">
-            {{ timeRegistration(authStore.user?.createdAt) }} ago
+            {{ timeRegistration }}
+            {{ $t("user.ago") }}
           </p>
         </li>
       </ul>
@@ -80,47 +81,70 @@
 <script setup>
 import { useAuthStore } from "@/stores/auth";
 import { getImageUrl, pluralize, getUsername } from "@/utils/index";
+import { onMounted, inject, ref, computed } from "vue";
 import CountryFlag from "vue-country-flag-next";
+import Tr from "@/i18n/translation";
+import { useI18n } from "vue-i18n";
+import { watch } from "vue";
 
 const authStore = useAuthStore();
+const { locale } = useI18n();
+const countries = inject("countries");
+const t = inject("t");
+const country = ref();
 
-const timeRegistration = (date) => {
-  const milliseconds = Date.now() - new Date(date);
+const timeRegistration = computed(() => {
+  const milliseconds = Date.now() - new Date(authStore.user?.createdAt);
   let unitOfTime = milliseconds / 1000;
 
   if (unitOfTime < 60) {
     const flooredTime = Math.floor(unitOfTime);
-    return `${flooredTime} second${pluralize(flooredTime)}`;
+    return t("pluralization.second", { n: flooredTime });
   }
 
   unitOfTime /= 60;
   if (unitOfTime < 60) {
     const flooredTime = Math.floor(unitOfTime);
-    return `${flooredTime} minute${pluralize(flooredTime)}`;
+    return t("pluralization.minute", { n: flooredTime });
   }
 
   unitOfTime /= 60;
   if (unitOfTime < 24) {
     const flooredTime = Math.floor(unitOfTime);
-    return `${flooredTime} hour${pluralize(flooredTime)}`;
+    return t("pluralization.hour", { n: flooredTime });
   }
 
   unitOfTime /= 24;
   if (unitOfTime < 30) {
     const flooredTime = Math.floor(unitOfTime);
-    return `${flooredTime} day${pluralize(flooredTime)}`;
+    return t("pluralization.day", { n: flooredTime });
   }
 
   unitOfTime /= 30.44;
   if (unitOfTime < 12) {
     const flooredTime = Math.floor(unitOfTime);
-    return `${flooredTime} month${pluralize(flooredTime)}`;
+    return t("pluralization.month", { n: flooredTime });
   }
 
   unitOfTime /= 12;
   const flooredTime = Math.floor(unitOfTime);
-  return `${flooredTime} year${pluralize(flooredTime)}`;
+  return t("pluralization.year", { n: flooredTime });
+});
+
+// загрузка стран на данном языке
+const switchLanguageCountries = async (locale) => {
+  await Tr.loadLocaleCountries(locale);
+
+  country.value = countries.getName(authStore.user?.country, locale);
 };
+
+watch(
+  () => locale.value,
+  (newLocale) => {
+    switchLanguageCountries(newLocale);
+  },
+  { immediate: true }
+);
 </script>
 
 <style lang="scss" scoped>
@@ -140,7 +164,7 @@ const timeRegistration = (date) => {
   font-size: 40px;
   border-radius: 50%;
   margin: 0 auto;
-  svg{
+  svg {
     width: 100%;
     height: 100%;
     color: var(--white-3);

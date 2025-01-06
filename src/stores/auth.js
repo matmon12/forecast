@@ -1,13 +1,15 @@
-import { ref } from "vue";
+import { ref, inject } from "vue";
 import { defineStore } from "pinia";
 import { logOut } from "@/server/auth";
 import router from "@/router/router";
 import { useToast } from "primevue/usetoast";
 import { getDocFromDB } from "@/server/users";
 import { ability, defineAbilityFor } from "../services/ability";
+import { useI18n } from "vue-i18n";
 
 export const useAuthStore = defineStore("auth", () => {
   const toast = useToast();
+  const { t } = useI18n();
 
   const user = ref();
   const uid = ref();
@@ -38,7 +40,7 @@ export const useAuthStore = defineStore("auth", () => {
         toast.add({
           severity: "error",
           summary: "Error",
-          detail: e.message,
+          detail: t(`error_codes.${e.message}`),
           life: 3000,
         });
       }
@@ -59,8 +61,8 @@ export const useAuthStore = defineStore("auth", () => {
 
       toast.add({
         severity: "error",
-        summary: "Error",
-        detail: stringToObject.description,
+        summary: t("errors.summary"),
+        detail: t(`error_codes.${stringToObject.description}`),
         life: 3000,
       });
     } finally {

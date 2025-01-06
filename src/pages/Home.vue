@@ -3,7 +3,7 @@
   <Error
     v-else-if="searchStore.error === 1006"
     @to-back="onToBack"
-    message="Oooops! Nothing found"
+    :message="$t('errors.nothing_found')"
     class="error-wrapper"
   />
   <div class="home" v-else>
@@ -27,11 +27,13 @@
 import { ref, onMounted, watch } from "vue";
 import { useSearchStore } from "@/stores/search";
 import { useForecastStore } from "@/stores/forecast";
-import {axiosApiInstance} from "@/server/api";
+import { axiosApiInstance } from "@/server/api";
 import { CURRENT_URL, ASTRO_URL, FORECAST_URL } from "../constants/index";
+import { useI18n } from "vue-i18n";
 
 const searchStore = useSearchStore();
 const forecastStore = useForecastStore();
+const { t, locale } = useI18n({});
 
 watch(
   () => searchStore.search,
@@ -45,10 +47,18 @@ watch(
   }
 );
 
+// при изменении локали получить описание на этом языке
+watch(
+  () => locale.value,
+  (newValue) => {
+    getWeatherData();
+  }
+);
+
 const getWeatherData = async () => {
   searchStore.loading = true;
   await axiosApiInstance
-    .get(`${CURRENT_URL}?q=${searchStore.search}`)
+    .get(`${CURRENT_URL}?q=${searchStore.search}&lang=${locale.value}`)
     .then((res) => {
       searchStore.curWeather = res.data;
       searchStore.searchSuccess = searchStore.curWeather.location.name;
@@ -120,7 +130,7 @@ const onToBack = () => {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: auto auto;
-  grid-template-rows: repeat(20, 5px);
+  grid-template-rows: repeat(20, 1fr);
   position: relative;
   gap: 15px;
 }

@@ -7,24 +7,31 @@
           <p class="post__header-item">
             <i-fluent:calendar-ltr-32-filled />
             <span>
-              {{ getFormatedDate(post?.date) }}
+              {{ post?.date && $d(new Date(post?.date), "date") }},
+              {{ post?.date && $d(new Date(post?.date), "time", "ru") }}
             </span>
           </p>
           <p class="post__header-item">
             <i-tabler:clock-filled />
-            <span> {{ getFormatedTime(post?.time) }} мин </span>
+            <span>
+              {{ getFormatedTime(post?.time) }} {{ $t("dashboard.min") }}
+            </span>
           </p>
         </div>
         <div v-html="post?.description" lang="ru" class="post-text"></div>
         <div class="post__tags">
-          <h5 class="post__tags-title">Теги</h5>
+          <h5 class="post__tags-title">{{ $t("post.tags") }}</h5>
           <div class="post__tags-list">
             <Tag
               v-for="(tag, index) of post?.tags"
               :key="index"
               severity="secondary"
               class="post__tags-item"
-              >{{ tag }}</Tag
+              >{{
+                $te(`tags.items.${getKeyTag(tag)}`)
+                  ? $t(`tags.items.${getKeyTag(tag)}`)
+                  : tag
+              }}</Tag
             >
           </div>
         </div>
@@ -90,7 +97,7 @@
       </div>
       <div class="post__left-footer">
         <div class="post-block post__share">
-          <h4 class="post__share-title">Поделитесь новостью</h4>
+          <h4 class="post__share-title">{{ $t("post.share") }}</h4>
           <div class="post-links">
             <a
               v-for="(link, index) of shareLinks"
@@ -103,7 +110,7 @@
           </div>
         </div>
         <div class="post-block post__subscribe">
-          <h4 class="post__subscribe-title">Подпишитесь на нас</h4>
+          <h4 class="post__subscribe-title">{{ $t("post.subscribe") }}</h4>
           <div class="post__subscribe-list">
             <a
               v-for="(link, index) of subscribeLinks"
@@ -120,7 +127,7 @@
     </div>
     <div class="post__right">
       <div class="post-block post__category">
-        <h3 class="post__category-title">Читайте также</h3>
+        <h3 class="post__category-title">{{ $t("post.more") }}</h3>
         <div class="post__category-list">
           <SimilarPost
             v-if="!loadingCategory && !errorCategory"
@@ -170,7 +177,9 @@
                 />
               </g>
             </svg>
-            <span class="post__category-error-text">{{ errorCategory }}</span>
+            <span class="post__category-error-text">{{
+              $t(`error_codes.${errorCategory}`)
+            }}</span>
           </div>
         </div>
       </div>
@@ -178,7 +187,7 @@
   </div>
   <Error
     v-else
-    :message="errorPost"
+    :message="$t(`error_codes.${errorPost}`)"
     @to-back="onToBack()"
     retry
     @retry="getData()"
@@ -188,7 +197,15 @@
 
 <script setup>
 import { useRoute } from "vue-router";
-import { ref, markRaw, defineProps, onMounted, watch } from "vue";
+import {
+  ref,
+  markRaw,
+  defineProps,
+  onMounted,
+  watch,
+  inject,
+  computed,
+} from "vue";
 import { readToDB } from "@/server/posts";
 import { query, where, limit } from "firebase/firestore";
 import { postsRef } from "@/server/firebase.config";
@@ -201,10 +218,12 @@ import FileIconsTelegram from "~icons/file-icons/telegram";
 import zen from "@/img/zen.svg";
 import tg from "@/img/tg.svg";
 import { QuillDeltaToHtmlConverter } from "quill-delta-to-html";
+import { getKeyTag } from "@/utils/index";
 
 const route = useRoute();
 const uiStore = useUiStore();
 
+const t = inject("t");
 const post = ref();
 const postsCategory = ref([]);
 const loadingPost = ref(false);
@@ -229,17 +248,17 @@ const shareLinks = markRaw([
   },
 ]);
 
-const subscribeLinks = markRaw([
+const subscribeLinks = computed(() => [
   {
     icon: zen,
     link: "https://dzen.ru/gismeteo.ru",
-    text: "Дзен",
+    text: t("post.links.zen"),
     class: "post__subscribe-zen",
   },
   {
     icon: tg,
     link: "https://t.me/+IJ9mfnkvkaAwYTBi",
-    text: "Телеграм",
+    text: t("post.links.telegram"),
     class: "post__subscribe-tg",
   },
 ]);
@@ -344,27 +363,11 @@ const updatePost = (newPostSlug) => {
   post.value = newPost;
 };
 
-const getFormatedDate = (unix) => {
-  if (unix) {
-    const date = new Date(unix);
-    const formatedDate = date.toLocaleDateString("ru-RU", {
-      day: "numeric",
-      month: "long",
-    });
-    const time = date.toLocaleTimeString("ru-RU", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    return `${formatedDate}, ${time}`;
-  }
-  return unix;
-};
-
 const getFormatedTime = (time) => {
   if (time) {
     const roundTime = Math.round(time);
     if (roundTime === 0) {
-      return "менее 1";
+      return `${t("post.less")} 1`;
     }
     return roundTime;
   }

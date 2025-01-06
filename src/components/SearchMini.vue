@@ -13,7 +13,7 @@
     :pt="getClasses('search').drawer"
   >
     <template #header>
-      <p class="search-drawer-header-text">Enter name city:</p>
+      <p class="search-drawer-header-text">{{ $t("search.header") }}</p>
     </template>
     <Search @submit="hideDrawer()" />
   </Drawer>
@@ -63,7 +63,7 @@ const hideDrawer = () => {
     }
     .p-drawer-close-button {
       color: var(--grey-light);
-      &:hover{
+      &:hover {
         background-color: var(--hover-grey);
       }
     }
@@ -76,7 +76,7 @@ const hideDrawer = () => {
       width: 100%;
     }
 
-    &-mask{
+    &-mask {
       z-index: 1500 !important;
     }
   }

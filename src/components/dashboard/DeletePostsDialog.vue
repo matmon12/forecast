@@ -12,7 +12,9 @@
         v-on-click-outside="closeCallback"
       >
         <div class="dashboard-dialog-header">
-          <span class="dashboard-dialog-title">Confirm</span>
+          <span class="dashboard-dialog-title">{{
+            $t("delete-posts.title")
+          }}</span>
           <div class="dashboard-dialog-header-actions">
             <button v-if="!uiStore.xs2Smaller" @click="closeCallback">
               <i-ic:round-close />
@@ -21,14 +23,16 @@
         </div>
 
         <p class="delete-dialog-selected-text">
-          Are you sure you want to delete the selected posts?
+          {{ $t("delete-posts.confirm") }}
         </p>
         <Message severity="warn" :pt="getClasses('confirm').message">
           <div class="confirm-message-header">
             <i-ion:warning-outline />
-            <span class="confirm-message-title">Warning</span>
+            <span class="confirm-message-title">{{
+              $t("delete-posts.warning")
+            }}</span>
           </div>
-          Selected articles will be deleted permanently!</Message
+          {{ $t("delete-posts.warning-text") }}</Message
         >
 
         <div class="dashboard-dialog-footer">
@@ -37,14 +41,14 @@
             @click="visible = false"
             :pt="getClasses('no').button"
             unstyled
-            ><i-iconoir:cancel />No</Button
+            ><i-iconoir:cancel />{{ $t("buttons.no") }}</Button
           >
           <Button
             text
             @click="onCheckRole"
             :pt="getClasses('yes').button"
             unstyled
-            ><i-ic:round-check />Yes</Button
+            ><i-ic:round-check />{{ $t("buttons.yes") }}</Button
           >
         </div>
       </div>
@@ -64,7 +68,9 @@
         v-on-click-outside="closeCallback"
       >
         <div class="dashboard-dialog-header">
-          <span class="dashboard-dialog-title">Results of the operation</span>
+          <span class="dashboard-dialog-title">{{
+            $t("results-dialog.title")
+          }}</span>
           <div class="dashboard-dialog-header-actions">
             <button v-if="!uiStore.xs2Smaller" @click="closeCallback">
               <i-ic:round-close />
@@ -73,17 +79,18 @@
         </div>
 
         <Message
-          v-if="1"
+          v-if="countDeletedPosts > 0"
           severity="info"
           :pt="getClasses('result-success').message"
         >
           <div class="result__header">
             <i-ep:success-filled />
-            <span>Success</span>
+            <span>{{ $t("success.results-dialog.title") }}</span>
           </div>
           <div class="result-info">
-            {{ countDeletedPosts }} post{{ pluralize(countDeletedPosts) }}
-            deleted successfully
+            {{ $t("pluralization.post", countDeletedPosts) }}
+            {{ $t("pluralization.deleted", countDeletedPosts) }}
+            {{ $t("success.results-dialog.text") }}
           </div>
         </Message>
         <Message
@@ -93,7 +100,7 @@
         >
           <div class="result__header">
             <i-ooui:error />
-            <span>Errors</span>
+            <span>{{ $t("errors.results-dialog.title") }}</span>
           </div>
           <ul class="result__list">
             <li
@@ -102,11 +109,15 @@
               class="result__list-item"
             >
               <Tag severity="danger" :pt="getClasses('result-status').tag"
-                >{{ uppercaseFirst(item.error.object) }} not deleted</Tag
+                >{{
+                  uppercaseFirst($t(`errors.objects.${item.error.object}`))
+                }}
+                {{ $t("errors.delete-post.summary") }}</Tag
               >
               <h6 class="result__list-title">"{{ item.title }}"</h6>
               <p class="result__list-text">
-                {{ item.error.process }} {{ item.error.description }}
+                {{ $t(`errors.process.${item.error.process}`) }}
+                {{ $t(`error_codes.${item.error.description}`) }}
               </p>
             </li>
           </ul>
@@ -118,7 +129,7 @@
             @click="closeCallback()"
             :pt="getClasses('no').button"
             unstyled
-            ><i-iconoir:cancel />Close</Button
+            ><i-iconoir:cancel />{{ $t("buttons.close") }}</Button
           >
         </div>
       </div>
@@ -137,7 +148,7 @@
 </template>
 
 <script setup>
-import { ref, defineModel, defineProps } from "vue";
+import { ref, defineModel, defineProps, inject } from "vue";
 import { vOnClickOutside } from "@vueuse/components";
 import { getClasses } from "@/utils/classes";
 import { useToast } from "primevue/usetoast";
@@ -151,6 +162,7 @@ import { useUiStore } from "@/stores/ui";
 const serverStore = useServerStore();
 const toast = useToast();
 const uiStore = useUiStore();
+const t = inject("t");
 
 const visible = defineModel("visible");
 const selectedPosts = defineModel("selected");
@@ -193,10 +205,11 @@ const deleteSelectedPosts = async () => {
       if (data.length === countFulfilled) {
         toast.add({
           severity: "success",
-          summary: "Successfully",
-          detail: `Selected post${pluralize(
+          summary: t("success.delete-post.summary"),
+          detail: `${t("pluralization.post", countFulfilled)} ${t(
+            "pluralization.deleted",
             countFulfilled
-          )}(${countFulfilled}) deleted successfully`,
+          )} successfully`,
           life: 3000,
         });
       } else {

@@ -3,7 +3,7 @@
     <MultiSelect
       v-model="categoryFilter"
       :options="categories"
-      placeholder="Not selected"
+      :placeholder="$t('placeholders.categories')"
       :pt="{
         ...getClasses('category').multiselect,
         pcHeaderCheckbox: { ...getClasses('dashboard').checkbox },
@@ -20,7 +20,7 @@
             class="category-multiselect-tag"
             v-for="item in value"
             :key="item"
-            :value="uppercaseFirst(item)"
+            :value="uppercaseFirst($t(`categores.options.${item}`))"
             :style="{
               backgroundColor: colorsTags[item.toLowerCase()].colorBack,
               color: colorsTags[item.toLowerCase()].color,
@@ -29,7 +29,7 @@
         </div>
       </template>
       <template #option="{ option }">
-        {{ uppercaseFirst(option) }}
+        {{ uppercaseFirst($t(`categores.options.${option}`)) }}
       </template>
     </MultiSelect>
   </div>

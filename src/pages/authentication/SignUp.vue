@@ -1,7 +1,7 @@
 <template>
   <div class="auth">
     <div class="auth__content">
-      <h1 class="auth-title">Sign Up</h1>
+      <h1 class="auth-title">{{ $t("auth.signup.title") }}</h1>
       <form class="auth__form">
         <Message
           v-if="error"
@@ -10,7 +10,7 @@
           :pt="getClasses('auth').message"
         >
           <i-ion:warning-outline />
-          <span>{{ error }}</span>
+          <span>{{ $t(`error_codes.${error}`) }}</span>
         </Message>
         <label class="auth__input-label">
           <InputGroup class="auth__inputgroup">
@@ -19,7 +19,7 @@
             </InputGroupAddon>
             <InputText
               v-model.trim="email"
-              placeholder="Your Email"
+              :placeholder="$t('placeholders.email')"
               autofocus
               :invalid="!!errors.email"
               :pt="getClasses('auth').inputtext"
@@ -34,7 +34,9 @@
           </InputGroup>
           <transition name="auth">
             <small v-if="errors.email" class="error auth-error-text">{{
-              errors.email
+              $t(`validation.${errors.email?.key || errors.email}`, {
+                ...errors.email?.values,
+              })
             }}</small>
           </transition>
         </label>
@@ -46,7 +48,7 @@
             <Password
               v-model="password"
               :invalid="!!errors.password"
-              placeholder="Password"
+              :placeholder="$t('placeholders.password')"
               toggleMask
               :mediumRegex="mediumRegex"
               :strongRegex="strongRegex"
@@ -78,7 +80,9 @@
           </InputGroup>
           <transition name="auth">
             <small v-if="errors.password" class="error auth-error-text">{{
-              errors.password
+              $t(`validation.${errors.password?.key || errors.password}`, {
+                ...errors.password?.values,
+              })
             }}</small>
           </transition>
         </label>
@@ -89,7 +93,7 @@
             </InputGroupAddon>
             <Password
               v-model="confirmPassword"
-              placeholder="Confirm password"
+              :placeholder="$t('placeholders.confirm')"
               toggleMask
               :invalid="!!errors.confirmPassword"
               :mediumRegex="mediumRegex"
@@ -124,7 +128,16 @@
             <small
               v-if="errors.confirmPassword"
               class="error auth-error-text"
-              >{{ errors.confirmPassword }}</small
+              >{{
+                $t(
+                  `validation.${
+                    errors.confirmPassword?.key || errors.confirmPassword
+                  }`,
+                  {
+                    ...errors.confirmPassword?.values,
+                  }
+                )
+              }}</small
             >
           </transition>
         </label>
@@ -136,25 +149,29 @@
         >
           <i-svg-spinners:180-ring v-if="loading" />
           <i-line-md:person v-else />
-          Sign Up</Button
+          {{ $t("buttons.signup") }}</Button
         >
       </form>
-      <p class="auth-line"><span>OR</span></p>
+      <p class="auth-line">
+        <span>{{ $t("auth.or") }}</span>
+      </p>
       <Button class="auth-btn-more"
-        ><i-flat-color-icons:google /> Sign in with Google</Button
+        ><i-flat-color-icons:google />{{ $t("buttons.google") }}</Button
       >
       <div class="auth__redirect">
-        <span class="auth__redirect-text">Are you already registered?</span>
-        <router-link :to="{ name: 'SignIn' }" class="auth__redirect-link"
-          >Sign in</router-link
-        >
+        <span class="auth__redirect-text">{{
+          $t("auth.signup.redirect")
+        }}</span>
+        <router-link :to="{ name: 'SignIn' }" class="auth__redirect-link">{{
+          $t("auth.signin.title")
+        }}</router-link>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, inject } from "vue";
 import InputGroup from "primevue/inputgroup";
 import InputGroupAddon from "primevue/inputgroupaddon";
 import Password from "primevue/password";
@@ -168,6 +185,7 @@ import { useToast } from "primevue/usetoast";
 import { useUiStore } from "../../stores/ui";
 import router from "@/router/router";
 
+const t = inject("t");
 const error = ref();
 const loading = ref(false);
 const mediumRegex = ref(
@@ -210,8 +228,8 @@ const signupUser = async () => {
     // успех
     toast.add({
       severity: "success",
-      summary: "Successfully",
-      detail: "Signup successful!",
+      summary: t("success.successfully"),
+      detail: t("success.signup.description"),
       life: 3000,
     });
 

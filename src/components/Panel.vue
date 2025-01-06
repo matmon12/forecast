@@ -84,12 +84,12 @@
         </g>
       </svg>
     </p>
-    <p class="panel-name-login">Login</p>
+    <p class="panel-name-login">{{ $t("buttons.login") }}</p>
   </router-link>
 </template>
 
 <script setup>
-import { ref, markRaw, onMounted } from "vue";
+import { ref, markRaw, onMounted, inject, computed } from "vue";
 import TeenyiconsUserCircleSolid from "~icons/teenyicons/user-circle-solid";
 import BitcoinIconsExitFilled from "~icons/bitcoin-icons/exit-filled";
 import { getImageUrl, getUsername } from "@/utils/index";
@@ -100,19 +100,20 @@ import { vOnClickOutside } from "@vueuse/components";
 
 const authStore = useAuthStore();
 const { can } = useAbility();
+const t = inject("t");
 
 const isOpen = ref(false);
 
-const items = markRaw([
+const items = computed(() => [
   {
-    label: "Profile",
+    label: t("panel.profile"),
     icon: TeenyiconsUserCircleSolid,
     action: () => {
       router.push({ name: "ProfileUser" });
     },
   },
   {
-    label: "Exit",
+    label: t("panel.exit"),
     icon: BitcoinIconsExitFilled,
     action: authStore.logoutUser,
   },

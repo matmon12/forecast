@@ -1,7 +1,7 @@
 <template>
   <div class="auth">
     <div class="auth__content">
-      <h1 class="auth-title">Sign In</h1>
+      <h1 class="auth-title">{{ $t("auth.signin.title") }}</h1>
       <form class="auth__form">
         <Message
           v-if="error"
@@ -10,7 +10,7 @@
           :pt="getClasses('auth').message"
         >
           <i-ion:warning-outline />
-          <span>{{ error }}</span>
+          <span>{{ $t(`error_codes.${error}`) }}</span>
         </Message>
         <label class="auth__input-label">
           <InputGroup class="auth__inputgroup">
@@ -19,7 +19,7 @@
             </InputGroupAddon>
             <InputText
               v-model.trim="email"
-              placeholder="Your Email"
+              :placeholder="$t('placeholders.email')"
               autofocus
               :invalid="!!errors.email"
               :pt="getClasses('auth').inputtext"
@@ -35,7 +35,9 @@
           </InputGroup>
           <transition name="auth">
             <small v-if="errors.email" class="error auth-error-text">{{
-              errors.email
+              $t(`validation.${errors.email?.key || errors.email}`, {
+                ...errors.email?.values,
+              })
             }}</small>
           </transition>
         </label>
@@ -46,7 +48,7 @@
             </InputGroupAddon>
             <Password
               v-model="password"
-              placeholder="Password"
+              :placeholder="$t('placeholders.password')"
               toggleMask
               :invalid="!!errors.password"
               :feedback="false"
@@ -65,12 +67,14 @@
           </InputGroup>
           <transition name="auth">
             <small v-if="errors.password" class="error auth-error-text">{{
-              errors.password
+              $t(`validation.${errors.password?.key || errors.password}`, {
+                ...errors.password?.values,
+              })
             }}</small>
           </transition>
         </label>
         <div class="auth-forgot">
-          <a class="auth-forgot-link" href="#">Forgot password?</a>
+          <a class="auth-forgot-link" href="#">{{ $t("auth.forgot") }}</a>
         </div>
         <Button
           @click="onSubmit"
@@ -80,25 +84,29 @@
         >
           <i-svg-spinners:180-ring v-if="loading" />
           <i-line-md:person v-else />
-          Sign In</Button
+          {{ $t("buttons.signin") }}</Button
         >
       </form>
-      <p class="auth-line"><span>OR</span></p>
+      <p class="auth-line">
+        <span>{{ $t("auth.or") }}</span>
+      </p>
       <Button class="auth-btn-more"
-        ><i-flat-color-icons:google /> Sign in with Google</Button
+        ><i-flat-color-icons:google /> {{ $t("buttons.google") }}</Button
       >
       <div class="auth__redirect">
-        <span class="auth__redirect-text">Don't have an account?</span>
-        <router-link :to="{ name: 'SignUp' }" class="auth__redirect-link"
-          >Sign up</router-link
-        >
+        <span class="auth__redirect-text">{{
+          $t("auth.signin.redirect")
+        }}</span>
+        <router-link :to="{ name: 'SignUp' }" class="auth__redirect-link">{{
+          $t("auth.signup.title")
+        }}</router-link>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, inject } from "vue";
 import InputGroup from "primevue/inputgroup";
 import InputGroupAddon from "primevue/inputgroupaddon";
 import Password from "primevue/password";
@@ -112,6 +120,7 @@ import router from "@/router/router";
 
 const error = ref();
 const loading = ref(false);
+const t = inject("t");
 
 const rulesStore = useRulesStore();
 const authStore = useAuthStore();
@@ -126,8 +135,8 @@ const signinUser = async () => {
     // успех
     toast.add({
       severity: "success",
-      summary: "Successfully",
-      detail: "Signin successful!",
+      summary: t("success.successfully"),
+      detail: t("success.signin.description"),
       life: 3000,
     });
 

@@ -1,28 +1,26 @@
 export default {
-  gbr: {
-    shortFormat: {
-      dateStyle: "short",
-    },
-    longFormat: {
-      year: "numeric",
-      month: "short",
+  en: {
+    date: {
       day: "numeric",
-      weekday: "short",
-      hour: "numeric",
-      minute: "numeric",
+      month: "long",
+    },
+    time: {
+      hour: "2-digit",
+      minute: "2-digit",
+    },
+    post: {
     },
   },
   ru: {
-    shortFormat: {
-      dateStyle: "short",
-    },
-    longFormat: {
-      year: "numeric",
-      month: "short",
+    date: {
       day: "numeric",
-      weekday: "short",
-      hour: "numeric",
-      minute: "numeric",
+      month: "long",
+    },
+    time: {
+      hour: "2-digit",
+      minute: "2-digit",
+    },
+    post: {
     },
   },
 };

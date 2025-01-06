@@ -99,7 +99,7 @@
           outlined
         >
           <i-line-md:logout />
-          Logout</Button
+          {{ $t("buttons.logout") }}</Button
         >
       </div>
     </template>
@@ -129,7 +129,7 @@
 </template>
 
 <script setup>
-import { ref, shallowRef } from "vue";
+import { ref, shallowRef, inject, computed } from "vue";
 import TeenyiconsUserCircleSolid from "~icons/teenyicons/user-circle-solid";
 import BitcoinIconsExitFilled from "~icons/bitcoin-icons/exit-filled";
 import { getImageUrl, getUsername } from "@/utils/index";
@@ -141,12 +141,13 @@ import Drawer from "primevue/drawer";
 
 const authStore = useAuthStore();
 const { can } = useAbility();
+const t = inject("t");
 
 const isOpen = ref(false);
 
-const menu = shallowRef([
+const menu = computed(() => [
   {
-    label: "Profile",
+    label: t("panel.profile"),
     icon: TeenyiconsUserCircleSolid,
     action: () => {
       router.push({ name: "ProfileUser" });

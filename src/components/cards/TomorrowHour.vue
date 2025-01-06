@@ -3,13 +3,13 @@
     <div class="hour-wrapper" ref="scrollBox">
       <table class="hour-table" ref="table">
         <tr class="hour-item">
-          <td class="hour-title" ref="hourTitle">Time</td>
+          <td class="hour-title" ref="hourTitle">{{ $t("tomorrow.time") }}</td>
           <td v-for="(item, id) in forecastHour" :key="id">
             <p class="hour-time">{{ formatTime(item.time) }}</p>
           </td>
         </tr>
         <tr class="hour-item hour-line">
-          <td class="hour-title">Cloudiness</td>
+          <td class="hour-title">{{ $t("tomorrow.cloudiness") }}</td>
           <td
             v-for="(item, id) in forecastHour"
             :key="id"
@@ -22,8 +22,12 @@
               class="hour-imgwrapper"
               v-tooltip.bottom="{
                 escape: false,
-                value: `<div class='tooltip-wrapper'><p class='tooltip-hour-text'>${item?.condition?.text}</p>
-                <p class='tooltip-hour-chance'>Chance of rain:<span>${item?.chance_of_rain}%</span></p></div>`,
+                value: `<div class='tooltip-wrapper'><p class='tooltip-hour-text'>${
+                  item?.condition?.text
+                }</p>
+                <p class='tooltip-hour-chance'>${$t(
+                  'tomorrow.chance_rain'
+                )}:<span>${item?.chance_of_rain}%</span></p></div>`,
               }"
             >
               <img
@@ -35,7 +39,7 @@
           </td>
         </tr>
         <tr class="hour-item hour-line">
-          <td class="hour-title">Air temperature, °C</td>
+          <td class="hour-title">{{ $t("tomorrow.air_temperature") }}, °C</td>
           <td
             v-for="(item, id) in forecastHour"
             :key="id"
@@ -74,7 +78,9 @@
           </td>
         </tr>
         <tr class="hour-item hour-line">
-          <td class="hour-title">Feeling temperature, °C</td>
+          <td class="hour-title">
+            {{ $t("tomorrow.feeling_temperature") }}, °C
+          </td>
           <td
             v-for="(item, id) in forecastHour"
             :key="id"
@@ -113,7 +119,9 @@
           </td>
         </tr>
         <tr class="hour-item hour-line">
-          <td class="hour-title">Wind speed, m/s</td>
+          <td class="hour-title">
+            {{ $t("tomorrow.wind_speed") }}, {{ $t("measurement.speed") }}
+          </td>
           <td
             v-for="(item, id) in forecastHour"
             :key="id"
@@ -123,13 +131,7 @@
             }"
             v-tooltip.bottom="{
               escape: false,
-              value: `<p class='tooltip-hour-wind'>${getTextWind(
-                kphToMph(item.wind_kph)
-              )} (${kphToMph(item.wind_kph)} m/s)${
-                kphToMph(item.gust_kph) > 0
-                  ? ', gusts ' + kphToMph(item.gust_kph) + ' m/s'
-                  : ''
-              }</p>`,
+              value: tooltipContent(item),
             }"
           >
             <p
@@ -141,7 +143,9 @@
           </td>
         </tr>
         <tr class="hour-item hour-line">
-          <td class="hour-title">Gusts of wind, m/s</td>
+          <td class="hour-title">
+            {{ $t("tomorrow.gusts") }}, {{ $t("measurement.speed") }}
+          </td>
           <td
             v-for="(item, id) in forecastHour"
             :key="id"
@@ -159,7 +163,7 @@
           </td>
         </tr>
         <tr class="hour-item hour-line">
-          <td class="hour-title">Direction of the wind</td>
+          <td class="hour-title">{{ $t("tomorrow.direction") }}</td>
           <td
             v-for="(item, id) in forecastHour"
             :key="id"
@@ -169,18 +173,18 @@
             }"
             v-tooltip.bottom="{
               escape: false,
-              value: `${fullTextDir[item.wind_dir]}`,
+              value: fullTextDir(item.wind_dir),
             }"
           >
             <i-gravity-ui:arrow-up
               class="hour-dir-arrow"
               :style="{ transform: `rotate(${item.wind_degree + 180}deg)` }"
             />
-            <p class="hour-dir-text">{{ item.wind_dir }}</p>
+            <p class="hour-dir-text">{{ convertDir(item.wind_dir) }}</p>
           </td>
         </tr>
         <tr class="hour-item hour-line">
-          <td class="hour-title">Humidity, %</td>
+          <td class="hour-title">{{ $t("tomorrow.humidity") }}, %</td>
           <td
             v-for="(item, id) in forecastHour"
             :key="id"
@@ -205,7 +209,9 @@
           </td>
         </tr>
         <tr class="hour-item hour-line">
-          <td class="hour-title">Pressure, mmHg</td>
+          <td class="hour-title">
+            {{ $t("tomorrow.pressure") }}, {{ $t("measurement.pressure") }}
+          </td>
           <td
             v-for="(item, id) in forecastHour"
             :key="id"
@@ -226,7 +232,9 @@
           </td>
         </tr>
         <tr class="hour-item hour-line">
-          <td class="hour-title">Precipitation, mm</td>
+          <td class="hour-title">
+            {{ $t("tomorrow.precipitation") }}, {{ $t("measurement.precip") }}
+          </td>
           <td
             v-for="(item, id) in forecastHour"
             :key="id"
@@ -268,7 +276,7 @@
           </td>
         </tr>
         <tr class="hour-item hour-line hour-sun">
-          <td class="hour-title">Sun: sunrise sunset</td>
+          <td class="hour-title">{{ $t("tomorrow.sun") }}</td>
           <td class="hour-block">
             <p class="hour-sun-text">
               {{ forecastAstro?.sunrise }}
@@ -277,12 +285,22 @@
           </td>
         </tr>
         <tr class="hour-item hour-line hour-moon">
-          <td class="hour-title">Moon: moonrise moonset</td>
+          <td class="hour-title">{{ $t("tomorrow.moon") }}</td>
           <td
             class="hour-block"
             v-tooltip.top="{
               escape: false,
-              value: `${forecastAstro?.moon_phase}, lighting: ${forecastAstro?.moon_illumination}%`,
+              value: `${
+                forecastAstro?.moon_phase &&
+                $t(
+                  `moon.phases.${forecastAstro?.moon_phase
+                    .toLowerCase()
+                    .split(' ')
+                    .join('_')}`
+                )
+              }, ${$t('tomorrow.moon_tooltip', {
+                moon_illumination: forecastAstro?.moon_illumination,
+              })}`,
             }"
           >
             <p class="hour-moon-text">
@@ -302,7 +320,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, watch, onMounted } from "vue";
+import { ref, defineProps, watch, onMounted, inject } from "vue";
 import {
   getImageUrl,
   formatPath,
@@ -311,29 +329,22 @@ import {
   mbToMmHg,
   formatFromAMPM,
 } from "@/utils/index";
+import { useI18n } from "vue-i18n";
 
+const { locale } = useI18n();
+const t = inject("t");
 const scrollBox = ref();
 const hourTitle = ref();
 const table = ref();
 const percent = ref(0);
 
-const fullTextDir = {
-  N: "North",
-  NNW: "North-North-West",
-  NW: "North-West",
-  WNW: "West-North-West",
-  W: "West",
-  WSW: "West-South-West",
-  SW: "South-West",
-  SSW: "South-South-West",
-  S: "South",
-  SSE: "South-South-East",
-  SE: "South-East",
-  ESE: "East-South-East",
-  E: "East",
-  ENE: "East-North-East",
-  NE: "North-East",
-  NNE: "North-North-East",
+const fullTextDir = (dir) => {
+  const fullDir = dir
+    .toLowerCase()
+    .split("")
+    .map((item) => t(`wind.direction.${item}`))
+    .join("-");
+  return fullDir;
 };
 
 const props = defineProps({
@@ -449,44 +460,72 @@ const calcPercent = () => {
 
 const getTextWind = (value) => {
   if (value === 0) {
-    return "Calm";
+    return t("wind.status.calm");
   } else if (value === 1) {
-    return "Quiet wind";
+    return t("wind.status.quiet_wind");
   } else if (value === 2 || value === 3) {
-    return "Light breeze";
+    return t("wind.status.light_breeze");
   } else if (value === 4 || value === 5) {
-    return "Light wind";
+    return t("wind.status.light_wind");
   } else if (value > 5 && value < 10) {
-    return "Moderate wind";
+    return t("wind.status.moderate_wind");
   } else if (value >= 10 && value < 14) {
-    return "Strong wind";
+    return t("wind.status.strong_wind");
   } else if (value >= 14) {
-    return "Squally wind";
+    return t("wind.status.squally_wind");
   }
 };
 
 const getTextHumidity = (humidity) => {
   if (humidity >= 30 && humidity < 70) {
-    return "Comfortable humidity";
+    return t("humidity.status.full.good");
   } else if (humidity >= 70 && humidity < 90) {
-    return "High humidity";
+    return t("humidity.status.full.high");
   } else if (humidity >= 90) {
-    return "Very high humidity";
+    return t("humidity.status.full.overly");
   } else if (humidity < 30 && humidity >= 20) {
-    return "Low humidity";
+    return t("humidity.status.full.normal");
   } else if (humidity < 20) {
-    return "Very low humidity";
+    return t("humidity.status.full.low");
   }
 };
 
 const getTextTemp = (temp) => {
   if (temp >= 27) {
-    return { text: "High temperature!", backColor: "#fd9801", color: "#fff" };
+    return {
+      text: t("temperature.status.high"),
+      backColor: "#fd9801",
+      color: "#fff",
+    };
   } else if (temp <= -26) {
-    return { text: "Severe frost!", backColor: "#00ccff", color: "#fff" };
+    return {
+      text: t("temperature.status.low"),
+      backColor: "#00ccff",
+      color: "#fff",
+    };
   } else {
     return { text: "", backColor: "#fff", color: "#000" };
   }
+};
+
+const tooltipContent = (item) => {
+  const windSpeed = kphToMph(item.wind_kph);
+  const gustSpeed = kphToMph(item.gust_kph);
+  const gustText =
+    gustSpeed > 0
+      ? `,  ${t("wind.gusts")} ${gustSpeed} ${t("measurement.speed")}`
+      : "";
+  return `<p class='tooltip-hour-wind'>${getTextWind(
+    windSpeed
+  )} (${windSpeed} ${t("measurement.speed")})${gustText}</p>`;
+};
+
+const convertDir = (dir) => {
+  return dir
+    .toLowerCase()
+    .split("")
+    .map((item) => t(`wind.compas.${item}`))
+    .join("");
 };
 </script>
 
@@ -608,7 +647,7 @@ td {
     .hour-precip-graph {
       display: none;
     }
-    .hour-precip-img{
+    .hour-precip-img {
       display: none;
     }
     .hour-precip-text {
@@ -623,7 +662,7 @@ td {
 .hour-precip-img {
   display: flex;
   height: 5px;
-  path{
+  path {
     fill: var(--blue-500);
   }
 }
@@ -650,7 +689,7 @@ td {
   height: 75px;
 }
 .hour-sun {
-  height: 30px;
+  height: auto;
 }
 .hour-block {
   position: absolute;
