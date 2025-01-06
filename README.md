@@ -53,7 +53,8 @@ hourly forecast for 3 days, a page with weather news and more. There is an authe
 :heavy_check_mark: Editing user information;\
 :heavy_check_mark: Getting weather for the entered city;\
 :heavy_check_mark: UI component for displaying the position of the sun in the sky;\
-:heavy_check_mark: Adaptive.
+:heavy_check_mark: Adaptive;\
+:heavy_check_mark: Internationalization.
 
 ## :rocket: Technologies
 
@@ -81,6 +82,7 @@ The following tools were used in this project:
 - [Vue-country-flag](https://github.com/ubaldop/vue-country-flag)
 - [Vue-resize](https://github.com/Akryum/vue-resize)
 - [Vue-router](https://router.vuejs.org/)
+- [Vue I18n](https://vue-i18n.intlify.dev/)
 
 ## :white_check_mark: Requirements
 
