@@ -10,7 +10,9 @@
             v-for="tag of selectedTags"
             :key="tag"
             :label="
-              $t(`tags.items.${tag.toLocaleLowerCase().split(' ').join('_')}`)
+              $te(`tags.items.${formateTag(tag)}`)
+                ? $t(`tags.items.${formateTag(tag)}`)
+                : formateTag(tag)
             "
             @remove="(e) => remove(e, tag)"
           />
@@ -181,6 +183,8 @@ const sizeTags = ref({ width: 0, height: 0 });
 
 const searchTags = ref();
 const error = ref([]);
+
+const formateTag = (tag) => tag.toLocaleLowerCase().split(" ").join("_");
 
 const props = defineProps({
   placeholder: String,

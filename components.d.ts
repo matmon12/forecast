@@ -102,7 +102,6 @@ declare module 'vue' {
     'ITabler:windowMinimize': typeof import('~icons/tabler/window-minimize')['default']
     Knob: typeof import('./src/components/UI/Knob.vue')['default']
     LanguageSwitcher: typeof import('./src/components/UI/LanguageSwitcher.vue')['default']
-    Menu: typeof import('primevue/menu')['default']
     Message: typeof import('primevue/message')['default']
     Moon: typeof import('./src/components/cards/Moon.vue')['default']
     MultiSelect: typeof import('primevue/multiselect')['default']
