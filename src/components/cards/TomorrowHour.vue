@@ -1,7 +1,7 @@
 <template>
   <div class="hour">
     <div class="hour-wrapper" ref="scrollBox">
-      <table class="hour-table" ref="table">
+      <table class="hour-table" ref="table" v-auto-animate>
         <tr class="hour-item">
           <td class="hour-title" ref="hourTitle">{{ $t("tomorrow.time") }}</td>
           <td v-for="(item, id) in forecastHour" :key="id">
@@ -38,7 +38,10 @@
             </div>
           </td>
         </tr>
-        <tr class="hour-item hour-line">
+        <tr
+          v-if="parameters.air_temperature.enabled"
+          class="hour-item hour-line"
+        >
           <td class="hour-title">{{ $t("tomorrow.air_temperature") }}, °C</td>
           <td
             v-for="(item, id) in forecastHour"
@@ -77,7 +80,10 @@
             </p>
           </td>
         </tr>
-        <tr class="hour-item hour-line">
+        <tr
+          v-if="parameters.feeling_temperature.enabled"
+          class="hour-item hour-line"
+        >
           <td class="hour-title">
             {{ $t("tomorrow.feeling_temperature") }}, °C
           </td>
@@ -118,7 +124,7 @@
             </p>
           </td>
         </tr>
-        <tr class="hour-item hour-line">
+        <tr v-if="parameters.wind_speed.enabled" class="hour-item hour-line">
           <td class="hour-title">
             {{ $t("tomorrow.wind_speed") }}, {{ $t("measurement.speed") }}
           </td>
@@ -142,7 +148,7 @@
             </p>
           </td>
         </tr>
-        <tr class="hour-item hour-line">
+        <tr v-if="parameters.gusts.enabled" class="hour-item hour-line">
           <td class="hour-title">
             {{ $t("tomorrow.gusts") }}, {{ $t("measurement.speed") }}
           </td>
@@ -162,7 +168,7 @@
             </p>
           </td>
         </tr>
-        <tr class="hour-item hour-line">
+        <tr v-if="parameters.wind_dir.enabled" class="hour-item hour-line">
           <td class="hour-title">{{ $t("tomorrow.direction") }}</td>
           <td
             v-for="(item, id) in forecastHour"
@@ -183,7 +189,7 @@
             <p class="hour-dir-text">{{ convertDir(item.wind_dir) }}</p>
           </td>
         </tr>
-        <tr class="hour-item hour-line">
+        <tr v-if="parameters.humidity.enabled" class="hour-item hour-line">
           <td class="hour-title">{{ $t("tomorrow.humidity") }}, %</td>
           <td
             v-for="(item, id) in forecastHour"
@@ -208,7 +214,7 @@
             </p>
           </td>
         </tr>
-        <tr class="hour-item hour-line">
+        <tr v-if="parameters.pressure.enabled" class="hour-item hour-line">
           <td class="hour-title">
             {{ $t("tomorrow.pressure") }}, {{ $t("measurement.pressure") }}
           </td>
@@ -231,7 +237,7 @@
             </p>
           </td>
         </tr>
-        <tr class="hour-item hour-line">
+        <tr v-if="parameters.precip.enabled" class="hour-item hour-line">
           <td class="hour-title">
             {{ $t("tomorrow.precipitation") }}, {{ $t("measurement.precip") }}
           </td>
@@ -275,7 +281,7 @@
             ></div>
           </td>
         </tr>
-        <tr class="hour-item hour-line hour-sun">
+        <tr v-if="parameters.sun.enabled" class="hour-item hour-line hour-sun">
           <td class="hour-title">{{ $t("tomorrow.sun") }}</td>
           <td class="hour-block">
             <p class="hour-sun-text">
@@ -284,7 +290,10 @@
             </p>
           </td>
         </tr>
-        <tr class="hour-item hour-line hour-moon">
+        <tr
+          v-if="parameters.moon.enabled"
+          class="hour-item hour-line hour-moon"
+        >
           <td class="hour-title">{{ $t("tomorrow.moon") }}</td>
           <td
             class="hour-block"
@@ -327,7 +336,6 @@ import {
   setPlus,
   kphToMph,
   mbToMmHg,
-  formatFromAMPM,
 } from "@/utils/index";
 import { useI18n } from "vue-i18n";
 
@@ -351,6 +359,7 @@ const props = defineProps({
   forecastHour: Array,
   forecastAstro: Object,
   timezone: String,
+  parameters: Object,
 });
 
 watch(
@@ -531,11 +540,7 @@ const convertDir = (dir) => {
 
 <style lang="scss" scoped>
 @include TomorrowHour();
-.hour {
-  @include Card();
-  padding-top: 20px;
-  line-height: 1.1;
-}
+
 .hour-wrapper {
   border: 1px solid #464646;
   border-radius: 10px;

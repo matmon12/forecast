@@ -21,6 +21,10 @@
       </div>
     </div>
     <div class="tabs-wrapper">
+      <div class="tab__header">
+        <div class="tab__header-title">{{ $t('tomorrow.title') }}</div>
+        <DataSet v-if="can('update', 'User')" class="tab-set" v-model="parameters" />
+      </div>
       <div v-for="item in [0, 1, 2]" :key="item" class="tab-content">
         <TomorrowHour
           v-if="tabActive === item"
@@ -31,6 +35,7 @@
             forecastStore.forecastData?.forecast?.forecastday[item].astro
           "
           :timezone="forecastStore.forecastData?.location?.tz_id"
+          :parameters="parameters"
         />
       </div>
     </div>
@@ -45,13 +50,27 @@ import { useSearchStore } from "@/stores/search";
 import { useForecastStore } from "@/stores/forecast";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { useAbility } from "@casl/vue";
 
 const t = inject("t");
+const { can } = useAbility();
 const { locale } = useI18n();
 const tabActive = ref(0);
 const searchStore = useSearchStore();
 const forecastStore = useForecastStore();
-const test = [{ test: 0 }, { test: 1 }, { test: 2 }];
+
+const parameters = ref({
+  air_temperature: { label: "Air temperature", enabled: true },
+  feeling_temperature: { label: "Temperature by feel", enabled: true },
+  wind_speed: { label: "Wind speed", enabled: true },
+  gusts: { label: "Gusts of wind", enabled: true },
+  wind_dir: { label: "Wind direction", enabled: true },
+  humidity: { label: "Humidity", enabled: true },
+  pressure: { label: "Pressure", enabled: true },
+  precip: { label: "Precipitation, mm", enabled: true },
+  sun: { label: "Sun", enabled: true },
+  moon: { label: "Moon", enabled: true },
+});
 
 const dataDay = computed(() => [
   { day: t("tomorrow.today") },
@@ -135,14 +154,32 @@ const onToBack = () => {
   border-radius: 20px;
   transition: all 0.5s;
 }
+.tab__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+
+  &-title {
+    font-size: 26px;
+    font-weight: 500;
+    line-height: 1;
+  }
+}
+.tab-set {
+  justify-self: flex-end;
+}
 .is--cheked {
   background-color: var(--grey-400);
 }
 .tabs-wrapper {
+  @include Card();
   position: relative;
   width: 100%;
   margin-top: 15px;
   border-radius: 20px;
+  padding-top: 15px;
+  line-height: 1.1;
 }
 .tab-content {
   width: 100%;

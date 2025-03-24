@@ -670,12 +670,18 @@
             border-radius: 15px;
             transition: all 0.3s;
         }
+        .tabs-wrapper {
+            padding: 15px;
+        }
     }
     .sm,
     .xs {
         .tab {
             border-radius: 12px;
             width: 130px;
+        }
+        .tabs-wrapper {
+            padding: 10px;
         }
     }
     .xs2,
@@ -691,6 +697,10 @@
         .tabs-wrapper {
             margin-top: 10px;
             border-radius: 10px;
+            padding: 10px;
+        }
+        .tab__header-title {
+            font-size: 22px;
         }
     }
     .xs3,
@@ -698,6 +708,32 @@
         .tab {
             width: auto;
             flex-grow: 1;
+        }
+        .tabs-wrapper {
+            padding: 0;
+            background-color: transparent;
+        }
+        .tab__header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 7px;
+        }
+    }
+    .xs4 {
+        .tab__header-title {
+            font-size: 20px;
+        }
+    }
+}
+@mixin DataSet() {
+    .xs3,
+    .xs4 {
+        .set{
+            width: 100%;
+        }
+        .set-btn {
+            width: 100%;
+            justify-content: center;
         }
     }
 }
@@ -797,18 +833,12 @@
 @mixin TomorrowHour() {
     .md {
     }
-    .sm2 {
-        .hour {
-            padding: 15px;
-        }
-    }
     .sm,
     .xs,
     .xs2,
     .xs3,
     .xs4 {
         .hour {
-            padding: 10px;
             border-radius: 15px;
         }
         .hour-block {
@@ -820,7 +850,6 @@
     .xs3,
     .xs4 {
         .hour {
-            padding: 0;
             border-radius: 10px;
         }
         .hour-title {

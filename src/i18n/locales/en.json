@@ -44,7 +44,8 @@
         "delete": "Delete",
         "clear": "Clear",
         "export": "Export",
-        "home": "Home"
+        "home": "Home",
+        "dataset": "Data set"
     },
     "panel": {
         "profile": "Profile",
@@ -261,7 +262,8 @@
         "sun": "Sun: sunrise sunset",
         "moon": "Moon: moonrise moonset",
         "chance_rain": "Chance of rain",
-        "moon_tooltip": "lighting: {moon_illumination}%"
+        "moon_tooltip": "lighting: {moon_illumination}%",
+        "title": "Hourly forecast"
     },
     "temperature": {
         "status": {
@@ -532,6 +534,22 @@
         "links": {
             "zen": "Zen",
             "telegram": "Telegram"
+        }
+    },
+    "dataset": {
+        "title": "Dataset in forecast",
+        "text": "Select the parameters you want to see in the forecast",
+        "parameters": {
+            "moon": "Moon",
+            "humidity": "Humidity",
+            "feeling_temperature": "Temperature by feel",
+            "wind_speed": "Wind speed",
+            "air_temperature": "Air temperature",
+            "gusts": "Gusts of wind",
+            "precip": "Precipitation, mm",
+            "pressure": "Pressure",
+            "wind_dir": "Wind direction",
+            "sun": "Sun"
         }
     }
 }

@@ -413,5 +413,10 @@ export const getClasses = (mainClass) => {
       start: `${mainClass}-menu-start`,
       end: `${mainClass}-menu-end`,
     },
+    toggleswitch: {
+      root: `${mainClass}-toggleswitch`,
+      input: `${mainClass}-toggleswitch-input`,
+      slider: `${mainClass}-toggleswitch-slider`,
+    }
   };
 };

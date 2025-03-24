@@ -201,6 +201,10 @@
   --skeleton-back: #7791c360;
   --skeleton-text: #3e4f6f36;
   --skeleton-animation: rgba(255, 255, 255, 0.216);
+
+  --switch-slider: #8da1af;
+  --switch-slider-disabled-opacity: 0.6;
+  --switch-slider-checked-disabled-opacity: 0.7;
 }
 
 body.dark {
@@ -406,6 +410,10 @@ body.dark {
   --skeleton-back: #ffffff10;
   --skeleton-text: #ffffff0f;
   --skeleton-animation: rgba(255,255,255,0.04);
+
+  --switch-slider: #585858;
+  --switch-slider-disabled-opacity: 0.6;
+  --switch-slider-checked-disabled-opacity: 0.7;
 }
 
 $offset-card: 15px;

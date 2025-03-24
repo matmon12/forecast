@@ -44,7 +44,8 @@
         "delete": "Удалить",
         "clear": "Очистить",
         "export": "Экспортировать",
-        "home": "Главная"
+        "home": "Главная",
+        "dataset": "Набор данных"
     },
     "panel": {
         "profile": "Профиль",
@@ -261,7 +262,8 @@
         "sun": "Солнце: восход закат",
         "moon": "Луна: восход заход",
         "chance_rain": "Вероятность дождя",
-        "moon_tooltip": "освещение: {moon_illumination}%"
+        "moon_tooltip": "освещение: {moon_illumination}%",
+        "title": "Почасовой прогноз"
     },
     "temperature": {
         "status": {
@@ -532,6 +534,22 @@
         "links": {
             "zen": "Дзен",
             "telegram": "Telegram"
+        }
+    },
+    "dataset": {
+        "title": "Набор данных в прогнозе",
+        "text": "Выберите параметры, которые хотите видеть в прогнозе",
+        "parameters": {
+            "moon": "Луна",
+            "humidity": "Влажность",
+            "feeling_temperature": "Температура по ощущениям",
+            "wind_speed": "Скорость ветра",
+            "air_temperature": "Температура воздуха",
+            "gusts": "Порывы ветра",
+            "precip": "Осадки, мм",
+            "pressure": "Давление",
+            "wind_dir": "Направление ветра",
+            "sun": "Солнце"
         }
     }
 }
