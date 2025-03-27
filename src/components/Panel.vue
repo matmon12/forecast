@@ -92,6 +92,7 @@
 import { ref, markRaw, onMounted, inject, computed } from "vue";
 import TeenyiconsUserCircleSolid from "~icons/teenyicons/user-circle-solid";
 import BitcoinIconsExitFilled from "~icons/bitcoin-icons/exit-filled";
+import IonSettingsOutline from "~icons/ion/settings-outline";
 import { getImageUrl, getUsername } from "@/utils/index";
 import { useAuthStore } from "@/stores/auth";
 import router from "@/router/router";
@@ -110,6 +111,13 @@ const items = computed(() => [
     icon: TeenyiconsUserCircleSolid,
     action: () => {
       router.push({ name: "ProfileUser" });
+    },
+  },
+  {
+    label: t("setting.title"),
+    icon: IonSettingsOutline,
+    action: () => {
+      router.push({ name: "SettingUser" });
     },
   },
   {

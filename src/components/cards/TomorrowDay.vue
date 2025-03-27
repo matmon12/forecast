@@ -2,7 +2,12 @@
   <div class="tomorrow-day">
     <div class="tomorrow-day-left">
       <div class="tomorrow-day-top">
-        <div class="tomorrow-day-title">{{ getDate }}</div>
+        <div
+          @click="settingStore.units.temp = 'temp_f'"
+          class="tomorrow-day-title"
+        >
+          {{ getDate }}
+        </div>
         <div class="tomorrow-day-subtitle">{{ dataDay.day }}</div>
       </div>
       <div class="tomorrow-day-footer">
@@ -17,8 +22,8 @@
             }"
           >
             <span>{{
-              setPlus(props.forecastDay.day.mintemp_c) +
-              Math.round(props.forecastDay?.day?.mintemp_c)
+              setPlus(settingStore.getTemp(props.forecastDay?.day?.mintemp_c)) +
+              settingStore.getTemp(props.forecastDay?.day?.mintemp_c)
             }}</span>
           </div>
           <div
@@ -31,8 +36,8 @@
             }"
           >
             <span>{{
-              setPlus(props.forecastDay.day.mintemp_c) +
-              Math.round(props.forecastDay?.day?.maxtemp_c)
+              setPlus(settingStore.getTemp(props.forecastDay?.day?.maxtemp_c)) +
+              settingStore.getTemp(props.forecastDay?.day?.maxtemp_c)
             }}</span>
           </div>
         </div>
@@ -57,6 +62,7 @@
 import { onMounted, ref, defineProps, computed, watch, inject } from "vue";
 import { getImageUrl, formatPath, setPlus } from "@/utils/index";
 import { useI18n } from "vue-i18n";
+import { useSettingStore } from "@/stores/setting";
 
 const props = defineProps({
   forecastDay: Object,
@@ -65,7 +71,8 @@ const props = defineProps({
 
 const t = inject("t");
 const { locale } = useI18n();
-const path = ref();
+const settingStore = useSettingStore();
+
 const totalPrecip = computed(() =>
   props.forecastDay?.day?.totalprecip_mm.toFixed(1) == 0.0
     ? ""
@@ -78,34 +85,57 @@ const getColor = (value) => {
   var colorBack;
   var colorBorder;
 
-  if (value < 0 && value >= -10) {
+  const temp = settingStore.getTemp(value);
+
+  if (temp < settingStore.getTemp(0) && temp >= settingStore.getTemp(-10)) {
     colorBack = "#caeffe";
     colorBorder = "#00b7ff";
-  } else if (value < -10 && value >= -20) {
+  } else if (
+    temp < settingStore.getTemp(-10) &&
+    temp >= settingStore.getTemp(-20)
+  ) {
     colorBack = "#a7c8fd";
     colorBorder = "#0a68ff";
-  } else if (value < -20 && value >= -30) {
+  } else if (
+    temp < settingStore.getTemp(-10) &&
+    temp >= settingStore.getTemp(-30)
+  ) {
     colorBack = "#89a9ff";
     colorBorder = "#0042f9";
-  } else if (value < -30 && value >= -35) {
+  } else if (
+    temp < settingStore.getTemp(-30) &&
+    temp >= settingStore.getTemp(-35)
+  ) {
     colorBack = "#baa6fd";
     colorBorder = "#6a00ff";
-  } else if (value < -35) {
+  } else if (temp < settingStore.getTemp(-35)) {
     colorBack = "#c898ff";
     colorBorder = "#9900ff";
-  } else if (value >= 0 && value < 13) {
+  } else if (
+    temp >= settingStore.getTemp(0) &&
+    temp < settingStore.getTemp(13)
+  ) {
     colorBack = "#e0ffc7";
     colorBorder = "#60d500";
-  } else if (value >= 13 && value < 20) {
+  } else if (
+    temp >= settingStore.getTemp(13) &&
+    temp < settingStore.getTemp(20)
+  ) {
     colorBack = "#e9ffae";
     colorBorder = "#9ed700";
-  } else if (value >= 20 && value < 30) {
+  } else if (
+    temp >= settingStore.getTemp(20) &&
+    temp < settingStore.getTemp(30)
+  ) {
     colorBack = "#fedf9d";
     colorBorder = "#ffae00";
-  } else if (value >= 30 && value < 35) {
+  } else if (
+    temp >= settingStore.getTemp(30) &&
+    temp < settingStore.getTemp(35)
+  ) {
     colorBack = "#fdc1af";
     colorBorder = "#fa3a00";
-  } else if (value >= 35) {
+  } else if (temp >= settingStore.getTemp(35)) {
     colorBack = "#ffa68b";
     colorBorder = "#de3400";
   }

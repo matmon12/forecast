@@ -13,12 +13,15 @@
       :size="110"
       :valueColor="'var(--blue-400)'"
       :rangeColor="'#404040'"
-      :valueTemplate="`${mmHgPressure}`"
+      :valueTemplate="`${settingStore.getPressure(props.pressure)}`"
       readonly
     />
     <div class="pressure__footer">
       <div class="pressure__left">
-        {{ mmHgPressure }}<span v-if="!uiStore.xs2Smaller">{{ $t("pressure.measurement") }}</span>
+        {{ settingStore.getPressure(props.pressure)
+        }}<span v-if="!uiStore.xs2Smaller">{{
+          t(`pressure.measurement.${settingStore.getUnitPressure()}`)
+        }}</span>
       </div>
       <div class="pressure-right">{{ getTextDesc(mmHgPressure) }}</div>
     </div>
@@ -30,8 +33,10 @@ import Knob from "primevue/knob";
 import { ref, defineProps, computed, watch, inject, onMounted } from "vue";
 import { mbToMmHg } from "@/utils/index";
 import { useUiStore } from "../../stores/ui";
+import { useSettingStore } from "@/stores/setting";
 
 const uiStore = useUiStore();
+const settingStore = useSettingStore();
 const { anime } = inject("plugins");
 const t = inject("t");
 

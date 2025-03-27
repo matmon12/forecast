@@ -282,6 +282,7 @@ img {
   color: var(--cyanogen);
   line-height: 1.1;
   font-size: 25px;
+  word-break: break-word;
 }
 .moon__info-bottom {
   font-size: 12px;

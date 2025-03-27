@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, RouterView } from "vue-router";
 import { useStaticStore } from "@/stores/static";
 import { useAuthStore } from "@/stores/auth";
 import { ability } from "../services/ability";
+import { useSettingStore } from "@/stores/setting";
 import Tr from "@/i18n/translation";
 
 const Home = () => import("@/pages/Home.vue");
@@ -16,6 +17,7 @@ const NotFound = () => import("@/pages/NotFound.vue");
 const SignUp = () => import("@/pages/authentication/SignUp.vue");
 const SignIn = () => import("@/pages/authentication/SignIn.vue");
 const ProfileUser = () => import("@/pages/ProfileUser.vue");
+const SettingUser = () => import("@/pages/SettingUser.vue");
 
 const routes = [
   {
@@ -113,6 +115,15 @@ const routes = [
         },
       },
       {
+        path: "forecast/setting",
+        name: "SettingUser",
+        component: SettingUser,
+        meta: {
+          resource: "Setting",
+          redirect: "SignIn",
+        },
+      },
+      {
         path: ":pathMatch(.*)*",
         name: "NotFound",
         component: NotFound,
@@ -136,10 +147,12 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
+  const settingStore = useSettingStore();
 
   // получение данных пользователя
   if (authStore.uid && !authStore.user) {
     await authStore.getUserInfo();
+    await settingStore.getUnitsUser(authStore.user?.units);
   }
 
   const canNavigate = () => {

@@ -203,6 +203,7 @@
   --skeleton-animation: rgba(255, 255, 255, 0.216);
 
   --switch-slider: #8da1af;
+  --switch-spinner: #345b82;
   --switch-slider-disabled-opacity: 0.6;
   --switch-slider-checked-disabled-opacity: 0.7;
 }
@@ -412,6 +413,7 @@ body.dark {
   --skeleton-animation: rgba(255,255,255,0.04);
 
   --switch-slider: #585858;
+  --switch-spinner: #585858;
   --switch-slider-disabled-opacity: 0.6;
   --switch-slider-checked-disabled-opacity: 0.7;
 }

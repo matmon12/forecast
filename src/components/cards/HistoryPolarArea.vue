@@ -10,11 +10,11 @@
     <div class="polar-area__footer">
       <div class="footer-item">
         <p class="footer-point" style="background-color: #3d93f5e9"></p>
-        <p class="footer-text">{{ $t("history-polar.labels.min") }} (°С)</p>
+        <p class="footer-text">{{ $t("history-polar.labels.min") }} ({{ settingStore.getUnitTemp() }})</p>
       </div>
       <div class="footer-item">
         <p class="footer-point" style="background-color: #963df5"></p>
-        <p class="footer-text">{{ $t("history-polar.labels.max") }} (°С)</p>
+        <p class="footer-text">{{ $t("history-polar.labels.max") }} ({{ settingStore.getUnitTemp() }})</p>
       </div>
     </div>
   </div>
@@ -24,8 +24,10 @@
 import { ref, defineProps, computed, watch, onMounted, inject } from "vue";
 import { PolarArea } from "vue-chartjs";
 import { useUiStore } from "@/stores/ui";
+import { useSettingStore } from "@/stores/setting";
 
 const uiStore = useUiStore();
+const settingStore = useSettingStore();
 const t = inject("t");
 
 const props = defineProps({
@@ -45,6 +47,14 @@ watch(
   }
 );
 
+// изменение ед. из.
+watch(
+  () => settingStore.units.temp,
+  () => {
+    init();
+  }
+);
+
 onMounted(() => {
   if (props.history) {
     init();
@@ -52,8 +62,12 @@ onMounted(() => {
 });
 
 const init = () => {
-  min.value = props.history.map((item) => Math.round(item.day.mintemp_c));
-  max.value = props.history.map((item) => Math.round(item.day.maxtemp_c));
+  min.value = props.history.map((item) =>
+    settingStore.getTemp(item.day.mintemp_c)
+  );
+  max.value = props.history.map((item) =>
+    settingStore.getTemp(item.day.maxtemp_c)
+  );
 
   dataDays.value = props.history.map(
     (item) => `${item.date.split("-")[1]}.${item.date.split("-")[2]}`

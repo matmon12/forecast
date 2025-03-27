@@ -728,7 +728,7 @@
 @mixin DataSet() {
     .xs3,
     .xs4 {
-        .set{
+        .set {
             width: 100%;
         }
         .set-btn {
@@ -1941,7 +1941,7 @@
 // Profile
 @mixin ProfileUser() {
     .md {
-        .profile {
+        .profile__content {
             grid-template-columns: 1fr 350px;
         }
         .profile__info {
@@ -1950,7 +1950,7 @@
     }
     .sm2,
     .sm {
-        .profile {
+        .profile__content {
             grid-template-columns: 1fr;
         }
         .profile__setting {
@@ -1975,7 +1975,7 @@
     .xs2,
     .xs3,
     .xs4 {
-        .profile {
+        .profile__content {
             grid-template-columns: 1fr;
         }
         .profile__setting {
@@ -2146,6 +2146,28 @@
             flex-direction: column;
             align-items: center;
             gap: 3px;
+        }
+    }
+}
+
+// Setting
+@mixin Setting() {
+    .xs3,
+    .xs4 {
+        .setting-title{
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .setting__parameters{
+            row-gap: 15px;
+        }
+        .setting__content{
+            padding: 15px;
+        }
+    }
+    .xs4{
+        .setting-title{
+            font-size: 22px;
         }
     }
 }

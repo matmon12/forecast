@@ -30,10 +30,11 @@
 <script setup>
 import { defineProps, ref, watch, computed, onMounted, inject } from "vue";
 import { Bar } from "vue-chartjs";
-import { kphToMph } from "@/utils/index";
 import { useUiStore } from "@/stores/ui";
+import { useSettingStore } from "@/stores/setting";
 
 const uiStore = useUiStore();
+const settingStore = useSettingStore();
 const t = inject("t");
 
 const weekData = ref([]);
@@ -44,7 +45,7 @@ const optionsDays = computed(() => [
   {
     name: t("history-bar.options.temp.name"),
     value: "avgtemp_c",
-    measurement: "°С",
+    measurement: settingStore.getUnitTemp(),
   },
   {
     name: t("history-bar.options.precip.name"),
@@ -54,7 +55,7 @@ const optionsDays = computed(() => [
   {
     name: t("history-bar.options.wind.name"),
     value: "maxwind_kph",
-    measurement: t("history-bar.options.wind.measurement"),
+    measurement: t(`wind.measurement.${settingStore.getUnitWind()}`),
   },
 ]);
 
@@ -78,6 +79,22 @@ watch(
   }
 );
 
+//изменение ед.из. темп.
+watch(
+  () => settingStore.units.temp,
+  () => {
+    init();
+  }
+);
+
+// изменение ед.из. ветер
+watch(
+  () => settingStore.units.wind,
+  () => {
+    init();
+  }
+);
+
 onMounted(() => {
   if (props.history) {
     init();
@@ -87,11 +104,11 @@ onMounted(() => {
 const init = () => {
   weekData.value = props.history.map((item) => {
     if (valueDays.value === "avgtemp_c") {
-      return Math.round(item.day[valueDays.value]);
+      return settingStore.getTemp(item.day[valueDays.value]);
     } else if (valueDays.value === "totalprecip_mm") {
       return item.day[valueDays.value].toFixed(1);
     } else if (valueDays.value === "maxwind_kph") {
-      return kphToMph(item.day[valueDays.value]);
+      return settingStore.getWind(item.day[valueDays.value]);
     }
   });
 

@@ -176,7 +176,10 @@
     },
     "pressure": {
         "title": "Pressure",
-        "measurement": "mmHg",
+        "measurement": {
+            "mmHg": "mmHg",
+            "mb": "mbar"
+        },
         "status": {
             "low": "Low",
             "normal": "Normal",
@@ -217,7 +220,10 @@
     },
     "wind": {
         "title": "Wind Status",
-        "measurement": "m/s",
+        "measurement": {
+            "mps": "m/s",
+            "kph": "km/h"
+        },
         "gusts": "gusts",
         "compas": {
             "n": "N",
@@ -551,5 +557,20 @@
             "wind_dir": "Wind direction",
             "sun": "Sun"
         }
+    },
+    "setting": {
+        "title": "Setting"
+    },
+    "units": {
+        "title": "Units of Measurement",
+        "temp": "Temperature",
+        "temp_c": "°C",
+        "temp_f": "°F",
+        "wind": "Wind",
+        "wind_kph": "kilometers per hour (km/h)",
+        "wind_mps": "meters per second (m/s)",
+        "pressure": "Pressure",
+        "pressure_mmHg": "millimeters of mercury (mm Hg)",
+        "pressure_mb": "millibars (mbar)"
     }
 }

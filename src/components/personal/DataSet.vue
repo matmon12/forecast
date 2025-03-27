@@ -28,8 +28,9 @@ p
             <ToggleSwitch
               v-model="parametersModel[item].enabled"
               :pt="getClasses('set').toggleswitch"
-              @update:modelValue="(value) => saveParametersUser(item, value)"
+              @update:modelValue="() => saveParametersUser(item)"
               :disabled="loading"
+              :class="{ 'is-loaded': loading && item === lastValue }"
             />
             <p class="data__list-text">
               {{ $t(`dataset.parameters.${item}`) }}
@@ -51,12 +52,14 @@ import { useAuthStore } from "@/stores/auth";
 
 const visible = ref(false);
 const loading = ref(false);
+const lastValue = ref();
 const parametersModel = defineModel();
 
 const authStore = useAuthStore();
 
-const saveParametersUser = async () => {
+const saveParametersUser = async (value) => {
   loading.value = true;
+  lastValue.value = value;
 
   const updatedField = {
     parameters: Object.keys(parametersModel.value).reduce((acc, key) => {
@@ -64,6 +67,9 @@ const saveParametersUser = async () => {
       return acc;
     }, {}),
   };
+
+  // local
+  authStore.user.parameters = { ...updatedField.parameters };
 
   try {
     await updateToDB(authStore.uid, updatedField);
@@ -133,6 +139,9 @@ onMounted(() => {
   &-label {
     display: flex;
     gap: 10px;
+    &:has(:disabled) {
+      cursor: default;
+    }
   }
   &-text {
     color: var(--white);
@@ -160,6 +169,8 @@ onMounted(() => {
 
     .p-drawer-close-button {
       min-width: 30px;
+      width: 30px;
+      min-height: 30px;
       height: 30px;
       color: var(--grey-light);
       align-self: flex-start;
@@ -185,9 +196,10 @@ onMounted(() => {
 
       &::before {
         background-color: #fff;
+        outline: 2px solid #fff;
         box-shadow: 0 0 7px #000;
-        --p-toggleswitch-handle-size: 17px;
-        --p-toggleswitch-gap: 3px;
+        --p-toggleswitch-handle-size: 14px;
+        --p-toggleswitch-gap: 4px;
       }
     }
 
@@ -205,6 +217,23 @@ onMounted(() => {
 
       &.p-toggleswitch-checked .set-toggleswitch-slider {
         opacity: var(--switch-slider-checked-disabled-opacity);
+      }
+    }
+
+    &.is-loaded {
+      .set-toggleswitch-slider::before {
+        border: 3px solid var(--switch-spinner);
+        border-bottom-color: transparent;
+        animation: rotation 1s linear infinite;
+
+        @keyframes rotation {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
       }
     }
   }

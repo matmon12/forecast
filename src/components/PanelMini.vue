@@ -131,7 +131,7 @@
 <script setup>
 import { ref, shallowRef, inject, computed } from "vue";
 import TeenyiconsUserCircleSolid from "~icons/teenyicons/user-circle-solid";
-import BitcoinIconsExitFilled from "~icons/bitcoin-icons/exit-filled";
+import IonSettingsOutline from "~icons/ion/settings-outline";
 import { getImageUrl, getUsername } from "@/utils/index";
 import { getClasses } from "@/utils/classes";
 import { useAuthStore } from "@/stores/auth";
@@ -151,6 +151,13 @@ const menu = computed(() => [
     icon: TeenyiconsUserCircleSolid,
     action: () => {
       router.push({ name: "ProfileUser" });
+    },
+  },
+  {
+    label: t("setting.title"),
+    icon: IonSettingsOutline,
+    action: () => {
+      router.push({ name: "SettingUser" });
     },
   },
 ]);

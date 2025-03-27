@@ -21,6 +21,7 @@ export const defineAbilityFor = (role) => {
       can("visit", "SignUp");
       can("visit", "SignIn");
       cannot("visit", "Profile");
+      cannot("visit", "Setting");
       cannot("visit", "Dashboard");
       break;
     case "USER":
@@ -38,6 +39,7 @@ export const defineAbilityFor = (role) => {
       cannot("visit", "SignUp");
       cannot("visit", "SignIn");
       can("visit", "Profile");
+      can("visit", "Setting");
       cannot("visit", "Dashboard");
       break;
     case "MODERATOR":
@@ -55,6 +57,7 @@ export const defineAbilityFor = (role) => {
       cannot("visit", "SignUp");
       cannot("visit", "SignIn");
       can("visit", "Profile");
+      can("visit", "Setting");
       can("visit", "Dashboard");
       break;
     case "ADMIN":
@@ -72,6 +75,7 @@ export const defineAbilityFor = (role) => {
       cannot("visit", "SignUp");
       cannot("visit", "SignIn");
       can("visit", "Profile");
+      can("visit", "Setting");
       can("visit", "Dashboard");
       break;
     default:

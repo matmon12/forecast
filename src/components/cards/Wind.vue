@@ -21,8 +21,8 @@
     </div>
     <div class="wind__footer">
       <div class="wind-left">
-        {{ kphToMph(props.speed) }}
-        <span>{{ $t("wind.measurement") }}</span>
+        {{ settingStore.getWind(props.speed) }}
+        <span>{{ t(`wind.measurement.${settingStore.getUnitWind()}`) }}</span>
       </div>
       <div class="wind-right">
         {{ convertDir }}
@@ -32,10 +32,10 @@
 </template>
 
 <script setup>
-import { ref, defineProps, watch, onMounted, inject } from "vue";
-import { kphToMph } from "@/utils/index";
-import { computed } from "vue";
+import { computed, ref, defineProps, watch, onMounted, inject } from "vue";
+import { useSettingStore } from "@/stores/setting";
 
+const settingStore = useSettingStore();
 const { anime } = inject("plugins");
 const t = inject("t");
 

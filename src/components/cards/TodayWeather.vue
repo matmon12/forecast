@@ -6,10 +6,7 @@
         <p class="summary__location-text">{{ curWeather?.location?.name }}</p>
       </div>
       <div class="summary__degree">
-        <SwitchDegree
-          :model-value="valueSwitch"
-          @toggle-switch="(value) => onChangeDegree(value)"
-        />
+        <SwitchDegree />
       </div>
     </div>
     <div class="summary__content">
@@ -20,15 +17,18 @@
         </div>
         <div class="summary__temp">
           <div class="summary__temp-value">
-            {{ curTemp }}
+            {{
+              settingStore.getTemp(props.curWeather?.current.temp_c) +
+              settingStore.getUnitTemp()
+            }}
           </div>
           <div class="summary__temp-text">
             <span
               >{{ $t("today.high") }}:
-              {{ Math.round(searchStore.maxTemp) }}°</span
+              {{ settingStore.getTemp(searchStore.maxTemp) }}° </span
             ><span
               >{{ $t("today.low") }}:
-              {{ Math.round(searchStore.minTemp) }}°</span
+              {{ settingStore.getTemp(searchStore.minTemp) }}°</span
             >
           </div>
         </div>
@@ -52,7 +52,7 @@
           </p>
           <p class="summary__right-feels">
             {{ $t("today.feels") }}
-            {{ Math.round(curWeather?.current?.feelslike_c) }}°
+            {{ settingStore.getTemp(curWeather?.current?.feelslike_c) }}°
           </p>
         </div>
       </div>
@@ -61,15 +61,14 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch, defineProps, inject, computed } from "vue";
-import { getFarTemp, getImageUrl, formatPath } from "@/utils/index";
+import { defineProps, inject, computed } from "vue";
+import { getImageUrl, formatPath } from "@/utils/index";
 import { useSearchStore } from "@/stores/search";
 import { useI18n } from "vue-i18n";
+import { useSettingStore } from "@/stores/setting";
 
-const valueSwitch = true;
-const curTemp = ref();
-const path = ref();
 const searchStore = useSearchStore();
+const settingStore = useSettingStore();
 const { locale } = useI18n();
 const t = inject("t");
 
@@ -78,37 +77,6 @@ const props = defineProps({
     type: Object,
   },
 });
-
-watch(
-  () => props.curWeather,
-  (newValue) => {
-    if (newValue) {
-      init();
-    }
-  }
-);
-
-onMounted(() => {
-  if (props.curWeather) {
-    init();
-  }
-});
-
-const init = () => {
-  curTemp.value = valueSwitch
-    ? `${Math.round(props.curWeather.current.temp_c)}°C`
-    : `${Math.round(getFarTemp(props.curWeather.current.temp_c))}°F`;
-};
-
-const onChangeDegree = (value) => {
-  if (value) {
-    curTemp.value = `${Math.round(props.curWeather.current.temp_c)}°C`;
-  } else {
-    curTemp.value = `${Math.round(
-      getFarTemp(props.curWeather.current.temp_c)
-    )}°F`;
-  }
-};
 
 const getCurDate = computed(() => {
   const date = new Date();

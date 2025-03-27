@@ -10,25 +10,19 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits } from "vue";
+import { ref } from "vue";
+import { useSettingStore } from "@/stores/setting";
 
-const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    required: false,
-  },
-});
+const settingStore = useSettingStore();
 
-const checkboxValue = ref(props.modelValue ? props.modelValue : false);
-const emit = defineEmits(["toggleSwitch"]);
+const checkboxValue = ref(settingStore.units.temp === "temp_c" || false);
 
 const toggleCheckbox = () => {
-  emit("toggleSwitch", checkboxValue.value);
+  settingStore.units.temp = checkboxValue.value ? "temp_c" : "temp_f";
 };
 </script>
 
 <style lang="scss" scoped>
-
 .switch {
   position: relative;
   display: inline-block;

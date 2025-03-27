@@ -42,7 +42,10 @@
           v-if="parameters.air_temperature.enabled"
           class="hour-item hour-line"
         >
-          <td class="hour-title">{{ $t("tomorrow.air_temperature") }}, °C</td>
+          <td class="hour-title">
+            {{ $t("tomorrow.air_temperature") }},
+            {{ settingStore.getUnitTemp() }}
+          </td>
           <td
             v-for="(item, id) in forecastHour"
             :key="id"
@@ -76,7 +79,10 @@
               class="hour-temp"
               :style="{ color: getColorTemp(Math.round(item.temp_c)) }"
             >
-              {{ setPlus(item.temp_c) + Math.round(item.temp_c) }}
+              {{
+                setPlus(settingStore.getTemp(item.temp_c)) +
+                settingStore.getTemp(item.temp_c)
+              }}
             </p>
           </td>
         </tr>
@@ -85,7 +91,8 @@
           class="hour-item hour-line"
         >
           <td class="hour-title">
-            {{ $t("tomorrow.feeling_temperature") }}, °C
+            {{ $t("tomorrow.feeling_temperature") }},
+            {{ settingStore.getUnitTemp() }}
           </td>
           <td
             v-for="(item, id) in forecastHour"
@@ -120,13 +127,17 @@
               class="hour-feel"
               :style="{ color: getColorTemp(Math.round(item.feelslike_c)) }"
             >
-              {{ setPlus(item.feelslike_c) + Math.round(item.feelslike_c) }}
+              {{
+                setPlus(settingStore.getTemp(item.feelslike_c)) +
+                settingStore.getTemp(item.feelslike_c)
+              }}
             </p>
           </td>
         </tr>
         <tr v-if="parameters.wind_speed.enabled" class="hour-item hour-line">
           <td class="hour-title">
-            {{ $t("tomorrow.wind_speed") }}, {{ $t("measurement.speed") }}
+            {{ $t("tomorrow.wind_speed") }},
+            {{ $t(`wind.measurement.${settingStore.getUnitWind()}`) }}
           </td>
           <td
             v-for="(item, id) in forecastHour"
@@ -144,13 +155,14 @@
               class="hour-wind-spped"
               :style="{ color: getColorWind(kphToMph(item.wind_kph)) }"
             >
-              {{ kphToMph(item.wind_kph) }}
+              {{ settingStore.getWind(item.wind_kph) }}
             </p>
           </td>
         </tr>
         <tr v-if="parameters.gusts.enabled" class="hour-item hour-line">
           <td class="hour-title">
-            {{ $t("tomorrow.gusts") }}, {{ $t("measurement.speed") }}
+            {{ $t("tomorrow.gusts") }},
+            {{ $t(`wind.measurement.${settingStore.getUnitWind()}`) }}
           </td>
           <td
             v-for="(item, id) in forecastHour"
@@ -164,7 +176,7 @@
               class="hour-wind-gusts"
               :style="{ color: getColorWind(kphToMph(item.gust_kph)) }"
             >
-              {{ kphToMph(item.gust_kph) }}
+              {{ settingStore.getWind(item.gust_kph) }}
             </p>
           </td>
         </tr>
@@ -216,7 +228,8 @@
         </tr>
         <tr v-if="parameters.pressure.enabled" class="hour-item hour-line">
           <td class="hour-title">
-            {{ $t("tomorrow.pressure") }}, {{ $t("measurement.pressure") }}
+            {{ $t("tomorrow.pressure") }},
+            {{ $t(`pressure.measurement.${settingStore.getUnitPressure()}`) }}
           </td>
           <td
             v-for="(item, id) in forecastHour"
@@ -233,7 +246,7 @@
                 fontWeight: getStylePressure(mbToMmHg(item.pressure_mb)),
               }"
             >
-              {{ mbToMmHg(item.pressure_mb) }}
+              {{ settingStore.getPressure(item.pressure_mb) }}
             </p>
           </td>
         </tr>
@@ -338,8 +351,9 @@ import {
   mbToMmHg,
 } from "@/utils/index";
 import { useI18n } from "vue-i18n";
+import { useSettingStore } from "@/stores/setting";
 
-const { locale } = useI18n();
+const settingStore = useSettingStore();
 const t = inject("t");
 const scrollBox = ref();
 const hourTitle = ref();
@@ -522,11 +536,15 @@ const tooltipContent = (item) => {
   const gustSpeed = kphToMph(item.gust_kph);
   const gustText =
     gustSpeed > 0
-      ? `,  ${t("wind.gusts")} ${gustSpeed} ${t("measurement.speed")}`
+      ? `,  ${t("wind.gusts")} ${settingStore.getWind(item.gust_kph)} ${t(
+          `wind.measurement.${settingStore.getUnitWind()}`
+        )}`
       : "";
   return `<p class='tooltip-hour-wind'>${getTextWind(
     windSpeed
-  )} (${windSpeed} ${t("measurement.speed")})${gustText}</p>`;
+  )} (${settingStore.getWind(item.wind_kph)} ${t(
+    `wind.measurement.${settingStore.getUnitWind()}`
+  )})${gustText}</p>`;
 };
 
 const convertDir = (dir) => {

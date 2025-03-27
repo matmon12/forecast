@@ -30,10 +30,10 @@
 <script setup>
 import { ref, defineProps, watch, computed, onMounted, inject } from "vue";
 import { Line } from "vue-chartjs";
-import { useHistoryStore } from "@/stores/history";
 import { useUiStore } from "@/stores/ui";
+import { useSettingStore } from "@/stores/setting";
 
-const historyStore = useHistoryStore();
+const settingStore = useSettingStore();
 const uiStore = useUiStore();
 const t = inject("t");
 
@@ -47,7 +47,7 @@ const optionsHour = computed(() => [
   {
     name: t("history-main.options.temp.name"),
     value: "temp_c",
-    measurement: "°С",
+    measurement: settingStore.getUnitTemp(),
   },
   {
     name: t("history-main.options.humidity.name"),
@@ -84,6 +84,14 @@ watch(
   }
 );
 
+// изменение ед. из.
+watch(
+  () => settingStore.units.temp,
+  () => {
+    init();
+  }
+);
+
 onMounted(() => {
   if (props.weatherToday) {
     init();
@@ -94,10 +102,13 @@ const init = () => {
   todayData.value = props.weatherToday.map((item) => {
     if (valueHour.value === "precip_mm") {
       return item[valueHour.value].toFixed(1);
+    } else if (valueHour.value === "temp_c") {
+      return settingStore.getTemp(item[valueHour.value]);
     } else {
       return Math.round(item[valueHour.value]);
     }
   });
+
   min.value = Math.min(...todayData.value);
   max.value = Math.max(...todayData.value);
   let difStep = min.value - max.value;
