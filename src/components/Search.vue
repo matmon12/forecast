@@ -103,7 +103,7 @@ const fetchLocations = async (event) => {
   searchLoading.value = true;
   try {
     const res = await axiosApiInstance.get(
-      `${SEARCH_URL}?q=${event.query.toLowerCase()}&lang=${locale}&code`
+      `${SEARCH_URL}?q=${event.query.toLowerCase()}&lang=${locale.value}`
     );
     foundedLocations.value = res.data;
   } catch (err) {

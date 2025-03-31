@@ -40,6 +40,7 @@
     "quill-table-ui": "^1.0.7",
     "rgbaster": "^2.1.1",
     "svgo": "^3.2.0",
+    "swapy": "^1.0.5",
     "unplugin-auto-import": "^0.17.5",
     "uuid": "^9.0.1",
     "v-mask": "^2.3.0",
