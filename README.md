@@ -53,6 +53,10 @@ hourly forecast for 3 days, a page with weather news and more. There is an authe
 :heavy_check_mark: Editing user information;\
 :heavy_check_mark: Getting weather for the entered city;\
 :heavy_check_mark: UI component for displaying the position of the sun in the sky;\
+:heavy_check_mark: Selecting units of measurement;\
+:heavy_check_mark: Selecting a data set for a table;\
+:heavy_check_mark: Autocomplete for city search;\
+:heavy_check_mark: Adding a default city;\
 :heavy_check_mark: Adaptive;\
 :heavy_check_mark: Internationalization.
 
