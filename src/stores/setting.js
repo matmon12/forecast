@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { getFarTemp, mbToMmHg, kphToMph } from "@/utils";
 
 export const useSettingStore = defineStore("setting", () => {
+  const savedAddress = ref();
   const units = ref({
     temp: "temp_c",
     wind: "wind_mps",
@@ -51,8 +52,15 @@ export const useSettingStore = defineStore("setting", () => {
     }
   };
 
+  const getAddressUser = (address) => {
+    if (address) {
+      savedAddress.value = { ...address };
+    }
+  };
+
   return {
     units,
+    savedAddress,
     getTemp,
     getUnitTemp,
     getPressure,
@@ -60,5 +68,6 @@ export const useSettingStore = defineStore("setting", () => {
     getWind,
     getUnitPressure,
     getUnitsUser,
+    getAddressUser,
   };
 });

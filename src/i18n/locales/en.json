@@ -20,7 +20,8 @@
         "confirm": "Confirm password"
     },
     "search": {
-        "header": "Enter name city:"
+        "header": "Enter name city:",
+        "empty": "Location not found"
     },
     "buttons": {
         "login": "Login",
@@ -153,7 +154,7 @@
             "first_quarter": "First Quarter",
             "full_moon": "Full Moon",
             "last_quarter": "Last Quarter",
-            "new": "New",
+            "new_moon": "New Moon",
             "waning_crescent": "Waning Crescent",
             "waning_gibbous": "Waning Gibbous",
             "waxing_crescent": "Waxing Crescent",
@@ -367,6 +368,10 @@
         },
         "info": {
             "edit": "Info not edited!"
+        },
+        "address": {
+            "save": "The city has not been saved!",
+            "delete": "The city is not removed!"
         }
     },
     "success": {
@@ -393,6 +398,10 @@
         },
         "signup": {
             "description": "Signup successful!"
+        },
+        "city": {
+            "save": "The city has been successfully saved!",
+            "delete": "The city has been successfully removed!"
         }
     },
     "valid": {
@@ -559,7 +568,8 @@
         }
     },
     "setting": {
-        "title": "Setting"
+        "title": "Setting",
+        "favorite_address": "Set default city"
     },
     "units": {
         "title": "Units of Measurement",

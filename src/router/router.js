@@ -3,6 +3,7 @@ import { useStaticStore } from "@/stores/static";
 import { useAuthStore } from "@/stores/auth";
 import { ability } from "../services/ability";
 import { useSettingStore } from "@/stores/setting";
+import { useSearchStore } from "@/stores/search";
 import Tr from "@/i18n/translation";
 
 const Home = () => import("@/pages/Home.vue");
@@ -148,11 +149,14 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
   const settingStore = useSettingStore();
+  const searchStore = useSearchStore();
 
   // получение данных пользователя
   if (authStore.uid && !authStore.user) {
     await authStore.getUserInfo();
-    await settingStore.getUnitsUser(authStore.user?.units);
+    settingStore.getUnitsUser(authStore.user?.units);
+    settingStore.getAddressUser(authStore.user?.address);
+    searchStore.setCityDefault(authStore.user?.address?.city);
   }
 
   const canNavigate = () => {

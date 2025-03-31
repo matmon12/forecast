@@ -145,6 +145,13 @@ watch(
   },
   { immediate: true }
 );
+
+watch(
+  () => authStore.user?.country,
+  () => {
+    switchLanguageCountries(locale.value);
+  }
+);
 </script>
 
 <style lang="scss" scoped>

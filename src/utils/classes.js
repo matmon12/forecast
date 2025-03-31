@@ -417,6 +417,25 @@ export const getClasses = (mainClass) => {
       root: `${mainClass}-toggleswitch`,
       input: `${mainClass}-toggleswitch-input`,
       slider: `${mainClass}-toggleswitch-slider`,
+    },
+    autocomplete: {
+      root: `${mainClass}-autocomplete`,
+      inputMultiple: `${mainClass}-autocomplete-input-multiple`,
+      chipItem: `${mainClass}-autocomplete-chip-item`,
+      chipIcon: `${mainClass}-autocomplete-chip-icon`,
+      inputChip: `${mainClass}-autocomplete-input-chip`,
+      loader: `${mainClass}-autocomplete-loader`,
+      dropdown: `${mainClass}-autocomplete-dropdown`,
+      dropdownIcon: `${mainClass}-autocomplete-dropdown-icon`,
+      overlay: `${mainClass}-autocomplete-overlay`,
+      virtualScroller: `${mainClass}-autocomplete-virtual-scroller`,
+      listContainer: `${mainClass}-autocomplete-list-container`,
+      list: `${mainClass}-autocomplete-list`,
+      optionGroup: `${mainClass}-autocomplete-option-group`,
+      option: `${mainClass}-autocomplete-option`,
+      emptyMessage: `${mainClass}-autocomplete-empty-message`,
+      searchResultMessage: `${mainClass}-autocomplete-search-result-message`,
+      selectedMessage: `${mainClass}-autocomplete-selected-message`,
     }
   };
 };

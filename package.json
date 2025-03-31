@@ -28,6 +28,7 @@
     "express": "^4.19.2",
     "firebase": "^10.12.2",
     "i18n-iso-countries": "^7.13.0",
+    "ip": "^2.0.1",
     "lodash.debounce": "^4.0.8",
     "pinia": "^2.1.7",
     "primelocale": "^1.2.2",

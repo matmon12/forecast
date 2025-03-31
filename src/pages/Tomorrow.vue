@@ -22,8 +22,12 @@
     </div>
     <div class="tabs-wrapper">
       <div class="tab__header">
-        <div class="tab__header-title">{{ $t('tomorrow.title') }}</div>
-        <DataSet v-if="can('update', 'User')" class="tab-set" v-model="parameters" />
+        <div class="tab__header-title">{{ $t("tomorrow.title") }}</div>
+        <DataSet
+          v-if="can('update', 'User')"
+          class="tab-set"
+          v-model="parameters"
+        />
       </div>
       <div v-for="item in [0, 1, 2]" :key="item" class="tab-content">
         <TomorrowHour

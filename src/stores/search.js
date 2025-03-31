@@ -1,10 +1,10 @@
-
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
 export const useSearchStore = defineStore("search", () => {
-  const search = ref("Orel");
-  const searchSuccess = ref("Orel");
+  const search = ref("auto:ip");
+  const searchSuccess = ref();
+  const lastSearch = ref();
 
   const loading = ref(false);
   const historyLoading = ref(false);
@@ -18,7 +18,12 @@ export const useSearchStore = defineStore("search", () => {
   const maxTemp = ref();
   const minTemp = ref();
 
-  const lastSearch = ref("Orel"); 
+  const setCityDefault = (city) => {
+    if (city) {
+      search.value = city;
+    }
+  };
+
   return {
     search,
     loading,
@@ -31,6 +36,7 @@ export const useSearchStore = defineStore("search", () => {
     astroInfo,
     maxTemp,
     minTemp,
-    lastSearch
+    lastSearch,
+    setCityDefault,
   };
 });

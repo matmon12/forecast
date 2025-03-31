@@ -9,7 +9,7 @@
     @to-back="onToBack"
     class="error-wrapper"
   />
-  
+
   <div v-else class="history">
     <Breadcrumb :model="breadCrumbItems" />
     <div class="history__content">

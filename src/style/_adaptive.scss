@@ -92,6 +92,37 @@
             width: 300px;
         }
     }
+    .xs3,
+    .xs4 {
+        .search-autocomplete-list {
+            @include Scroll(5px, 5px, var(--grey-910), var(--grey-360));
+        }
+        .search-autocomplete-list-name {
+            font-size: 15px;
+            line-height: 1;
+        }
+        .search-autocomplete-list-country {
+            font-size: 13px;
+        }
+        .search-autocomplete-overlay {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        .search-autocomplete-option-wrap {
+            align-items: center;
+        }
+    }
+    .xs4 {
+        .search-autocomplete-list {
+            padding: 0 5px 0 10px;
+        }
+        .search-autocomplete-list-name {
+            font-size: 14px;
+        }
+        .search-autocomplete-option {
+            padding: 5px;
+        }
+    }
 }
 @mixin Panel() {
     .xs3,
@@ -2154,19 +2185,19 @@
 @mixin Setting() {
     .xs3,
     .xs4 {
-        .setting-title{
+        .setting-title {
             font-size: 24px;
             margin-bottom: 10px;
         }
-        .setting__parameters{
+        .setting__parameters {
             row-gap: 15px;
         }
-        .setting__content{
+        .setting__content {
             padding: 15px;
         }
     }
-    .xs4{
-        .setting-title{
+    .xs4 {
+        .setting-title {
             font-size: 22px;
         }
     }
