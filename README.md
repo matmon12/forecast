@@ -57,6 +57,7 @@ hourly forecast for 3 days, a page with weather news and more. There is an authe
 :heavy_check_mark: Selecting a data set for a table;\
 :heavy_check_mark: Autocomplete for city search;\
 :heavy_check_mark: Adding a default city;\
+:heavy_check_mark: Ability to swap cards on the main page;\
 :heavy_check_mark: Adaptive;\
 :heavy_check_mark: Internationalization.
 
@@ -87,6 +88,7 @@ The following tools were used in this project:
 - [Vue-resize](https://github.com/Akryum/vue-resize)
 - [Vue-router](https://router.vuejs.org/)
 - [Vue I18n](https://vue-i18n.intlify.dev/)
+- [Swapy](https://swapy.tahazsh.com/)
 
 ## :white_check_mark: Requirements
 
