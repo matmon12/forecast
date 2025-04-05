@@ -20,6 +20,7 @@ export const useSearchStore = defineStore("search", () => {
 
   const setCityDefault = (city) => {
     if (city) {
+      curWeather.value = null;
       search.value = city;
     }
   };

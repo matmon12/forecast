@@ -39,6 +39,13 @@
         </div>
       </div>
     </div>
+    <div class="setting__content">
+      <h1 class="setting-title">{{ $t("setting.order.title") }}</h1>
+      <p class="setting-text">
+        {{ $t("setting.order.description") }}
+      </p>
+      <button @click="enableDragMode()" class="setting-btn">{{ $t('buttons.gohome') }}</button>
+    </div>
   </div>
 </template>
 
@@ -48,6 +55,7 @@ import { getClasses } from "@/utils/classes";
 import { useSettingStore } from "@/stores/setting";
 import { useAuthStore } from "@/stores/auth";
 import { updateToDB } from "@/server/users";
+import router from "@/router/router";
 
 const t = inject("t");
 const settingStore = useSettingStore();
@@ -107,6 +115,11 @@ const saveUnitsUser = async (value) => {
     loading.value = false;
   }
 };
+
+const enableDragMode = () => {
+  router.push({ name: "Home" });
+  settingStore.isDraggable = true;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -117,6 +130,9 @@ const saveUnitsUser = async (value) => {
 }
 .setting__content {
   @include Card();
+  & + & {
+    margin-top: 15px;
+  }
 }
 .setting-title {
   font-size: 28px;
@@ -147,6 +163,33 @@ const saveUnitsUser = async (value) => {
 }
 .setting__list-label {
   line-height: 1.2;
+}
+
+.setting-text {
+  margin-bottom: 15px;
+}
+
+.setting-btn {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  line-height: 1;
+  border-radius: 7px;
+  padding: 0 10px;
+  color: var(--black-3);
+  font-weight: 500;
+  transition: background-color 0.3s, color 0.3s, filter 0.3s;
+  height: 35px;
+
+  background-color: var(--blue-360);
+  &:not(:disabled):hover {
+    filter: brightness(1.1);
+  }
+  &:disabled {
+    opacity: 0.7;
+    cursor: default;
+  }
 }
 
 :deep(.setting-radiobutton) {

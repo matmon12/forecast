@@ -146,3 +146,5 @@ export const getUsername = (email) => {
 };
 
 export const getKeyTag = (tag) => tag && tag.toLowerCase().split(" ").join("_");
+
+export const isMobileAndTablet = /Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent);

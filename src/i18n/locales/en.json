@@ -46,7 +46,8 @@
         "clear": "Clear",
         "export": "Export",
         "home": "Home",
-        "dataset": "Data set"
+        "dataset": "Data set",
+        "gohome": "Home"
     },
     "panel": {
         "profile": "Profile",
@@ -372,6 +373,9 @@
         "address": {
             "save": "The city has not been saved!",
             "delete": "The city is not removed!"
+        },
+        "order": {
+            "save": "Changes not saved!"
         }
     },
     "success": {
@@ -402,6 +406,9 @@
         "city": {
             "save": "The city has been successfully saved!",
             "delete": "The city has been successfully removed!"
+        },
+        "order": {
+            "save": "The design has been successfully changed!"
         }
     },
     "valid": {
@@ -569,7 +576,11 @@
     },
     "setting": {
         "title": "Setting",
-        "favorite_address": "Set default city"
+        "favorite_address": "Set default city",
+        "order": {
+            "title": "Order of cards",
+            "description": "You can change the order of the weather cards by going to the main page and start dragging the cards by holding down the drag buttons at the top left (on mobile and tablet devices, hold the card for a few seconds, then start dragging)."
+        }
     },
     "units": {
         "title": "Units of Measurement",

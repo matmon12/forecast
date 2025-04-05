@@ -1,14 +1,24 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { getFarTemp, mbToMmHg, kphToMph } from "@/utils";
+import { utils } from "swapy";
 
 export const useSettingStore = defineStore("setting", () => {
   const savedAddress = ref();
-  const units = ref({
+  const defaultUnits = {
     temp: "temp_c",
     wind: "wind_mps",
     pressure: "pressure_mmHg",
-  });
+  };
+  const units = ref({ ...defaultUnits });
+  const cards = ref([
+    { id: "1", title: "today" },
+    { id: "2", title: "highlight" },
+    { id: "3", title: "sun" },
+    { id: "4", title: "moon" },
+  ]);
+  const slotItemMap = ref(utils.initSlotItemMap(cards.value, "id"));
+  const isDraggable = ref(false);
 
   const getTemp = (temp) => {
     if (typeof temp === "number") {
@@ -58,6 +68,18 @@ export const useSettingStore = defineStore("setting", () => {
     }
   };
 
+  const getOrderUser = (order) => {
+    if (order) {
+      slotItemMap.value = JSON.parse(order);
+    }
+  };
+
+  const resetSetting = () => {
+    slotItemMap.value = utils.initSlotItemMap(cards.value, "id");
+    units.value = { ...defaultUnits };
+    savedAddress.value = null;
+  };
+
   return {
     units,
     savedAddress,
@@ -69,5 +91,10 @@ export const useSettingStore = defineStore("setting", () => {
     getUnitPressure,
     getUnitsUser,
     getAddressUser,
+    getOrderUser,
+    slotItemMap,
+    isDraggable,
+    cards,
+    resetSetting,
   };
 });

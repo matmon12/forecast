@@ -220,6 +220,70 @@
 
 // Home
 @mixin Home() {
+    .md,
+    .lg,
+    .xl {
+        .summary {
+            &.is-high {
+                :deep(.summary__img-wrap) {
+                    height: 100%;
+                    &::after {
+                        height: 50%;
+                    }
+                }
+            }
+        }
+
+        .sunset-wrap {
+            &.is-high {
+                flex-direction: column;
+                :deep(.sun__aside) {
+                    width: 100%;
+                    flex-direction: row;
+                    height: auto;
+                    align-items: center;
+                }
+            }
+        }
+
+        .moon-wrap {
+            &.is-high {
+                flex-direction: column;
+                :deep(.moon__aside) {
+                    flex-direction: row;
+                    min-width: 100%;
+                    height: auto;
+                    align-items: center;
+                    justify-content: space-around;
+                }
+                :deep(.moon__info) {
+                    justify-content: center;
+                    gap: 10px;
+                }
+                :deep(.moon-picture) {
+                    align-items: center;
+                    flex-grow: 1;
+                }
+                :deep(.moon__content) {
+                    flex-direction: column;
+                    align-items: center;
+                }
+            }
+        }
+    }
+
+    .md {
+        .card-slot {
+            &:nth-child(1) {
+                grid-row-start: 1;
+                grid-row-end: 19;
+            }
+            &:nth-child(3) {
+                grid-row-start: 19;
+            }
+        }
+    }
+
     .sm,
     .xs,
     .xs2,
@@ -228,22 +292,51 @@
         .home {
             grid-template-rows: auto;
         }
-        .highlight {
-            grid-row-start: auto;
-            grid-row-end: auto;
-            grid-column: 1/4;
+        .card-slot {
+            &:nth-child(1) {
+                grid-row-start: auto;
+                grid-row-end: auto;
+                grid-column: 1/4;
+            }
+            &:nth-child(2) {
+                grid-row-start: auto;
+                grid-row-end: auto;
+                grid-column: 1/4;
+            }
+            &:nth-child(3) {
+                grid-row-start: auto;
+                grid-row-end: auto;
+                grid-column: 1/4;
+            }
+            &:nth-child(4) {
+                grid-row-start: auto;
+                grid-row-end: auto;
+                grid-column: 1/4;
+            }
         }
     }
     .sm2 {
         .home {
             grid-template-rows: auto;
-            grid-template-columns: repeat(3, 1fr);
-        }
-        .highlight {
-            grid-row-start: 1;
-            grid-row-end: 4;
-            grid-column: 3/4;
             grid-template-columns: 1fr;
+        }
+        .card-slot {
+            &:nth-child(1) {
+                grid-row-start: auto;
+                grid-row-end: auto;
+            }
+            &:nth-child(2) {
+                grid-row-start: auto;
+                grid-row-end: auto;
+            }
+            &:nth-child(3) {
+                grid-row-start: auto;
+                grid-row-end: auto;
+            }
+            &:nth-child(4) {
+                grid-row-start: auto;
+                grid-row-end: auto;
+            }
         }
     }
     .xs3,
@@ -393,23 +486,12 @@
     .xs2,
     .xs3,
     .xs4 {
-        .moon-wrap {
-            grid-row-start: auto;
-            grid-row-end: auto;
-            grid-column: 1/4;
-        }
         .moon__info {
             justify-content: flex-start;
             gap: 10px;
         }
     }
-    .sm2 {
-        .moon-wrap {
-            grid-row-start: auto;
-            grid-row-end: auto;
-            grid-column: 1/3;
-        }
-    }
+
     .xs3,
     .xs4 {
         .moon {
@@ -498,21 +580,11 @@
     }
 }
 @mixin Sunset() {
-    .md {
-        .sunset-wrap {
-            grid-row-start: 19;
-        }
-    }
     .sm,
     .xs,
     .xs2,
     .xs3,
     .xs4 {
-        .sunset-wrap {
-            grid-row-start: auto;
-            grid-row-end: auto;
-            grid-column: 1/4;
-        }
         .sun__aside {
             gap: 18px;
         }
@@ -522,11 +594,6 @@
         }
     }
     .sm2 {
-        .sunset-wrap {
-            grid-row-start: auto;
-            grid-row-end: auto;
-            grid-column: 1/3;
-        }
         .sun__aside {
             gap: 18px;
         }
@@ -584,34 +651,13 @@
 }
 @mixin TodayWeather() {
     .md {
-        .card-item:nth-child(1) {
-            grid-row-start: 1;
-            grid-row-end: 19;
-        }
         .summary__img-wrap {
             height: 150px;
             max-width: 210px;
             flex-grow: 1;
         }
     }
-    .sm,
-    .xs,
-    .xs2,
-    .xs3,
-    .xs4 {
-        .card-item:nth-child(1) {
-            grid-row-start: auto;
-            grid-row-end: auto;
-            grid-column: 1/4;
-        }
-    }
-    .sm2 {
-        .card-item:nth-child(1) {
-            grid-row-start: auto;
-            grid-row-end: auto;
-            grid-column: 1/3;
-        }
-    }
+
     .xs,
     .xs2,
     .xs3,

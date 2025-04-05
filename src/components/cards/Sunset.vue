@@ -200,6 +200,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 15px;
 }
 .sun__aside-item {
 }

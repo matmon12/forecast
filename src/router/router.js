@@ -156,6 +156,7 @@ router.beforeEach(async (to, from, next) => {
     await authStore.getUserInfo();
     settingStore.getUnitsUser(authStore.user?.units);
     settingStore.getAddressUser(authStore.user?.address);
+    settingStore.getOrderUser(authStore.user?.order);
     searchStore.setCityDefault(authStore.user?.address?.city);
   }
 

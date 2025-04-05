@@ -6,9 +6,11 @@ import { useToast } from "primevue/usetoast";
 import { getDocFromDB } from "@/server/users";
 import { ability, defineAbilityFor } from "../services/ability";
 import { useI18n } from "vue-i18n";
+import {useSettingStore} from "@/stores/setting";
 
 export const useAuthStore = defineStore("auth", () => {
   const toast = useToast();
+  const settingStore = useSettingStore();
   const { t } = useI18n();
 
   const user = ref();
@@ -27,6 +29,10 @@ export const useAuthStore = defineStore("auth", () => {
         uid.value = null;
         user.value = null;
         localStorage.removeItem("auth");
+
+        // сброс настроек
+        settingStore.resetSetting();
+
 
         toast.add({
           severity: "success",

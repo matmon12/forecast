@@ -241,6 +241,7 @@ img {
   box-shadow: 0 0 10px #00000035;
   display: flex;
   flex-direction: column;
+  justify-content: space-around;
   gap: 20px;
 }
 .moon__aside-item {
